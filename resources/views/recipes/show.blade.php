@@ -4,6 +4,13 @@
     <div class="container py-5">
         <div class="row">
             <div class="col-md-8">
+                <nav aria-label="breadcrumb" class="mb-2">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ data_get($recipe, 'title') }}</li>
+                    </ol>
+                </nav>
                 <h1 class="display-6">{{ data_get($recipe, 'title') }}</h1>
                 @php $tags = data_get($recipe, 'tags'); @endphp
                 <p class="text-muted">
@@ -11,10 +18,8 @@
                         @foreach($tags as $t)
                             <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none small me-1">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
                         @endforeach
-                    @elseif(data_get($recipe, 'category'))
-                        {{ ucfirst(data_get($recipe, 'category')) }}
                     @endif
-                    · {{ data_get($recipe, 'time') ?? '' }}
+                    {{ data_get($recipe, 'time') ?? '' }}
                 </p>
                 <p class="lead">{{ data_get($recipe, 'excerpt') }}</p>
 
@@ -31,19 +36,17 @@
                                 @foreach($tags as $t)
                                     <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none me-2">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
                                 @endforeach
-                            @else
-                                {{ ucfirst(data_get($recipe, 'category')) }}
-                            @endif
+                           @endif
                         </p>
                         <p class="mb-1"><strong>Prep time:</strong> {{ data_get($recipe, 'time') ?? '—' }}</p>
-                        <div class="d-flex gap-2">
-                            <a href="{{ url('/recipes') }}" class="btn btn-sm btn-link">Back to recipes</a>
-                            <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
 
-                            <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST">
+                        <div class="d-flex gap-2 align-items-center">
+                            <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary px-3">Edit</a>
+
+                            <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="mb-0">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
+                                <button class="btn btn-sm btn-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
                             </form>
                         </div>
                     </div>

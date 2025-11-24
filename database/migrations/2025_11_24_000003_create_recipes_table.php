@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
-            $table->string('category')->nullable();
             $table->string('image')->nullable();
             $table->string('time')->nullable();
             $table->decimal('rating', 3, 1)->nullable();

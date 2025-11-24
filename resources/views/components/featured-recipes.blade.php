@@ -7,35 +7,7 @@
         try {
             $items = \App\Models\Recipe::with('tags')->orderBy('created_at', 'desc')->take($count)->get();
         } catch (\Throwable $e) {
-            $items = collect([
-                (object)[
-                    'title' => 'Smashed Avocado Toast',
-                    'image' => 'https://images.unsplash.com/photo-1512058564366-c9e3f0a0a6b7?w=800&q=60&auto=format&fit=crop',
-                    'excerpt' => 'Creamy smashed avocado with lemon, olive oil and chili flakes — a simple morning favorite.',
-                    'id' => null,
-                    'category' => 'breakfast',
-                    'time' => '10 mins',
-                    'rating' => '4.8',
-                ],
-                (object)[
-                    'title' => 'Creamy Lemon Pasta',
-                    'image' => 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=60&auto=format&fit=crop',
-                    'excerpt' => 'Bright lemon, parmesan and fresh herbs make this a weeknight staple.',
-                    'id' => null,
-                    'category' => 'dinner',
-                    'time' => '20 mins',
-                    'rating' => '4.7',
-                ],
-                (object)[
-                    'title' => 'Decadent Chocolate Cake',
-                    'image' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=60&auto=format&fit=crop',
-                    'excerpt' => 'Rich chocolate layers with silky frosting — perfect for celebrations.',
-                    'id' => null,
-                    'category' => 'dessert',
-                    'time' => '1 hr',
-                    'rating' => '4.9',
-                ],
-            ]);
+            throw $e;
         }
     } else {
         $items = collect($recipes);
@@ -80,10 +52,15 @@
                                 <span class="text-muted">• {{ data_get($r, 'time') }}</span>
                             @endif
                         </x-slot>
-                    @else
+                        @else
                         @if(data_get($r, 'meta') || data_get($r, 'time'))
                             <x-slot name="meta_slot">
-                                {{ data_get($r, 'meta') ?? (data_get($r,'category') ? ucfirst(data_get($r,'category')).' • '.(data_get($r,'time') ?? '') : null) }}
+                                @if(data_get($r, 'meta'))
+                                    {{ data_get($r, 'meta') }}
+                                @endif
+                                @if(data_get($r, 'time'))
+                                    <span class="text-muted"> • {{ data_get($r, 'time') }}</span>
+                                @endif
                             </x-slot>
                         @endif
                     @endif

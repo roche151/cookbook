@@ -12,7 +12,6 @@ class Recipe extends Model
         'title',
         'slug',
         'excerpt',
-        'category',
         'image',
         'time',
         'rating',

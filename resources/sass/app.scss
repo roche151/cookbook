@@ -1,0 +1,20 @@
+// Bootstrap SCSS entry using the new module system (@use)
+// Provide variable overrides to Bootstrap with the `with` clause.
+// Local app variables (used by both this stylesheet and passed to Bootstrap)
+$app-body-bg: #fdfdfc;
+$app-font-family: ('Instrument Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Noto Color Emoji");
+
+@use "bootstrap" with (
+  $body-bg: $app-body-bg,
+  $font-family-sans-serif: $app-font-family
+);
+
+/* Project custom styles */
+:root {
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+body {
+  font-family: $app-font-family;
+  background-color: $app-body-bg;
+}

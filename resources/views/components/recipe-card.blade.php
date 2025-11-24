@@ -1,41 +1,41 @@
 @props(['title', 'image' => null, 'excerpt' => null, 'href' => null, 'meta' => null, 'rating' => null])
 
-<div class="card h-100">
-    @if($image)
-        <img src="{{ $image }}" class="card-img-top" alt="{{ $title }}">
-    @endif
-    <div class="card-body d-flex flex-column">
-        <h5 class="card-title">{{ $title }}</h5>
-        @if($meta)
-            <p class="text-muted small">{{ $meta }}</p>
-        @endif
-        @if($excerpt)
-            <p class="card-text flex-grow-1">{{ $excerpt }}</p>
-        @endif
-        <div class="mt-3 text-end">
-            @if($href)
-                <a href="{{ $href }}" class="btn btn-sm btn-primary">View</a>
-            @endif
-        </div>
-    </div>
-</div>
-@props(['title' => '', 'image' => null, 'excerpt' => '', 'href' => '#', 'meta' => null, 'rating' => null])
-
 <div class="card h-100 shadow-sm">
+    {{-- Image area with fixed height to keep all cards equal height --}}
     @if($image)
-        <img src="{{ $image }}" class="card-img-top" alt="{{ $title }}" style="height:180px; object-fit:cover;">
+        <div style="height:180px; overflow:hidden;">
+            <img src="{{ $image }}" alt="{{ $title }}" class="w-100 h-100" style="object-fit:cover; display:block;">
+        </div>
+    @else
+        <div class="bg-light d-flex align-items-center justify-content-center" style="height:180px;">
+            <span class="text-muted">No image</span>
+        </div>
     @endif
+
     <div class="card-body d-flex flex-column">
-        <h5 class="card-title mb-1">{{ $title }}</h5>
+        <h5 class="card-title mb-2">{{ $title }}</h5>
         @if($meta)
             <p class="text-muted small mb-2">{{ $meta }}</p>
         @endif
-        <p class="card-text text-muted mb-3">{{ $excerpt }}</p>
-        <div class="mt-auto d-flex justify-content-between align-items-center">
-            <a href="{{ $href }}" class="btn btn-sm btn-outline-primary">View</a>
-            @if($rating)
-                <div class="text-warning small"><i class="fa-solid fa-star"></i> {{ $rating }}</div>
-            @endif
+
+        @if($excerpt)
+            <p class="card-text mb-3" style="flex:1 1 auto;">{{ $excerpt }}</p>
+        @else
+            <div style="flex:1 1 auto;"></div>
+        @endif
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                @if($rating)
+                    <small class="text-warning">⭐ {{ number_format((float)$rating, 1) }}</small>
+                @endif
+            </div>
+            <div>
+                @if($href)
+                    <a href="{{ $href }}" class="btn btn-sm btn-primary">View</a>
+                @endif
+            </div>
         </div>
     </div>
 </div>
+

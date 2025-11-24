@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Recipe;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class RecipeFactory extends Factory
+{
+    protected $model = Recipe::class;
+
+    public function definition()
+    {
+        $title = $this->faker->sentence(3);
+        $category = $this->faker->randomElement(['breakfast','lunch','dinner','dessert','vegetarian']);
+        return [
+            'title' => $title,
+            'slug' => Str::slug($title).'-'.Str::random(5),
+            'excerpt' => $this->faker->paragraph(),
+            'category' => $category,
+            'image' => 'https://source.unsplash.com/featured/?food,'.rand(1,1000),
+            'time' => $this->faker->randomElement(['10 min','20 min','30 min','45 min','1 hr']),
+            'rating' => $this->faker->randomFloat(1, 3.5, 5.0),
+        ];
+    }
+}

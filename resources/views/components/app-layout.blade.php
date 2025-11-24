@@ -15,6 +15,13 @@
         /* Sidebar width used for layout offset */
         .app-sidebar { width: 250px; }
 
+        /* Ensure delete buttons use Bootstrap danger color across themes */
+        .btn-danger {
+            background-color: var(--bs-danger) !important;
+            border-color: var(--bs-danger) !important;
+            color: #fff !important;
+        }
+
         @media (min-width: 768px) {
             /* Push page content to the right of the fixed sidebar */
             body { padding-left: 250px; }
@@ -58,6 +65,10 @@
     @if (!(file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'))))
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     @endif
+    <!-- When Vite bundle exists, jQuery and Bootbox are bundled in `resources/js/app.js`.
+         No CDN for jQuery/Bootbox to keep dependencies local. If you need a non-bundled fallback,
+         we can add a minimal native confirm instead. -->
+
     @stack('scripts')
 </body>
 </html>

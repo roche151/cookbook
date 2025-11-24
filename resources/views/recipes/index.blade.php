@@ -4,9 +4,7 @@
     <div class="container py-5">
         <h1 class="h3 mb-3">Recipes</h1>
 
-        @if(session('status'))
-            <div class="alert alert-success">{{ session('status') }}</div>
-        @endif
+        {{-- status alert is displayed in the main app layout; avoid duplicate here --}}
 
         <form action="{{ url('/recipes') }}" method="GET" class="mb-4">
             <div class="input-group">

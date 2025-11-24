@@ -18,10 +18,10 @@
             <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'id')) }}" class="btn btn-sm btn-primary">View</a>
             <a href="{{ route('recipes.edit', data_get($recipe, 'id')) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
 
-            <form action="{{ route('recipes.destroy', data_get($recipe, 'id')) }}" method="POST" onsubmit="return confirm('Delete this recipe?');">
+            <form action="{{ route('recipes.destroy', data_get($recipe, 'id')) }}" method="POST">
                 @csrf
                 @method('DELETE')
-                <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                <button class="btn btn-sm btn-danger js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
             </form>
         </div>
     </div>

@@ -39,7 +39,7 @@
                 <x-recipe-card
                     :title="data_get($r, 'title')"
                     :image="data_get($r, 'image')"
-                    :excerpt="data_get($r, 'excerpt')"
+                    :description="data_get($r, 'description')"
                     :href="data_get($r, 'href') ?? (data_get($r, 'id') ? url('/recipes/'.data_get($r,'id')) : null)"
                     :rating="data_get($r, 'rating')"
                 >

@@ -4,7 +4,11 @@
     <div class="container py-5">
         <h1 class="h3 mb-3">Recipes</h1>
 
-        {{-- status alert is displayed in the main app layout; avoid duplicate here --}}
+        <div class="mb-3">
+            <a href="/recipes/create" class="btn btn-outline-primary me-2">
+                <i class="fa-solid fa-plus me-2"></i>Create Recipe
+            </a>
+        </div>
 
         <form action="{{ url('/recipes') }}" method="GET" class="mb-4">
             <div class="input-group">

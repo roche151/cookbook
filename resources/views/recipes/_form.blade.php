@@ -59,14 +59,9 @@
         <input name="time" class="form-control" value="{{ old('time', optional($recipe)->time) }}" placeholder="e.g. 20 min">
     </div>
 
-    <div class="col-md-4">
-        <label class="form-label">Rating (optional)</label>
-        <input name="rating" type="number" step="0.1" min="0" max="5" class="form-control" value="{{ old('rating', optional($recipe)->rating) }}" placeholder="0.0 - 5.0">
-    </div>
-
     <div class="col-12">
-        <label class="form-label">Excerpt</label>
-        <textarea name="excerpt" class="form-control" rows="4">{{ old('excerpt', optional($recipe)->excerpt) }}</textarea>
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="4">{{ old('description', optional($recipe)->description) }}</textarea>
     </div>
 
     <div class="col-12">

@@ -21,7 +21,7 @@
                     @endif
                     {{ data_get($recipe, 'time') ?? '' }}
                 </p>
-                <p class="lead">{{ data_get($recipe, 'excerpt') }}</p>
+                <p class="lead">{{ data_get($recipe, 'description') }}</p>
 
                 <hr>
                 <h5>Directions</h5>
@@ -38,27 +38,29 @@
                 @endif
             </div>
             <div class="col-md-4">
+                <div class="d-flex gap-2 align-items-center mb-2">
+                    <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary px-3">Edit</a>
+
+                    <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="mb-0">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-sm btn-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
+                    </form>
+                </div>
                 <div class="card">
                     <div class="card-body">
-                        <h6>Quick info</h6>
-                        <p class="mb-1"><strong>Tags:</strong>
-                            @if($tags && is_iterable($tags) && count($tags))
-                                @foreach($tags as $t)
-                                    <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none me-2">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
+                        <h6>Ingredients</h6>
+                        @if($recipe->ingredients && $recipe->ingredients->count())
+                            <ul class="list-group mb-0">
+                                @foreach($recipe->ingredients as $ingredient)
+                                    <li class="list-group-item">
+                                        {!! nl2br(e($ingredient->body)) !!}
+                                    </li>
                                 @endforeach
-                           @endif
-                        </p>
-                        <p class="mb-1"><strong>Prep time:</strong> {{ data_get($recipe, 'time') ?? '—' }}</p>
-
-                        <div class="d-flex gap-2 align-items-center">
-                            <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary px-3">Edit</a>
-
-                            <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="mb-0">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
-                            </form>
-                        </div>
+                            </ul>
+                        @else
+                            <p class="text-muted">No ingredients provided for this recipe.</p>
+                        @endif
                     </div>
                 </div>
             </div>

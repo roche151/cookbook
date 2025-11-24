@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             $recipes = [
                 [
                     'title' => 'Spaghetti Carbonara',
-                    'excerpt' => 'Classic Roman pasta with eggs, pecorino, pancetta and black pepper.',
+                    'description' => 'Classic Roman pasta with eggs, pecorino, pancetta and black pepper.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1677000666741-17c3c57139a2?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '25 min',
                     'rating' => 4.7,
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Margherita Pizza',
-                    'excerpt' => 'Neapolitan-style pizza topped with tomato, fresh mozzarella and basil.',
+                    'description' => 'Neapolitan-style pizza topped with tomato, fresh mozzarella and basil.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1667682942148-a0c98d1d70db?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '1 hr',
                     'rating' => 4.8,
@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Chicken Tikka Masala',
-                    'excerpt' => 'Tender chicken pieces in a creamy, spiced tomato sauce.',
+                    'description' => 'Tender chicken pieces in a creamy, spiced tomato sauce.',
                     'image' => 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '45 min',
                     'rating' => 4.6,
@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Beef Bourguignon',
-                    'excerpt' => 'Slow-braised beef in red wine with mushrooms and pearl onions.',
+                    'description' => 'Slow-braised beef in red wine with mushrooms and pearl onions.',
                     'image' => 'https://images.unsplash.com/photo-1548946526-f69e2424cf45?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.0',
                     'time' => '3 hr',
                     'rating' => 4.9,
@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Pad Thai',
-                    'excerpt' => 'Stir-fried rice noodles with tamarind, prawns, tofu and peanuts.',
+                    'description' => 'Stir-fried rice noodles with tamarind, prawns, tofu and peanuts.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1664472637341-3ec829d1f4df?q=80&w=725&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '30 min',
                     'rating' => 4.5,
@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Caesar Salad',
-                    'excerpt' => 'Crisp romaine with creamy Caesar dressing, croutons and parmesan.',
+                    'description' => 'Crisp romaine with creamy Caesar dressing, croutons and parmesan.',
                     'image' => 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.0',
                     'time' => '15 min',
                     'rating' => 4.2,
@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Chocolate Brownies',
-                    'excerpt' => 'Fudgy, chocolatey brownies with a crackly top.',
+                    'description' => 'Fudgy, chocolatey brownies with a crackly top.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1671379529629-6480c4953d14?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '40 min',
                     'rating' => 4.9,
@@ -86,7 +86,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'French Onion Soup',
-                    'excerpt' => 'Caramelized onion broth topped with toasted bread and melted gruyère.',
+                    'description' => 'Caramelized onion broth topped with toasted bread and melted gruyère.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1727960325953-ef51e51d73f1?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '1 hr',
                     'rating' => 4.4,
@@ -94,7 +94,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Sushi Platter',
-                    'excerpt' => 'Assorted nigiri and maki rolls with fresh fish and seasoned rice.',
+                    'description' => 'Assorted nigiri and maki rolls with fresh fish and seasoned rice.',
                     'image' => 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.0',
                     'time' => '1 hr',
                     'rating' => 4.8,
@@ -102,7 +102,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Fish and Chips',
-                    'excerpt' => 'Crispy beer-battered fish with golden fries and tartar sauce.',
+                    'description' => 'Crispy beer-battered fish with golden fries and tartar sauce.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1694108747175-889fdc786003?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '35 min',
                     'rating' => 4.3,
@@ -110,7 +110,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Tacos al Pastor',
-                    'excerpt' => 'Marinated pork tacos with pineapple, onion and cilantro.',
+                    'description' => 'Marinated pork tacos with pineapple, onion and cilantro.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1681406994521-82c20814605d?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '50 min',
                     'rating' => 4.7,
@@ -118,7 +118,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'title' => 'Vegetable Stir Fry',
-                    'excerpt' => 'Quick wok-fried seasonal vegetables in a savory soy-ginger sauce.',
+                    'description' => 'Quick wok-fried seasonal vegetables in a savory soy-ginger sauce.',
                     'image' => 'https://plus.unsplash.com/premium_photo-1664478238082-3df93e48c491?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.1.0',
                     'time' => '20 min',
                     'rating' => 4.1,

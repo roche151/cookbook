@@ -12,10 +12,9 @@ class Recipe extends Model
     protected $fillable = [
         'title',
         'slug',
-        'excerpt',
+        'description',
         'image',
         'time',
-        'rating',
     ];
 
     public function tags()

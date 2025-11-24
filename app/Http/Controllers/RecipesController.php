@@ -35,7 +35,7 @@ class RecipesController extends Controller
         if ($q) {
             $query->where(function ($qbuilder) use ($q) {
                 $qbuilder->where('title', 'like', "%{$q}%")
-                    ->orWhere('excerpt', 'like', "%{$q}%");
+                    ->orWhere('description', 'like', "%{$q}%");
             });
         }
 
@@ -70,14 +70,13 @@ class RecipesController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'excerpt' => 'required|string',
+            'description' => 'required|string',
             'image' => 'nullable|url|max:255',
             'time' => 'nullable|string|max:50',
-            'rating' => 'nullable|numeric|min:0|max:5',
             'tags' => 'required|array|min:1',
-            'directions' => 'nullable|array',
+            'directions' => 'required|array|min:1',
             'directions.*.body' => 'required|string',
-            'directions.*.sort_order' => 'nullable|integer',
+            'directions.*.sort_order' => 'required|integer',
         ]);
 
         $recipe = null;
@@ -86,7 +85,7 @@ class RecipesController extends Controller
             $recipe = Recipe::create([
                 'title' => $data['title'],
                 'slug' => \Illuminate\Support\Str::slug($data['title']) . '-' . \Illuminate\Support\Str::random(5),
-                'excerpt' => $data['excerpt'] ?? null,
+                'description' => $data['description'] ?? null,
                 'image' => $data['image'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
@@ -120,22 +119,21 @@ class RecipesController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'excerpt' => 'required|string',
+            'description' => 'required|string',
             'image' => 'nullable|url|max:255',
             'time' => 'nullable|string|max:50',
-            'rating' => 'nullable|numeric|min:0|max:5',
             'tags' => 'required|array|min:1',
             'tags.*' => 'exists:tags,id',
-            'directions' => 'nullable|array',
+            'directions' => 'required|array|min:1',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
-            'directions.*.sort_order' => 'nullable|integer',
+            'directions.*.sort_order' => 'required|integer',
         ]);
 
         DB::transaction(function () use ($data, $recipe) {
             $recipe->update([
                 'title' => $data['title'],
-                'excerpt' => $data['excerpt'] ?? null,
+                'description' => $data['description'] ?? null,
                 'image' => $data['image'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,

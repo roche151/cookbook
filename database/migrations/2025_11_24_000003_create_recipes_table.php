@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug')->unique();
-            $table->text('excerpt')->nullable();
+            $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->string('time')->nullable();
             $table->decimal('rating', 3, 1)->nullable();

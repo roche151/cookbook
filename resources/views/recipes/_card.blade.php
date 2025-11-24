@@ -10,7 +10,21 @@
                     <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none small me-1">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a> ·
                 @endforeach
             @endif
-            {{ data_get($recipe, 'time') ?? '' }}</p>
+            @php
+                $displayTime = '';
+                if (is_numeric($recipe->time) && (int)$recipe->time > 0) {
+                    $total = (int)$recipe->time;
+                    $h = intdiv($total, 60);
+                    $m = $total % 60;
+                    $parts = [];
+                    if ($h > 0) $parts[] = $h . ' hour' . ($h === 1 ? '' : 's');
+                    if ($m > 0) $parts[] = $m . ' minute' . ($m === 1 ? '' : 's');
+                    $displayTime = $parts ? implode(' ', $parts) : '';
+                } else {
+                    $displayTime = data_get($recipe, 'time') ?? '';
+                }
+            @endphp
+            {{ $displayTime }}</p>
         <p class="card-text grow">{{ data_get($recipe, 'description') }}</p>
         <div class="mt-3 text-end d-flex justify-content-end gap-2">
             <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'id')) }}" class="btn btn-sm btn-primary">View</a>

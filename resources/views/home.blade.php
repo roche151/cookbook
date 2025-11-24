@@ -31,9 +31,6 @@
 			</div>
 		</div>
 
-
-		<x-featured-recipes />
-
 		<!-- Tags -->
 		<div class="mb-5">
 			<h3 class="h5">Browse by tag</h3>

@@ -19,7 +19,21 @@
                             <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none small me-1">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
                         @endforeach
                     @endif
-                    {{ data_get($recipe, 'time') ?? '' }}
+                    @php
+                        $displayTime = '';
+                        if (is_numeric($recipe->time) && (int)$recipe->time > 0) {
+                            $total = (int)$recipe->time;
+                            $h = intdiv($total, 60);
+                            $m = $total % 60;
+                            $parts = [];
+                            if ($h > 0) $parts[] = $h . ' hour' . ($h === 1 ? '' : 's');
+                            if ($m > 0) $parts[] = $m . ' minute' . ($m === 1 ? '' : 's');
+                            $displayTime = $parts ? implode(' ', $parts) : '';
+                        } else {
+                            $displayTime = data_get($recipe, 'time') ?? '';
+                        }
+                    @endphp
+                    {{ $displayTime }}
                 </p>
                 <p class="lead">{{ data_get($recipe, 'description') }}</p>
 

@@ -55,8 +55,40 @@
     </div>
 
     <div class="col-md-4">
-        <label class="form-label">Time (optional)</label>
-        <input name="time" class="form-control" value="{{ old('time', optional($recipe)->time) }}" placeholder="e.g. 20 min">
+        <label class="form-label">Time</label>
+        @php
+            $timeHoursOld = old('time_hours');
+            $timeMinutesOld = old('time_minutes');
+            $hours = $timeHoursOld !== null ? $timeHoursOld : '';
+            $minutes = $timeMinutesOld !== null ? $timeMinutesOld : '';
+
+            if ($hours === '' && $minutes === '' && !is_null($recipe)) {
+                // If `time` is numeric (stored minutes), convert to hours/minutes.
+                if (is_numeric($recipe->time) && (int)$recipe->time > 0) {
+                    $total = (int)$recipe->time;
+                    $hours = intdiv($total, 60);
+                    $minutes = $total % 60;
+                } elseif ($recipe->time) {
+                    // Fallback: try to parse legacy human-readable strings like "1 hour 20 minutes".
+                    $matches = [];
+                    preg_match('/(?:(\d+)\s*(?:hours?|hrs?|h))?\s*(?:(\d+)\s*(?:minutes?|mins?|m))?/i', $recipe->time, $matches);
+                    $hours = isset($matches[1]) ? $matches[1] : '';
+                    $minutes = isset($matches[2]) ? $matches[2] : '';
+                }
+            }
+        @endphp
+
+        <div class="d-flex gap-2 align-items-center">
+            <div class="input-group" style="width:170px">
+                <input name="time_hours" type="number" min="0" class="form-control" value="{{ $hours }}" placeholder="0" aria-label="Hours">
+                <span class="input-group-text">hours</span>
+            </div>
+
+            <div class="input-group" style="width:170px">
+                <input name="time_minutes" type="number" min="0" max="59" class="form-control" value="{{ $minutes }}" placeholder="0" aria-label="Minutes" oninput="if(this.value==='')return; if(Number(this.value) > 59) this.value = 59; if(Number(this.value) < 0) this.value = 0;">
+                <span class="input-group-text">minutes</span>
+            </div>
+        </div>
     </div>
 
     <div class="col-12">

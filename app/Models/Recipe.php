@@ -17,6 +17,10 @@ class Recipe extends Model
         'time',
     ];
 
+    protected $casts = [
+        'time' => 'integer',
+    ];
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class, 'recipe_tag', 'recipe_id', 'tag_id');

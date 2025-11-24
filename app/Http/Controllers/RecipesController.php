@@ -72,12 +72,20 @@ class RecipesController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|url|max:255',
-            'time' => 'nullable|string|max:50',
+            // Time is required as either hours or minutes (at least one)
+            'time_hours' => 'required_without:time_minutes|integer|min:0',
+            'time_minutes' => 'required_without:time_hours|integer|min:0|max:59',
             'tags' => 'required|array|min:1',
             'directions' => 'required|array|min:1',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
         ]);
+
+        // Save total minutes into the existing `time` column (as integer/string)
+        $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
+        $minutes = isset($data['time_minutes']) ? (int)$data['time_minutes'] : 0;
+        $totalMinutes = ($hours * 60) + $minutes;
+        $data['time'] = $totalMinutes > 0 ? $totalMinutes : null;
 
         $recipe = null;
 
@@ -121,7 +129,9 @@ class RecipesController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|url|max:255',
-            'time' => 'nullable|string|max:50',
+            // Time is required as either hours or minutes (at least one)
+            'time_hours' => 'required_without:time_minutes|integer|min:0',
+            'time_minutes' => 'required_without:time_hours|integer|min:0|max:59',
             'tags' => 'required|array|min:1',
             'tags.*' => 'exists:tags,id',
             'directions' => 'required|array|min:1',
@@ -129,6 +139,12 @@ class RecipesController extends Controller
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
         ]);
+
+        // Save total minutes into the existing `time` column (as integer/string)
+        $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
+        $minutes = isset($data['time_minutes']) ? (int)$data['time_minutes'] : 0;
+        $totalMinutes = ($hours * 60) + $minutes;
+        $data['time'] = $totalMinutes > 0 ? $totalMinutes : null;
 
         DB::transaction(function () use ($data, $recipe) {
             $recipe->update([

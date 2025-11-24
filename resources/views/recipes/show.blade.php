@@ -5,7 +5,17 @@
         <div class="row">
             <div class="col-md-8">
                 <h1 class="display-6">{{ data_get($recipe, 'title') }}</h1>
-                <p class="text-muted">{{ ucfirst(data_get($recipe, 'category')) }} · {{ data_get($recipe, 'time') ?? '' }}</p>
+                @php $tags = data_get($recipe, 'tags'); @endphp
+                <p class="text-muted">
+                    @if($tags && is_iterable($tags) && count($tags))
+                        @foreach($tags as $t)
+                            <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none small me-1">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
+                        @endforeach
+                    @elseif(data_get($recipe, 'category'))
+                        {{ ucfirst(data_get($recipe, 'category')) }}
+                    @endif
+                    · {{ data_get($recipe, 'time') ?? '' }}
+                </p>
                 <p class="lead">{{ data_get($recipe, 'excerpt') }}</p>
 
                 <hr>
@@ -16,7 +26,15 @@
                 <div class="card">
                     <div class="card-body">
                         <h6>Quick info</h6>
-                        <p class="mb-1"><strong>Category:</strong> {{ ucfirst(data_get($recipe, 'category')) }}</p>
+                        <p class="mb-1"><strong>Tags:</strong>
+                            @if($tags && is_iterable($tags) && count($tags))
+                                @foreach($tags as $t)
+                                    <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none me-2">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
+                                @endforeach
+                            @else
+                                {{ ucfirst(data_get($recipe, 'category')) }}
+                            @endif
+                        </p>
                         <p class="mb-1"><strong>Prep time:</strong> {{ data_get($recipe, 'time') ?? '—' }}</p>
                         <a href="{{ url('/recipes') }}" class="btn btn-sm btn-link">Back to recipes</a>
                     </div>

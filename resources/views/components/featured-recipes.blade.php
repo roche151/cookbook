@@ -5,7 +5,7 @@
     // otherwise load from DB with a static fallback when DB isn't available.
     if (is_null($recipes)) {
         try {
-            $items = \App\Models\Recipe::orderBy('created_at', 'desc')->take($count)->get();
+            $items = \App\Models\Recipe::with('tags')->orderBy('created_at', 'desc')->take($count)->get();
         } catch (\Throwable $e) {
             $items = collect([
                 (object)[
@@ -64,12 +64,33 @@
     <div class="row g-4 mb-5">
         @foreach($items as $r)
             <div class="{{ $colClass }}">
+                @php
+                    // Build category links if the recipe has a categories relation
+                    $metaHtml = null;
+                    $catNames = null;
+                    try {
+                        if (isset($r->tags) && is_iterable($r->tags) && count($r->tags)) {
+                            $parts = [];
+                            foreach ($r->tags as $c) {
+                                $parts[] = '<a href="/recipes?tag=' . urlencode($c->name) . '" class="small text-decoration-none me-2">' . e($c->name) . '</a>';
+                            }
+                            $metaHtml = implode('', $parts) . ($r->time ? ' <span class="text-muted">• ' . e($r->time) . '</span>' : '');
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore, fallback to existing meta
+                    }
+
+                    if (!$metaHtml) {
+                        $metaHtml = data_get($r, 'meta') ?? (data_get($r,'category') ? ucfirst(data_get($r,'category')).' • '.(data_get($r,'time') ?? '') : null);
+                    }
+                @endphp
+
                 <x-recipe-card
                     :title="data_get($r, 'title')"
                     :image="data_get($r, 'image')"
                     :excerpt="data_get($r, 'excerpt')"
                     :href="data_get($r, 'href') ?? (data_get($r, 'id') ? url('/recipes/'.data_get($r,'id')) : null)"
-                    :meta="data_get($r, 'meta') ?? (data_get($r,'category') ? ucfirst(data_get($r,'category')).' • '.(data_get($r,'time') ?? '') : null)"
+                    :meta_html="$metaHtml"
                     :rating="data_get($r, 'rating')"
                 />
             </div>

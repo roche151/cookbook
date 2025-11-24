@@ -18,8 +18,10 @@ class Recipe extends Model
         'rating',
     ];
 
-    public function categories()
+    public function tags()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Tag::class, 'recipe_tag', 'recipe_id', 'tag_id');
     }
+
+    // NOTE: Use `tags()` to access related tags.
 }

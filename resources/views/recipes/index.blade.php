@@ -15,7 +15,9 @@
             </div>
         </form>
 
-        @if(isset($category) && $category)
+        @if(isset($tag) && $tag)
+            <div class="mb-3">Filtered by tag: <strong>{{ $tag }}</strong></div>
+        @elseif(isset($category) && $category)
             <div class="mb-3">Filtered by category: <strong>{{ $category }}</strong></div>
         @endif
 

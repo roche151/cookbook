@@ -22,13 +22,13 @@
                 <input name="title" class="form-control" value="{{ old('title') }}">
             </div>
             <div class="col-12">
-                <label class="form-label">Categories</label>
+                <label class="form-label">Tags</label>
                 <div class="d-flex flex-wrap gap-2">
-                    @foreach($categories as $cat)
+                    @foreach($tags as $tag)
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="categories[]" value="{{ $cat->id }}" id="cat-{{ $cat->id }}"
-                                {{ (is_array(old('categories')) && in_array($cat->id, old('categories'))) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="cat-{{ $cat->id }}">{{ $cat->name }}</label>
+                            <input class="form-check-input" type="checkbox" name="tags[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}"
+                                {{ (is_array(old('tags')) && in_array($tag->id, old('tags'))) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="tag-{{ $tag->id }}">{{ $tag->name }}</label>
                         </div>
                     @endforeach
                 </div>

@@ -1,4 +1,4 @@
-@props(['title', 'image' => null, 'excerpt' => null, 'href' => null, 'meta' => null, 'rating' => null])
+@props(['title', 'image' => null, 'excerpt' => null, 'href' => null, 'meta' => null, 'meta_html' => null, 'rating' => null])
 
 <div class="card h-100 shadow-sm">
     {{-- Image area with fixed height to keep all cards equal height --}}
@@ -14,7 +14,9 @@
 
     <div class="card-body d-flex flex-column">
         <h5 class="card-title mb-2">{{ $title }}</h5>
-        @if($meta)
+        @if($meta_html)
+            <p class="small mb-2">{!! $meta_html !!}</p>
+        @elseif($meta)
             <p class="text-muted small mb-2">{{ $meta }}</p>
         @endif
 

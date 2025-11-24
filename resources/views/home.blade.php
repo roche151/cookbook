@@ -36,13 +36,20 @@
 
 		<!-- Categories -->
 		<div class="mb-5">
-			<h3 class="h5">Browse by category</h3>
+			<h3 class="h5">Browse by tag</h3>
 			<div class="mt-3">
-				<a href="/recipes?category=breakfast" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fa-solid fa-mug-hot me-1"></i> Breakfast</a>
-				<a href="/recipes?category=lunch" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fa-solid fa-bowl-food me-1"></i> Lunch</a>
-				<a href="/recipes?category=dinner" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fa-solid fa-utensils me-1"></i> Dinner</a>
-				<a href="/recipes?category=dessert" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fa-solid fa-cake-candles me-1"></i> Desserts</a>
-				<a href="/recipes?category=vegetarian" class="btn btn-sm btn-outline-secondary me-2 mb-2"><i class="fa-solid fa-leaf me-1"></i> Vegetarian</a>
+				@if(isset($tags) && $tags->count())
+					@foreach($tags as $tag)
+						<a href="/recipes?tag={{ urlencode($tag->name) }}" class="btn btn-sm btn-outline-secondary me-2 mb-2">
+							@if(!empty($tag->icon))
+								<i class="{{ $tag->icon }} me-1" aria-hidden="true"></i>
+							@endif
+							{{ $tag->name }}
+						</a>
+					@endforeach
+				@else
+					<p class="text-muted">No tags available.</p>
+				@endif
 			</div>
 		</div>
 

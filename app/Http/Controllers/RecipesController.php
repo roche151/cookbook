@@ -4,23 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Recipe;
-use App\Models\Category;
+use App\Models\Tag;
 
 class RecipesController extends Controller
 {
     public function index(Request $request)
     {
         $q = $request->query('q');
-        $category = $request->query('category');
+        $tag = $request->query('tag');
 
         $query = Recipe::query();
 
-        if ($category) {
-            // Allow category filter by slug or id
-            $cat = Category::where('slug', $category)->orWhere('id', $category)->first();
-            if ($cat) {
-                $query->whereHas('categories', function ($qb) use ($cat) {
-                    $qb->where('categories.id', $cat->id);
+        // Support ?tag=TagName (case-insensitive), or tag as slug/id
+        if ($tag) {
+            $normalized = mb_strtolower($tag);
+            $tg = \App\Models\Tag::whereRaw('LOWER(name) = ?', [$normalized])
+                ->orWhere('slug', $tag)
+                ->orWhere('id', $tag)
+                ->first();
+
+            if ($tg) {
+                $query->whereHas('tags', function ($qb) use ($tg) {
+                    $qb->where('tags.id', $tg->id);
                 });
             }
         }
@@ -32,12 +37,12 @@ class RecipesController extends Controller
             });
         }
 
-        $recipes = $query->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+        $recipes = $query->with('tags')->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
 
         return view('recipes.index', [
             'recipes' => $recipes,
             'q' => $request->query('q'),
-            'category' => $category,
+            'tag' => $tag,
         ]);
     }
 
@@ -49,8 +54,8 @@ class RecipesController extends Controller
 
     public function create()
     {
-        $categories = Category::orderBy('name')->get();
-        return view('recipes.create', ['categories' => $categories]);
+        $tags = \App\Models\Tag::orderBy('sort_order')->orderBy('name')->get();
+        return view('recipes.create', ['tags' => $tags]);
     }
 
     public function store(Request $request)
@@ -61,8 +66,8 @@ class RecipesController extends Controller
             'image' => 'nullable|url|max:255',
             'time' => 'nullable|string|max:50',
             'rating' => 'nullable|numeric|min:0|max:5',
-            'categories' => 'required|array|min:1',
-            'categories.*' => 'integer|exists:categories,id',
+            'tags' => 'required|array|min:1',
+            'tags.*' => 'integer|exists:tags,id',
         ]);
 
         $recipe = Recipe::create([
@@ -74,8 +79,8 @@ class RecipesController extends Controller
             'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
         ]);
 
-        // Attach selected categories
-        $recipe->categories()->sync($data['categories']);
+        // Attach selected tags
+        $recipe->tags()->sync($data['tags']);
 
         return redirect()->route('recipes.show', $recipe->id)->with('status', 'Recipe created.');
     }

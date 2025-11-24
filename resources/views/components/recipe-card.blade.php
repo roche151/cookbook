@@ -7,7 +7,7 @@
             <img src="{{ $image }}" alt="{{ $title }}" class="w-100 h-100" style="object-fit:cover; display:block;">
         </div>
     @else
-        <div class="bg-light d-flex align-items-center justify-content-center" style="height:180px;">
+        <div class="bg-body d-flex align-items-center justify-content-center" style="height:180px;">
             <span class="text-muted">No image</span>
         </div>
     @endif

@@ -1,11 +1,11 @@
 // Bootstrap SCSS entry using the new module system (@use)
 // Provide variable overrides to Bootstrap with the `with` clause.
 // Local app variables (used by both this stylesheet and passed to Bootstrap)
-$app-body-bg: #fdfdfc;
+// Local app variables (font only). Avoid hard-setting Bootstrap's
+// `$body-bg` here so Bootstrap's color modes (data-bs-theme) work.
 $app-font-family: ('Instrument Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Noto Color Emoji");
 
 @use "bootstrap" with (
-  $body-bg: $app-body-bg,
   $font-family-sans-serif: $app-font-family
 );
 
@@ -16,5 +16,29 @@ $app-font-family: ('Instrument Sans', ui-sans-serif, system-ui, -apple-system, "
 
 body {
   font-family: $app-font-family;
-  background-color: $app-body-bg;
+  /* Use the Bootstrap CSS variable so dark/light themes apply correctly. */
+  background-color: var(--bs-body-bg, #fdfdfc);
+}
+
+/* Sidebar tweaks to improve contrast in dark mode while staying variable-driven.
+   Uses `color-mix` where available with a fallback to `--bs-body-bg` so the
+   sidebar sits slightly lighter than the main body in dark themes. */
+.app-sidebar {
+  background-color: color-mix(in srgb, var(--bs-body-bg) 92%, #fff 8%);
+  /* Fallback for browsers without color-mix */
+  background-color: var(--bs-body-bg, #fdfdfc);
+  border-right: 1px solid rgba(255,255,255,0.04);
+}
+
+.app-sidebar .navbar-brand {
+  color: var(--bs-body-color);
+  text-decoration: none;
+}
+
+.app-sidebar .nav-link {
+  color: color-mix(in srgb, var(--bs-body-color) 80%, #fff 20%);
+}
+
+.app-sidebar .nav-link.active {
+  color: #fff !important;
 }

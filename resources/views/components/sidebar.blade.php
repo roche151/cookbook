@@ -37,7 +37,7 @@
 @endphp
 
 <!-- Mobile topbar (only visible on small screens) -->
-<nav class="navbar navbar-light bg-light d-md-none">
+<nav class="navbar navbar-dark bg-body d-md-none">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url('/') }}">{{ config('app.name', 'Laravel') }}</a>
         <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">Menu</button>
@@ -90,7 +90,7 @@
     </div>
 
 <!-- Sidebar for md+ screens -->
-<aside class="app-sidebar bg-light d-none d-md-block p-3">
+<aside class="app-sidebar bg-body d-none d-md-block p-3">
     <a class="navbar-brand d-block mb-3" href="{{ url('/') }}">{{ config('app.name', 'Laravel') }}</a>
     <nav class="nav flex-column">
             @foreach ($sidebarLinks as $link)

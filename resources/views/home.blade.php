@@ -47,7 +47,7 @@
 		</div>
 
 		<!-- CTA / Newsletter -->
-		<div class="p-4 rounded-3 bg-light border">
+		<div class="p-4 rounded-3 bg-body border">
 			<div class="row align-items-center">
 				<div class="col-md-8">
 					<h4 class="mb-1">Get new recipes delivered weekly</h4>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,7 +28,7 @@
                 overflow-y: auto;
                 z-index: 1030;
                 box-shadow: 2px 0 6px rgba(0,0,0,0.04);
-                background: var(--bs-body-bg, #fff);
+                background: var(--bs-body-bg, #000);
             }
         }
 
@@ -49,7 +49,7 @@
         {{ $slot }}
     </main>
 
-    <footer class="bg-light text-center py-4 mt-5">
+    <footer class="bg-body text-center py-4 mt-5">
         <div class="container">
             <small>&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</small>
         </div>

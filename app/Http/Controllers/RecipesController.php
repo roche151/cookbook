@@ -7,6 +7,7 @@ use App\Models\Recipe;
 use App\Models\Tag;
 use App\Models\Direction;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class RecipesController extends Controller
 {
@@ -68,20 +69,98 @@ class RecipesController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        // Validation rules
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|url|max:255',
-            // Time is required as either hours or minutes (at least one)
-            'time_hours' => 'required_without:time_minutes|integer|min:0',
-            'time_minutes' => 'required_without:time_hours|integer|min:0|max:59',
+            // individual fields nullable numeric; combined time error added below
+            'time_hours' => 'nullable|integer|min:0',
+            'time_minutes' => 'nullable|integer|min:0|max:59',
             'tags' => 'required|array|min:1',
             'directions' => 'required|array|min:1',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
-        ]);
+        ];
 
-        // Save total minutes into the existing `time` column (as integer/string)
+        // Custom messages and attribute names
+        $messages = [
+            'required' => ':attribute is required',
+            'tags.required' => 'At least one Tag is required',
+            'directions.required' => 'At least one Direction is required',
+            'directions.*.body.required' => 'Direction cannot be empty',
+        ];
+
+        $attributes = [
+            'title' => 'Title',
+            'description' => 'Description',
+            'image' => 'Image URL',
+            'time_hours' => 'Time',
+            'time_minutes' => 'Time',
+            'tags' => 'Tags',
+            'directions' => 'Directions',
+            'directions.*.body' => 'Direction',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+
+        // Combined time requirement
+        $validator->after(function ($v) use ($request) {
+            if (! $request->filled('time_hours') && ! $request->filled('time_minutes')) {
+                $v->errors()->add('time', 'Time is required');
+            }
+        });
+
+        if ($validator->fails()) {
+            // Reorder errors to follow the order of $rules, inserting 'time' before 'time_hours'
+            $orig = $validator->errors()->getMessages();
+            $ordered = new \Illuminate\Support\MessageBag();
+
+            $orderedKeys = array_keys($rules);
+            $pos = array_search('time_hours', $orderedKeys, true);
+            if ($pos !== false) {
+                array_splice($orderedKeys, $pos, 0, ['time']);
+            } else {
+                array_unshift($orderedKeys, 'time');
+            }
+
+            $added = [];
+            foreach ($orderedKeys as $key) {
+                if (isset($orig[$key])) {
+                    foreach ($orig[$key] as $m) {
+                        $ordered->add($key, $m);
+                    }
+                    $added[] = $key;
+                }
+
+                // include child keys immediately after their parent (e.g., directions.0.body)
+                if ($key === 'tags' || $key === 'directions') {
+                    foreach ($orig as $k2 => $msgs2) {
+                        if (in_array($k2, $added, true)) continue;
+                        if (strpos($k2, $key . '.') === 0) {
+                            foreach ($msgs2 as $m2) {
+                                $ordered->add($k2, $m2);
+                            }
+                            $added[] = $k2;
+                        }
+                    }
+                }
+            }
+
+            // append any remaining messages
+            foreach ($orig as $k => $msgs) {
+                if (in_array($k, $added, true)) continue;
+                foreach ($msgs as $m) {
+                    $ordered->add($k, $m);
+                }
+            }
+
+            return redirect()->back()->withErrors($ordered)->withInput();
+        }
+
+        $data = $validator->validated();
+
+        // Save total minutes into the existing `time` column (as integer)
         $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
         $minutes = isset($data['time_minutes']) ? (int)$data['time_minutes'] : 0;
         $totalMinutes = ($hours * 60) + $minutes;
@@ -125,22 +204,95 @@ class RecipesController extends Controller
 
     public function update(Request $request, Recipe $recipe)
     {
-        $data = $request->validate([
+        // Validation rules
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'image' => 'nullable|url|max:255',
-            // Time is required as either hours or minutes (at least one)
-            'time_hours' => 'required_without:time_minutes|integer|min:0',
-            'time_minutes' => 'required_without:time_hours|integer|min:0|max:59',
+            // individual fields nullable numeric; combined time error added below
+            'time_hours' => 'nullable|integer|min:0',
+            'time_minutes' => 'nullable|integer|min:0|max:59',
             'tags' => 'required|array|min:1',
             'tags.*' => 'exists:tags,id',
             'directions' => 'required|array|min:1',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
-        ]);
+        ];
 
-        // Save total minutes into the existing `time` column (as integer/string)
+        $messages = [
+            'required' => ':attribute is required.',
+            'tags.required' => 'At least 1 Tag is required.',
+            'directions.required' => 'At least 1 Direction is required.',
+            'directions.*.body.required' => 'Direction cannot be empty.',
+        ];
+
+        $attributes = [
+            'title' => 'Title',
+            'description' => 'Description',
+            'image' => 'Image URL',
+            'time_hours' => 'Time',
+            'time_minutes' => 'Time',
+            'tags' => 'Tags',
+            'directions' => 'Directions',
+            'directions.*.body' => 'Direction',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
+        $validator->after(function ($v) use ($request) {
+            if (! $request->filled('time_hours') && ! $request->filled('time_minutes')) {
+                $v->errors()->add('time', 'Time is required.');
+            }
+        });
+
+        if ($validator->fails()) {
+            // Reorder errors to follow the order of $rules, inserting 'time' before 'time_hours'
+            $orig = $validator->errors()->getMessages();
+            $ordered = new \Illuminate\Support\MessageBag();
+
+            $orderedKeys = array_keys($rules);
+            $pos = array_search('time_hours', $orderedKeys, true);
+            if ($pos !== false) {
+                array_splice($orderedKeys, $pos, 0, ['time']);
+            } else {
+                array_unshift($orderedKeys, 'time');
+            }
+
+            $added = [];
+            foreach ($orderedKeys as $key) {
+                if (isset($orig[$key])) {
+                    foreach ($orig[$key] as $m) {
+                        $ordered->add($key, $m);
+                    }
+                    $added[] = $key;
+                }
+
+                if ($key === 'tags' || $key === 'directions') {
+                    foreach ($orig as $k2 => $msgs2) {
+                        if (in_array($k2, $added, true)) continue;
+                        if (strpos($k2, $key . '.') === 0) {
+                            foreach ($msgs2 as $m2) {
+                                $ordered->add($k2, $m2);
+                            }
+                            $added[] = $k2;
+                        }
+                    }
+                }
+            }
+
+            foreach ($orig as $k => $msgs) {
+                if (in_array($k, $added, true)) continue;
+                foreach ($msgs as $m) {
+                    $ordered->add($k, $m);
+                }
+            }
+
+            return redirect()->back()->withErrors($ordered)->withInput();
+        }
+
+        $data = $validator->validated();
+
+        // Save total minutes into the existing `time` column (as integer)
         $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
         $minutes = isset($data['time_minutes']) ? (int)$data['time_minutes'] : 0;
         $totalMinutes = ($hours * 60) + $minutes;

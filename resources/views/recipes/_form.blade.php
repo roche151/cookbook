@@ -12,7 +12,7 @@
         @method($method)
     @endif
 
-    @if ($errors->any())
+    @if (false && $errors->any())
         <div class="col-12">
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -27,6 +27,9 @@
     <div class="col-12">
         <label class="form-label">Title</label>
         <input name="title" class="form-control" value="{{ old('title', optional($recipe)->title) }}">
+        @if($errors->has('title'))
+            <div class="text-danger small mt-1">{{ $errors->first('title') }}</div>
+        @endif
     </div>
 
     <div class="col-12">
@@ -47,6 +50,9 @@
                 </div>
             @endforeach
         </div>
+        @if($errors->has('tags'))
+            <div class="text-danger small mt-1">{{ $errors->first('tags') }}</div>
+        @endif
     </div>
 
     <div class="col-md-6">
@@ -89,11 +95,17 @@
                 <span class="input-group-text">minutes</span>
             </div>
         </div>
+        @if($errors->has('time'))
+            <div class="text-danger small mt-1">{{ $errors->first('time') }}</div>
+        @endif
     </div>
 
     <div class="col-12">
         <label class="form-label">Description</label>
         <textarea name="description" class="form-control" rows="4">{{ old('description', optional($recipe)->description) }}</textarea>
+        @if($errors->has('description'))
+            <div class="text-danger small mt-1">{{ $errors->first('description') }}</div>
+        @endif
     </div>
 
     <div class="col-12">
@@ -136,13 +148,21 @@
                     </div>
                 @endforeach
 
+                @if($errors->has('directions.*.body'))
+                    <div class="text-danger small mt-1">{{ $errors->first('directions.*.body') }}</div>
+                @endif
             </div>
 
             <div>
                 <button type="button" id="js-add-direction" class="btn btn-sm btn-outline-primary mt-2">Add direction</button>
             </div>
         </div>
-
+        @if($errors->has('directions'))
+            <div class="text-danger small mt-1">{{ $errors->first('directions') }}</div>
+        @endif
+    </div>
+    
+    <div class="col-12">
         <button class="btn btn-primary" type="submit">{{ $buttonText }}</button>
         <a href="{{ url('/recipes') }}" class="btn btn-link">Cancel</a>
     </div>

@@ -11,6 +11,18 @@ function updateIndices(container) {
     const items = qsa('.direction-item', container);
     items.forEach((item, idx) => {
         item.setAttribute('data-index', idx);
+        // show the visible 1-based step number for the current order
+        let indexElem = qs('.direction-index', item);
+        if (!indexElem) {
+            const cardBody = qs('.card-body', item);
+            indexElem = document.createElement('div');
+            indexElem.className = 'direction-index pe-2';
+            // keep it simple: a small label showing the step number
+            if (cardBody) cardBody.insertBefore(indexElem, cardBody.firstChild);
+            else item.insertBefore(indexElem, item.firstChild);
+        }
+        indexElem.textContent = String(idx + 1);
+
         const idInput = qs('input[name$="[id]"]', item);
         const sortInput = qs('.direction-sort-order', item);
         const body = qs('.direction-body', item);
@@ -29,6 +41,7 @@ function makeItem(index, data = {}) {
 
     const bodyHtml = `
         <div class="card-body p-2 d-flex gap-2 align-items-start">
+            <div class="direction-index pe-2">${index + 1}</div>
             <div class="flex-grow-1">
                 <input type="hidden" name="directions[${index}][id]" value="${data.id || ''}">
                 <input type="hidden" name="directions[${index}][sort_order]" class="direction-sort-order" value="${data.sort_order ?? index}">
@@ -76,6 +89,9 @@ export function initDirections(containerSelector = '#directions-container') {
 
     // Attach to existing items
     qsa('.direction-item', container).forEach(el => attachHandlers(el));
+
+    // Ensure server-rendered items show their current numbers immediately
+    updateIndices(container);
 
     addBtn && addBtn.addEventListener('click', (e) => {
         const nextIndex = container.querySelectorAll('.direction-item').length;

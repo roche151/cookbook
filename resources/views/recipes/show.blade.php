@@ -36,7 +36,16 @@
                             @endif
                         </p>
                         <p class="mb-1"><strong>Prep time:</strong> {{ data_get($recipe, 'time') ?? '—' }}</p>
-                        <a href="{{ url('/recipes') }}" class="btn btn-sm btn-link">Back to recipes</a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url('/recipes') }}" class="btn btn-sm btn-link">Back to recipes</a>
+                            <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+
+                            <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" onsubmit="return confirm('Delete this recipe?');">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -46,9 +46,8 @@ class RecipesController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Recipe $recipe)
     {
-        $recipe = Recipe::findOrFail($id);
         return view('recipes.show', ['recipe' => $recipe]);
     }
 
@@ -58,16 +57,22 @@ class RecipesController extends Controller
         return view('recipes.create', ['tags' => $tags]);
     }
 
+    public function edit(Recipe $recipe)
+    {
+        $recipe->load('tags');
+        $tags = \App\Models\Tag::orderBy('sort_order')->orderBy('name')->get();
+        return view('recipes.edit', compact('recipe', 'tags'));
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'excerpt' => 'nullable|string',
+            'excerpt' => 'required|string',
             'image' => 'nullable|url|max:255',
             'time' => 'nullable|string|max:50',
             'rating' => 'nullable|numeric|min:0|max:5',
             'tags' => 'required|array|min:1',
-            'tags.*' => 'integer|exists:tags,id',
         ]);
 
         $recipe = Recipe::create([
@@ -83,5 +88,40 @@ class RecipesController extends Controller
         $recipe->tags()->sync($data['tags']);
 
         return redirect()->route('recipes.show', $recipe->id)->with('status', 'Recipe created.');
+    }
+
+    public function update(Request $request, Recipe $recipe)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'excerpt' => 'required|string',
+            'image' => 'nullable|url|max:255',
+            'time' => 'nullable|string|max:50',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'tags' => 'required|array|min:1',
+            'tags.*' => 'exists:tags,id',
+        ]);
+
+        $recipe->update([
+            'title' => $data['title'],
+            'excerpt' => $data['excerpt'] ?? null,
+            'image' => $data['image'] ?? null,
+            'time' => $data['time'] ?? null,
+            'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
+        ]);
+
+        // Sync tags via pivot
+        $recipe->tags()->sync($data['tags']);
+
+        return redirect()->route('recipes.show', $recipe->id)->with('status', 'Recipe updated.');
+    }
+
+    public function destroy(Recipe $recipe)
+    {
+        // Detach all tags first (pivot cleanup), then delete the recipe
+        $recipe->tags()->detach();
+        $recipe->delete();
+
+        return redirect()->route('recipes.index')->with('status', 'Recipe deleted.');
     }
 }

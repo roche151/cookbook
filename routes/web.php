@@ -10,8 +10,5 @@ Route::get('/', function () {
     return view('home', ['tags' => $tags]);
 });
 
-// Recipes listing, search and creation routes
-Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index');
-Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
-Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes.store');
-Route::get('/recipes/{id}', [RecipesController::class, 'show'])->name('recipes.show');
+// Recipes resourceful routes (uses route-model binding)
+Route::resource('recipes', RecipesController::class);

@@ -17,4 +17,9 @@ class Recipe extends Model
         'time',
         'rating',
     ];
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
 }

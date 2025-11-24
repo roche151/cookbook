@@ -24,8 +24,18 @@
                 <p class="lead">{{ data_get($recipe, 'excerpt') }}</p>
 
                 <hr>
-                <h5>Directions (stub)</h5>
-                <p class="text-muted">This is a placeholder show page. Replace with real recipe content.</p>
+                <h5>Directions</h5>
+                @if($recipe->directions && $recipe->directions->count())
+                    <ol class="list-group list-group-numbered mb-3">
+                        @foreach($recipe->directions as $direction)
+                            <li class="list-group-item">
+                                {!! nl2br(e($direction->body)) !!}
+                            </li>
+                        @endforeach
+                    </ol>
+                @else
+                    <p class="text-muted">No directions provided for this recipe.</p>
+                @endif
             </div>
             <div class="col-md-4">
                 <div class="card">

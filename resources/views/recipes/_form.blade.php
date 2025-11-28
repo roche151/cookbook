@@ -245,6 +245,30 @@
     </div>
 </form>
 
+<script>
+    // Ensure click on the drop zone opens the file picker even if bundled JS isn't loaded
+    (function initImageDropZones() {
+        function bindZones() {
+            const zones = document.querySelectorAll('.image-drop-zone');
+            zones.forEach(zone => {
+                const input = zone.querySelector('input[type="file"]');
+                const removeBtn = zone.querySelector('.remove-image-btn');
+                if (!input) return;
+
+                zone.addEventListener('click', function(e) {
+                    if (removeBtn && (e.target === removeBtn || removeBtn.contains(e.target))) return;
+                    input.click();
+                });
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindZones);
+        } else {
+            bindZones();
+        }
+    })();
+</script>
+
 @if($errors->any())
     <script>
         document.addEventListener('DOMContentLoaded', function() {

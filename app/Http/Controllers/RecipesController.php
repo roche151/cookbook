@@ -47,6 +47,48 @@ class RecipesController extends Controller
             'recipes' => $recipes,
             'q' => $request->query('q'),
             'tag' => $tag,
+            'title' => 'All Recipes',
+            'emptyMessage' => $q ? 'No recipes found matching "' . $q . '".' : 'No recipes found.',
+        ]);
+    }
+
+    public function myRecipes(Request $request)
+    {
+        $q = $request->query('q');
+        $tag = $request->query('tag');
+
+        $query = Recipe::where('user_id', auth()->id());
+
+        // Support ?tag=TagName (case-insensitive), or tag as slug/id
+        if ($tag) {
+            $normalized = mb_strtolower($tag);
+            $tg = \App\Models\Tag::whereRaw('LOWER(name) = ?', [$normalized])
+                ->orWhere('slug', $tag)
+                ->orWhere('id', $tag)
+                ->first();
+
+            if ($tg) {
+                $query->whereHas('tags', function ($qb) use ($tg) {
+                    $qb->where('tags.id', $tg->id);
+                });
+            }
+        }
+
+        if ($q) {
+            $query->where(function ($qbuilder) use ($q) {
+                $qbuilder->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        $recipes = $query->with('tags')->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+
+        return view('recipes.index', [
+            'recipes' => $recipes,
+            'q' => $request->query('q'),
+            'tag' => $tag,
+            'title' => 'My Recipes',
+            'emptyMessage' => $q ? 'No recipes found matching "' . $q . '".' : 'You haven\'t created any recipes yet.',
         ]);
     }
 

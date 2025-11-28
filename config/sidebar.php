@@ -17,9 +17,10 @@ return [
     'links' => [
         // Example entries. Add 'icon' (raw HTML) or 'icon_class' for an <i> tag.
         // These use Font Awesome classes (bundled via Vite).
-        ['label' => 'Home',    'href' => '/',        'auth' => null, 'icon_class' => 'fa-solid fa-house'],
-        ['label' => 'Recipes', 'href' => '/recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-book-open'],
-        ['label' => 'About',   'href' => '/about',   'auth' => null, 'icon_class' => 'fa-solid fa-circle-info'],
+        ['label' => 'Home',        'href' => '/',        'auth' => null, 'icon_class' => 'fa-solid fa-house'],
+        ['label' => 'All Recipes', 'href' => '/recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-book-open'],
+        ['label' => 'My Recipes',  'href' => '/my-recipes', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-user-pen'],
+        ['label' => 'About',       'href' => '/about',   'auth' => null, 'icon_class' => 'fa-solid fa-circle-info'],
         // Named route example (only for authenticated users)
         // ['label' => 'Dashboard', 'route' => 'dashboard', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-gauge'],
     ],

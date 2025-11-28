@@ -15,6 +15,7 @@ Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index
 
 // Protected recipe routes (must be logged in) - define /create BEFORE /{recipe}
 Route::middleware('auth')->group(function () {
+    Route::get('/my-recipes', [RecipesController::class, 'myRecipes'])->name('recipes.my');
     Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
     Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes.store');
     Route::get('/recipes/{recipe}/edit', [RecipesController::class, 'edit'])->name('recipes.edit');

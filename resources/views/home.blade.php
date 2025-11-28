@@ -19,7 +19,7 @@
 				</form>
 
 				<div class="mt-4">
-					<a href="/recipes/create" class="btn btn-outline-primary me-2">
+					<a href="/recipes/create" class="btn btn-primary me-2">
 						<i class="fa-solid fa-plus me-2"></i>Create Recipe
 					</a>
 					<a href="/recipes" class="btn btn-link text-decoration-none">Browse all recipes</a>

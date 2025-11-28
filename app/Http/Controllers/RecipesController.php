@@ -348,7 +348,6 @@ class RecipesController extends Controller
                 'slug' => \Illuminate\Support\Str::slug($data['title']) . '-' . \Illuminate\Support\Str::random(5),
                 'description' => $data['description'] ?? null,
                 'time' => $data['time'] ?? null,
-                'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
                 'image' => $data['image'] ?? null,
                 'user_id' => Auth::id(),
             ]);

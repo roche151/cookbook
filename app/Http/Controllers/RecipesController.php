@@ -9,6 +9,8 @@ use App\Models\Direction;
 use App\Models\Ingredient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class RecipesController extends Controller
 {
@@ -57,8 +59,9 @@ class RecipesController extends Controller
         $q = $request->query('q');
         $tag = $request->query('tag');
 
-        $query = Recipe::where('user_id', auth()->id());
+        $query = Recipe::where('user_id', Auth::id());
 
+        // Support ?tag=TagName (case-insensitive), or tag as slug/id
         // Support ?tag=TagName (case-insensitive), or tag as slug/id
         if ($tag) {
             $normalized = mb_strtolower($tag);
@@ -96,8 +99,12 @@ class RecipesController extends Controller
     {
         $q = $request->query('q');
         $tag = $request->query('tag');
-
-        $query = auth()->user()->favoriteRecipes();
+        $user = Auth::user();
+        if (! $user) {
+            abort(403, 'Unauthorized action.');
+        }
+        /** @var \App\Models\User $user */
+        $query = $user->favoriteRecipes();
 
         // Support ?tag=TagName (case-insensitive), or tag as slug/id
         if ($tag) {
@@ -134,13 +141,17 @@ class RecipesController extends Controller
 
     public function toggleFavorite(Recipe $recipe)
     {
-        $user = auth()->user();
-        
-        if ($user->favoriteRecipes()->where('recipe_id', $recipe->id)->exists()) {
-            $user->favoriteRecipes()->detach($recipe->id);
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            abort(403, 'Unauthorized action.');
+        }
+        $favorites = $user->favoriteRecipes();
+        if ($favorites->where('recipe_id', $recipe->id)->exists()) {
+            $favorites->detach($recipe->id);
             $message = 'Recipe removed from favorites';
         } else {
-            $user->favoriteRecipes()->attach($recipe->id);
+            $favorites->attach($recipe->id);
             $message = 'Recipe added to favorites';
         }
 
@@ -161,7 +172,7 @@ class RecipesController extends Controller
     public function edit(Recipe $recipe)
     {
         // Check if user owns the recipe
-        if ($recipe->user_id !== auth()->id()) {
+        if ($recipe->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -176,7 +187,7 @@ class RecipesController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|url|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
             'time_minutes' => 'nullable|integer|min:0|max:59',
@@ -204,7 +215,7 @@ class RecipesController extends Controller
         $attributes = [
             'title' => 'Title',
             'description' => 'Description',
-            'image' => 'Image URL',
+            'image' => 'Image',
             'time_hours' => 'Time',
             'time_minutes' => 'Time',
             'tags' => 'Tags',
@@ -278,6 +289,13 @@ class RecipesController extends Controller
         $totalMinutes = ($hours * 60) + $minutes;
         $data['time'] = $totalMinutes > 0 ? $totalMinutes : null;
 
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('recipes', 'public');
+        } else {
+            $data['image'] = null;
+        }
+
         $recipe = null;
 
         DB::transaction(function () use ($data, &$recipe) {
@@ -285,12 +303,10 @@ class RecipesController extends Controller
                 'title' => $data['title'],
                 'slug' => \Illuminate\Support\Str::slug($data['title']) . '-' . \Illuminate\Support\Str::random(5),
                 'description' => $data['description'] ?? null,
-                'image' => $data['image'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
             ]);
-
             // Attach selected tags
             $recipe->tags()->sync($data['tags']);
 
@@ -328,13 +344,13 @@ class RecipesController extends Controller
         });
 
         /** @var \App\Models\Recipe $recipe */
-        return redirect()->route('recipes.show', $recipe->id)->with('status', 'Recipe created.');
+        return redirect()->route('recipes.show', $recipe)->with('status', 'Recipe created.');
     }
 
     public function update(Request $request, Recipe $recipe)
     {
         // Check if user owns the recipe
-        if ($recipe->user_id !== auth()->id()) {
+        if ($recipe->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -342,7 +358,7 @@ class RecipesController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable|url|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
             'time_minutes' => 'nullable|integer|min:0|max:59',
@@ -373,7 +389,7 @@ class RecipesController extends Controller
         $attributes = [
             'title' => 'Title',
             'description' => 'Description',
-            'image' => 'Image URL',
+            'image' => 'Image',
             'time_hours' => 'Time',
             'time_minutes' => 'Time',
             'tags' => 'Tags',
@@ -443,14 +459,32 @@ class RecipesController extends Controller
         $totalMinutes = ($hours * 60) + $minutes;
         $data['time'] = $totalMinutes > 0 ? $totalMinutes : null;
 
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
+                Storage::disk('public')->delete($recipe->image);
+            }
+            $data['image'] = $request->file('image')->store('recipes', 'public');
+        } else {
+            // Keep existing image if no new upload
+            unset($data['image']);
+        }
+
         DB::transaction(function () use ($data, $recipe) {
-            $recipe->update([
+            $updatePayload = [
                 'title' => $data['title'],
                 'description' => $data['description'] ?? null,
-                'image' => $data['image'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
-            ]);
+            ];
+
+            // Only update image if explicitly provided (new upload)
+            if (array_key_exists('image', $data)) {
+                $updatePayload['image'] = $data['image'];
+            }
+
+            $recipe->update($updatePayload);
 
             // Sync tags via pivot
             $recipe->tags()->sync($data['tags']);
@@ -528,13 +562,13 @@ class RecipesController extends Controller
             }
         });
 
-        return redirect()->route('recipes.show', $recipe->id)->with('status', 'Recipe updated.');
+        return redirect()->route('recipes.show', $recipe)->with('status', 'Recipe updated.');
     }
 
     public function destroy(Recipe $recipe)
     {
         // Check if user owns the recipe
-        if ($recipe->user_id !== auth()->id()) {
+        if ($recipe->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 

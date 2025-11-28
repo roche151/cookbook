@@ -6,7 +6,7 @@
     'tags' => [],
 ])
 
-<form action="{{ $action }}" method="POST" class="row g-3" novalidate>
+<form action="{{ $action }}" method="POST" enctype="multipart/form-data" class="row g-3" novalidate>
     @csrf
     @if(strtoupper($method) !== 'POST')
         @method($method)
@@ -55,9 +55,26 @@
         @endif
     </div>
 
-    <div class="col-md-6">
-        <label class="form-label">Image URL (optional)</label>
-        <input name="image" class="form-control" value="{{ old('image', optional($recipe)->image) }}" placeholder="https://...">
+    <div class="col-12">
+        <label class="form-label">Recipe Image (optional)</label>
+        <div class="image-drop-zone border rounded p-4 text-center" style="cursor: pointer; position: relative; min-height: 200px; background: var(--bs-body-bg); border: 2px dashed var(--bs-border-color) !important;">
+            <input type="file" name="image" accept="image/*" class="d-none" id="recipe-image">
+            <div class="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px;">
+                <i class="fa-solid fa-cloud-arrow-up fa-3x mb-3 text-muted"></i>
+                <p class="mb-1">Drag & drop an image here, paste from clipboard, or click to browse</p>
+                <p class="text-muted small">Supports: JPG, PNG, GIF, WebP (max 5MB)</p>
+            </div>
+            <img class="image-preview rounded" style="display: none; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
+            <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: none;">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        @if($recipe && $recipe->image)
+            <div class="mt-2">
+                <p class="text-muted small mb-1">Current image:</p>
+                <img src="{{ Storage::url($recipe->image) }}" alt="Current recipe image" class="img-thumbnail" style="max-height: 150px;">
+            </div>
+        @endif
     </div>
 
     <div class="col-md-4">
@@ -127,8 +144,8 @@
                                     'amount' => $ing->amount,
                                     'sort_order' => $ing->sort_order,
                                 ];
-                            }
                         }
+                    }
                     }
                 @endphp
 

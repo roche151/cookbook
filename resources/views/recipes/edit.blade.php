@@ -6,7 +6,7 @@
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                 <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
-                <li class="breadcrumb-item"><a href="{{ url('/recipes/'.$recipe->id) }}">{{ data_get($recipe, 'title') }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('recipes.show', $recipe) }}">{{ data_get($recipe, 'title') }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
             </ol>
         </nav>

@@ -146,12 +146,24 @@ class RecipesController extends Controller
             abort(403, 'Unauthorized action.');
         }
         $favorites = $user->favoriteRecipes();
-        if ($favorites->where('recipe_id', $recipe->id)->exists()) {
+        $isFavorited = $favorites->where('recipe_id', $recipe->id)->exists();
+        
+        if ($isFavorited) {
             $favorites->detach($recipe->id);
             $message = 'Recipe removed from favorites';
+            $favorited = false;
         } else {
             $favorites->attach($recipe->id);
             $message = 'Recipe added to favorites';
+            $favorited = true;
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'favorited' => $favorited
+            ]);
         }
 
         return back()->with('success', $message);

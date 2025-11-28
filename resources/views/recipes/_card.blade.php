@@ -24,7 +24,7 @@
             @php
                 $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', data_get($recipe, 'id'))->exists();
             @endphp
-            <form action="{{ route('recipes.favorite', data_get($recipe, 'slug')) }}" method="POST" class="position-absolute top-0 end-0 m-2">
+            <form action="{{ route('recipes.favorite', data_get($recipe, 'slug')) }}" method="POST" class="position-absolute top-0 end-0 m-2 js-favorite-form" data-recipe-id="{{ data_get($recipe, 'id') }}">
                 @csrf
                 <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-danger' }}" title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
                     <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart"></i>

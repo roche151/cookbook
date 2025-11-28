@@ -110,6 +110,57 @@
 
     <div class="col-12">
         <div class="mb-3">
+            <label class="form-label">Ingredients</label>
+
+            <div id="ingredients-container" data-next-index="0">
+                @php
+                    $ingredientsOld = old('ingredients');
+                    if (is_array($ingredientsOld)) {
+                        $ingredients = $ingredientsOld;
+                    } else {
+                        $ingredients = [];
+                        if (!is_null($recipe) && $recipe->ingredients) {
+                            foreach ($recipe->ingredients as $ing) {
+                                $ingredients[] = [
+                                    'id' => $ing->id,
+                                    'name' => $ing->name,
+                                    'amount' => $ing->amount,
+                                    'sort_order' => $ing->sort_order,
+                                ];
+                            }
+                        }
+                    }
+                @endphp
+
+                @foreach($ingredients as $i => $ing)
+                    <div class="card mb-2 ingredient-item" data-index="{{ $i }}">
+                        <div class="card-body p-2 d-flex gap-2 align-items-start">
+                            <div class="flex-grow-1 d-flex gap-2">
+                                <input type="hidden" name="ingredients[{{ $i }}][id]" value="{{ $ing['id'] ?? '' }}">
+                                <input type="hidden" name="ingredients[{{ $i }}][sort_order]" class="ingredient-sort-order" value="{{ $ing['sort_order'] ?? $i }}">
+                                <input type="text" name="ingredients[{{ $i }}][amount]" class="form-control ingredient-amount" placeholder="e.g. 100g" value="{{ $ing['amount'] ?? '' }}" style="width:140px">
+                                <input type="text" name="ingredients[{{ $i }}][name]" class="form-control ingredient-name" placeholder="Ingredient" value="{{ $ing['name'] ?? '' }}">
+                            </div>
+                            <div class="d-flex flex-column gap-1">
+                                <button type="button" class="btn btn-sm btn-outline-secondary js-ing-up" title="Move up">↑</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary js-ing-down" title="Move down">↓</button>
+                                <button type="button" class="btn btn-sm btn-outline-danger js-ing-remove" title="Remove">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                @if($errors->has('ingredients.*.name'))
+                    <div class="text-danger small mt-1">{{ $errors->first('ingredients.*.name') }}</div>
+                @endif
+            </div>
+
+            <div>
+                <button type="button" id="js-add-ingredient" class="btn btn-sm btn-outline-primary mt-2">Add ingredient</button>
+            </div>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Directions</label>
 
             <div id="directions-container" data-next-index="0">

@@ -67,8 +67,13 @@
                         @if($recipe->ingredients && $recipe->ingredients->count())
                             <ul class="list-group mb-0">
                                 @foreach($recipe->ingredients as $ingredient)
-                                    <li class="list-group-item">
-                                        {!! nl2br(e($ingredient->body)) !!}
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div>
+                                            @if($ingredient->amount)
+                                                <span class="text-muted me-2">{{ e($ingredient->amount) }}</span>
+                                            @endif
+                                            <span>{{ e($ingredient->name) }}</span>
+                                        </div>
                                     </li>
                                 @endforeach
                             </ul>

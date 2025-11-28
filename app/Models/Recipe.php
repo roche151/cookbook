@@ -31,5 +31,10 @@ class Recipe extends Model
         return $this->hasMany(Direction::class)->orderBy('sort_order');
     }
 
+    public function ingredients()
+    {
+        return $this->hasMany(Ingredient::class)->orderBy('sort_order');
+    }
+
     // NOTE: Use `tags()` to access related tags.
 }

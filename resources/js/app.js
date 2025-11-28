@@ -8,6 +8,7 @@ import bootbox from 'bootbox';
 
 // Directions UI
 import './directions';
+import './ingredients';
 
 // Delegate click handler for delete buttons (bundled via Vite)
 document.addEventListener('click', function (ev) {

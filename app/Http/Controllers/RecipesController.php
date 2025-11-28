@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Recipe;
 use App\Models\Tag;
 use App\Models\Direction;
+use App\Models\Ingredient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -79,6 +80,9 @@ class RecipesController extends Controller
             'time_minutes' => 'nullable|integer|min:0|max:59',
             'tags' => 'required|array|min:1',
             'directions' => 'required|array|min:1',
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.name' => 'required|string',
+            'ingredients.*.amount' => 'nullable|string',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
         ];
@@ -100,6 +104,8 @@ class RecipesController extends Controller
             'tags' => 'Tags',
             'directions' => 'Directions',
             'directions.*.body' => 'Direction',
+            'ingredients' => 'Ingredients',
+            'ingredients.*.name' => 'Ingredient',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages, $attributes);
@@ -196,6 +202,22 @@ class RecipesController extends Controller
                     $dir->save();
                 }
             }
+
+            // Create ingredients if provided.
+            if (!empty($data['ingredients']) && is_array($data['ingredients'])) {
+                $ts = $recipe->created_at;
+                foreach ($data['ingredients'] as $ing) {
+                    $it = $recipe->ingredients()->create([
+                        'name' => $ing['name'],
+                        'amount' => $ing['amount'] ?? null,
+                        'sort_order' => isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0,
+                    ]);
+                    $it->timestamps = false;
+                    $it->created_at = $ts;
+                    $it->updated_at = $ts;
+                    $it->save();
+                }
+            }
         });
 
         /** @var \App\Models\Recipe $recipe */
@@ -215,6 +237,10 @@ class RecipesController extends Controller
             'tags' => 'required|array|min:1',
             'tags.*' => 'exists:tags,id',
             'directions' => 'required|array|min:1',
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.id' => 'nullable|integer|exists:ingredients,id',
+            'ingredients.*.name' => 'required|string',
+            'ingredients.*.amount' => 'nullable|string',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
@@ -225,6 +251,8 @@ class RecipesController extends Controller
             'tags.required' => 'At least 1 Tag is required.',
             'directions.required' => 'At least 1 Direction is required.',
             'directions.*.body.required' => 'Direction cannot be empty.',
+            'ingredients.required' => 'At least 1 Ingredient is required.',
+            'ingredients.*.name.required' => 'Ingredient cannot be empty.',
         ];
 
         $attributes = [
@@ -236,6 +264,8 @@ class RecipesController extends Controller
             'tags' => 'Tags',
             'directions' => 'Directions',
             'directions.*.body' => 'Direction',
+            'ingredients' => 'Ingredients',
+            'ingredients.*.name' => 'Ingredient',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages, $attributes);
@@ -344,6 +374,41 @@ class RecipesController extends Controller
                     $dir->created_at = $ts;
                     $dir->updated_at = $ts;
                     $dir->save();
+                }
+            }
+
+            // Process ingredients: create, update, reorder, and delete missing ones.
+            $incomingIng = collect($data['ingredients'] ?? []);
+            $incomingIngIds = $incomingIng->pluck('id')->filter()->all();
+
+            if (!empty($incomingIngIds)) {
+                $recipe->ingredients()->whereNotIn('id', $incomingIngIds)->delete();
+            } else {
+                $recipe->ingredients()->delete();
+            }
+
+            foreach ($incomingIng as $ing) {
+                if (!empty($ing['id'])) {
+                    $it = Ingredient::where('id', $ing['id'])->where('recipe_id', $recipe->id)->first();
+                    if ($it) {
+                        $it->name = $ing['name'];
+                        $it->amount = $ing['amount'] ?? null;
+                        $it->sort_order = isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0;
+                        $it->timestamps = false;
+                        $it->created_at = $ts;
+                        $it->updated_at = $ts;
+                        $it->save();
+                    }
+                } else {
+                    $it = $recipe->ingredients()->create([
+                        'name' => $ing['name'],
+                        'amount' => $ing['amount'] ?? null,
+                        'sort_order' => isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0,
+                    ]);
+                    $it->timestamps = false;
+                    $it->created_at = $ts;
+                    $it->updated_at = $ts;
+                    $it->save();
                 }
             }
         });

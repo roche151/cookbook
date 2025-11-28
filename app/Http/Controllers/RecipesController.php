@@ -87,7 +87,7 @@ class RecipesController extends Controller
             'directions' => 'required|array|min:1',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.name' => 'required|string',
-            'ingredients.*.amount' => 'nullable|string',
+            'ingredients.*.amount' => 'required|string|min:1',
             'ingredients.*.sort_order' => 'required|integer',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
@@ -99,6 +99,9 @@ class RecipesController extends Controller
             'tags.required' => 'At least one Tag is required',
             'directions.required' => 'At least one Direction is required',
             'directions.*.body.required' => 'Direction cannot be empty',
+            'ingredients.*.name.required' => 'Ingredient cannot be empty',
+            'ingredients.*.amount.required' => 'Ingredient amount cannot be empty',
+            'ingredients.*.amount.min' => 'Ingredient amount cannot be empty',
         ];
 
         $attributes = [
@@ -146,7 +149,7 @@ class RecipesController extends Controller
                 }
 
                 // include child keys immediately after their parent (e.g., directions.0.body)
-                if ($key === 'tags' || $key === 'directions') {
+                if ($key === 'tags' || $key === 'directions' || $key === 'ingredients') {
                     foreach ($orig as $k2 => $msgs2) {
                         if (in_array($k2, $added, true)) continue;
                         if (strpos($k2, $key . '.') === 0) {
@@ -252,7 +255,7 @@ class RecipesController extends Controller
             'ingredients' => 'required|array|min:1',
             'ingredients.*.id' => 'nullable|integer|exists:ingredients,id',
             'ingredients.*.name' => 'required|string',
-            'ingredients.*.amount' => 'nullable|string',
+            'ingredients.*.amount' => 'required|string|min:1',
             'ingredients.*.sort_order' => 'required|integer',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
@@ -266,6 +269,8 @@ class RecipesController extends Controller
             'directions.*.body.required' => 'Direction cannot be empty.',
             'ingredients.required' => 'At least 1 Ingredient is required.',
             'ingredients.*.name.required' => 'Ingredient cannot be empty.',
+            'ingredients.*.amount.required' => 'Ingredient amount cannot be empty.',
+            'ingredients.*.amount.min' => 'Ingredient amount cannot be empty.',
         ];
 
         $attributes = [
@@ -310,7 +315,7 @@ class RecipesController extends Controller
                     $added[] = $key;
                 }
 
-                if ($key === 'tags' || $key === 'directions') {
+                if ($key === 'tags' || $key === 'directions' || $key === 'ingredients') {
                     foreach ($orig as $k2 => $msgs2) {
                         if (in_array($k2, $added, true)) continue;
                         if (strpos($k2, $key . '.') === 0) {

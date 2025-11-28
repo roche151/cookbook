@@ -6,7 +6,7 @@
     'tags' => [],
 ])
 
-<form action="{{ $action }}" method="POST" class="row g-3">
+<form action="{{ $action }}" method="POST" class="row g-3" novalidate>
     @csrf
     @if(strtoupper($method) !== 'POST')
         @method($method)
@@ -135,11 +135,23 @@
                 @foreach($ingredients as $i => $ing)
                     <div class="card mb-2 ingredient-item" data-index="{{ $i }}">
                         <div class="card-body p-2 d-flex gap-2 align-items-start">
-                            <div class="flex-grow-1 d-flex gap-2">
-                                <input type="hidden" name="ingredients[{{ $i }}][id]" value="{{ $ing['id'] ?? '' }}">
-                                <input type="hidden" name="ingredients[{{ $i }}][sort_order]" class="ingredient-sort-order" value="{{ $ing['sort_order'] ?? $i }}">
-                                <input type="text" name="ingredients[{{ $i }}][amount]" class="form-control ingredient-amount" placeholder="e.g. 100g" value="{{ $ing['amount'] ?? '' }}" style="width:140px">
-                                <input type="text" name="ingredients[{{ $i }}][name]" class="form-control ingredient-name" placeholder="Ingredient" value="{{ $ing['name'] ?? '' }}">
+                            <div class="flex-grow-1 d-flex gap-2 flex-column">
+                                <div class="d-flex gap-2">
+                                    <input type="hidden" name="ingredients[{{ $i }}][id]" value="{{ $ing['id'] ?? '' }}">
+                                    <input type="hidden" name="ingredients[{{ $i }}][sort_order]" class="ingredient-sort-order" value="{{ $ing['sort_order'] ?? $i }}">
+                                    <input type="text" name="ingredients[{{ $i }}][amount]" class="form-control ingredient-amount" placeholder="e.g. 100g" value="{{ $ing['amount'] ?? '' }}" style="width:140px" required>
+                                    <input type="text" name="ingredients[{{ $i }}][name]" class="form-control ingredient-name" placeholder="Ingredient" value="{{ $ing['name'] ?? '' }}" required>
+                                </div>
+                                @if($errors->has("ingredients.{$i}.amount") || $errors->has("ingredients.{$i}.name"))
+                                    <div class="text-danger small">
+                                        @if($errors->has("ingredients.{$i}.amount"))
+                                            {{ $errors->first("ingredients.{$i}.amount") }}
+                                        @endif
+                                        @if($errors->has("ingredients.{$i}.name"))
+                                            {{ $errors->first("ingredients.{$i}.name") }}
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                             <div class="d-flex flex-column gap-1">
                                 <button type="button" class="btn btn-sm btn-outline-secondary js-ing-up" title="Move up">↑</button>
@@ -149,10 +161,6 @@
                         </div>
                     </div>
                 @endforeach
-
-                @if($errors->has('ingredients.*.name'))
-                    <div class="text-danger small mt-1">{{ $errors->first('ingredients.*.name') }}</div>
-                @endif
             </div>
 
             <div>
@@ -185,10 +193,15 @@
                 @foreach($directions as $i => $d)
                     <div class="card mb-2 direction-item" data-index="{{ $i }}">
                         <div class="card-body p-2 d-flex gap-2 align-items-start">
-                            <div class="flex-grow-1">
-                                <input type="hidden" name="directions[{{ $i }}][id]" value="{{ $d['id'] ?? '' }}">
-                                <input type="hidden" name="directions[{{ $i }}][sort_order]" class="direction-sort-order" value="{{ $d['sort_order'] ?? $i }}">
-                                <textarea name="directions[{{ $i }}][body]" class="form-control direction-body" rows="2">{{ $d['body'] ?? '' }}</textarea>
+                            <div class="flex-grow-1 d-flex flex-column gap-2">
+                                <div>
+                                    <input type="hidden" name="directions[{{ $i }}][id]" value="{{ $d['id'] ?? '' }}">
+                                    <input type="hidden" name="directions[{{ $i }}][sort_order]" class="direction-sort-order" value="{{ $d['sort_order'] ?? $i }}">
+                                    <textarea name="directions[{{ $i }}][body]" class="form-control direction-body" rows="2">{{ $d['body'] ?? '' }}</textarea>
+                                </div>
+                                @if($errors->has("directions.{$i}.body"))
+                                    <div class="text-danger small">{{ $errors->first("directions.{$i}.body") }}</div>
+                                @endif
                             </div>
                             <div class="d-flex flex-column gap-1">
                                 <button type="button" class="btn btn-sm btn-outline-secondary js-dir-up" title="Move up">↑</button>
@@ -198,10 +211,6 @@
                         </div>
                     </div>
                 @endforeach
-
-                @if($errors->has('directions.*.body'))
-                    <div class="text-danger small mt-1">{{ $errors->first('directions.*.body') }}</div>
-                @endif
             </div>
 
             <div>
@@ -218,3 +227,21 @@
         <a href="{{ url('/recipes') }}" class="btn btn-link">Cancel</a>
     </div>
 </form>
+
+@if($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find the first input/textarea/select with an error
+            const firstErrorField = document.querySelector('.text-danger')?.closest('.card-body, .col-12, .col-md-6, .col-md-4')?.querySelector('input:not([type="hidden"]), textarea, select');
+            
+            if (firstErrorField) {
+                // Scroll the element into view
+                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Focus the field
+                setTimeout(() => {
+                    firstErrorField.focus();
+                }, 300);
+            }
+        });
+    </script>
+@endif

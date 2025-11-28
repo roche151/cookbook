@@ -44,8 +44,8 @@ function makeItem(index, data = {}) {
             <div class="flex-grow-1 d-flex gap-2">
                 <input type="hidden" name="ingredients[${index}][id]" value="${data.id || ''}">
                 <input type="hidden" name="ingredients[${index}][sort_order]" class="ingredient-sort-order" value="${data.sort_order ?? index}">
-                <input type="text" name="ingredients[${index}][amount]" class="form-control ingredient-amount" placeholder="e.g. 100g" value="${data.amount || ''}" style="width:140px">
-                <input type="text" name="ingredients[${index}][name]" class="form-control ingredient-name" placeholder="Ingredient" value="${data.name || ''}">
+                <input type="text" name="ingredients[${index}][amount]" class="form-control ingredient-amount" placeholder="e.g. 100g" value="${data.amount || ''}" style="width:140px" required>
+                <input type="text" name="ingredients[${index}][name]" class="form-control ingredient-name" placeholder="Ingredient" value="${data.name || ''}" required>
             </div>
             <div class="d-flex flex-column gap-1">
                 <button type="button" class="btn btn-sm btn-outline-secondary js-ing-up" title="Move up">↑</button>

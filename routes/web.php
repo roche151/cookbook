@@ -12,9 +12,8 @@ Route::get('/', function () {
 
 // Public recipe routes (anyone can view)
 Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index');
-Route::get('/recipes/{recipe}', [RecipesController::class, 'show'])->name('recipes.show');
 
-// Protected recipe routes (must be logged in)
+// Protected recipe routes (must be logged in) - define /create BEFORE /{recipe}
 Route::middleware('auth')->group(function () {
     Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
     Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes.store');
@@ -26,5 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Public recipe show route - define AFTER /create to avoid conflicts
+Route::get('/recipes/{recipe}', [RecipesController::class, 'show'])->name('recipes.show');
 
 require __DIR__.'/auth.php';

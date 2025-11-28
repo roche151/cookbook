@@ -1,7 +1,0 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
-
-/* Project custom styles go below. Replace Tailwind directives with Bootstrap utilities or custom classes. */
-
-:root {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-}

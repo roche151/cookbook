@@ -74,14 +74,17 @@
             <hr>
 
             @guest
-                <a class="nav-link" href="{{ url('/login') }}">Login</a>
-                <a class="nav-link" href="{{ url('/register') }}">Register</a>
+                <a class="nav-link" href="{{ route('login') }}">Login</a>
+                <a class="nav-link" href="{{ route('register') }}">Register</a>
             @else
                 <div class="px-3">
                     <strong>{{ Auth::user()->name }}</strong>
                     <div class="mt-2">
-                        <a class="btn btn-sm btn-outline-secondary" href="#">Profile</a>
-                        <a class="btn btn-sm btn-outline-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">Profile</a>
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                        </form>
                     </div>
                 </div>
             @endguest
@@ -115,19 +118,21 @@
     <hr>
     <div class="mt-2">
         @guest
-            <a class="nav-link" href="{{ url('/login') }}">Login</a>
-            <a class="nav-link" href="{{ url('/register') }}">Register</a>
+            <a class="nav-link" href="{{ route('login') }}">Login</a>
+            <a class="nav-link" href="{{ route('register') }}">Register</a>
         @else
             <div>
                 <strong>{{ Auth::user()->name }}</strong>
                 <div class="mt-2">
-                    <a class="btn btn-sm btn-outline-secondary" href="#">Profile</a>
-                    <a class="btn btn-sm btn-outline-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">Profile</a>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                    </form>
                 </div>
             </div>
         @endguest
     </div>
 </aside>
 
-<!-- Single logout form used by both sidebar and offcanvas -->
-<form id="logout-form" action="{{ url('/logout') }}" method="POST" class="d-none">@csrf</form>
+<!-- Logout form is no longer needed -->

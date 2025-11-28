@@ -52,6 +52,7 @@
                 @endif
             </div>
             <div class="col-md-4">
+                @auth
                 <div class="d-flex gap-2 align-items-center mb-2">
                     <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary px-3">Edit</a>
 
@@ -61,6 +62,7 @@
                         <button class="btn btn-sm btn-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
                     </form>
                 </div>
+                @endauth
                 <div class="card">
                     <div class="card-body">
                         <h6>Ingredients</h6>

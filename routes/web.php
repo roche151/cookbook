@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipesController;
-
+use Illuminate\Support\Facades\Route;
 use App\Models\Tag;
 
 Route::get('/', function () {
@@ -10,5 +10,21 @@ Route::get('/', function () {
     return view('home', ['tags' => $tags]);
 });
 
-// Recipes resourceful routes (uses route-model binding)
-Route::resource('recipes', RecipesController::class);
+// Public recipe routes (anyone can view)
+Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index');
+Route::get('/recipes/{recipe}', [RecipesController::class, 'show'])->name('recipes.show');
+
+// Protected recipe routes (must be logged in)
+Route::middleware('auth')->group(function () {
+    Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
+    Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes.store');
+    Route::get('/recipes/{recipe}/edit', [RecipesController::class, 'edit'])->name('recipes.edit');
+    Route::patch('/recipes/{recipe}', [RecipesController::class, 'update'])->name('recipes.update');
+    Route::delete('/recipes/{recipe}', [RecipesController::class, 'destroy'])->name('recipes.destroy');
+    
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';

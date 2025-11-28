@@ -15,6 +15,7 @@ class Recipe extends Model
         'description',
         'image',
         'time',
+        'user_id',
     ];
 
     protected $casts = [
@@ -36,5 +37,8 @@ class Recipe extends Model
         return $this->hasMany(Ingredient::class)->orderBy('sort_order');
     }
 
-    // NOTE: Use `tags()` to access related tags.
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

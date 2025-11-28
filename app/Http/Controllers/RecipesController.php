@@ -63,6 +63,11 @@ class RecipesController extends Controller
 
     public function edit(Recipe $recipe)
     {
+        // Check if user owns the recipe
+        if ($recipe->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $recipe->load('tags');
         $tags = \App\Models\Tag::orderBy('sort_order')->orderBy('name')->get();
         return view('recipes.edit', compact('recipe', 'tags'));
@@ -183,6 +188,7 @@ class RecipesController extends Controller
                 'image' => $data['image'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
+                'user_id' => auth()->id(),
             ]);
 
             // Attach selected tags
@@ -227,6 +233,11 @@ class RecipesController extends Controller
 
     public function update(Request $request, Recipe $recipe)
     {
+        // Check if user owns the recipe
+        if ($recipe->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         // Validation rules
         $rules = [
             'title' => 'required|string|max:255',
@@ -420,6 +431,11 @@ class RecipesController extends Controller
 
     public function destroy(Recipe $recipe)
     {
+        // Check if user owns the recipe
+        if ($recipe->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         // Detach all tags first (pivot cleanup), then delete the recipe
         $recipe->tags()->detach();
         $recipe->delete();

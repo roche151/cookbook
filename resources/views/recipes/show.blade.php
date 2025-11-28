@@ -34,6 +34,15 @@
                         }
                     @endphp
                     {{ $displayTime }}
+                    @if($displayTime && $recipe->is_public !== null)
+                        <span class="mx-2">•</span>
+                    @endif
+                    @if($recipe->is_public !== null)
+                        <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print">
+                            <i class="fa-solid fa-{{ $recipe->is_public ? 'globe' : 'lock' }} me-1"></i>
+                            {{ $recipe->is_public ? 'Public' : 'Private' }}
+                        </span>
+                    @endif
                 </p>
                 
                 @if($recipe->image)

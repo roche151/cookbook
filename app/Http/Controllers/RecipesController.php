@@ -22,6 +22,16 @@ class RecipesController extends Controller
 
         $query = Recipe::query();
 
+        // Only show public recipes or recipes owned by the authenticated user
+        if (Auth::check()) {
+            $query->where(function ($qb) {
+                $qb->where('is_public', true)
+                    ->orWhere('user_id', Auth::id());
+            });
+        } else {
+            $query->where('is_public', true);
+        }
+
         // Support ?tag=TagName (case-insensitive), or tag as slug/id
         if ($tag) {
             $normalized = mb_strtolower($tag);
@@ -188,6 +198,11 @@ class RecipesController extends Controller
 
     public function show(Recipe $recipe)
     {
+        // Check if the recipe is private and user is not the owner
+        if (!$recipe->is_public && (!Auth::check() || $recipe->user_id !== Auth::id())) {
+            abort(403, 'This recipe is private.');
+        }
+
         return view('recipes.show', ['recipe' => $recipe]);
     }
 
@@ -227,6 +242,7 @@ class RecipesController extends Controller
             'ingredients.*.sort_order' => 'required|integer',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
+            'is_public' => 'nullable|boolean',
         ];
 
         // Custom messages and attribute names
@@ -350,6 +366,7 @@ class RecipesController extends Controller
                 'time' => $data['time'] ?? null,
                 'image' => $data['image'] ?? null,
                 'user_id' => Auth::id(),
+                'is_public' => $data['is_public'] ?? false,
             ]);
             // Attach selected tags
             $recipe->tags()->sync($data['tags']);
@@ -417,6 +434,7 @@ class RecipesController extends Controller
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
+            'is_public' => 'nullable|boolean',
         ];
 
         $messages = [
@@ -539,6 +557,7 @@ class RecipesController extends Controller
                 'description' => $data['description'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
+                'is_public' => $data['is_public'] ?? false,
             ];
 
             // Only update image if explicitly provided (new upload)

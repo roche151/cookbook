@@ -25,6 +25,25 @@
     @endif
 
     <div class="col-12">
+        <label class="form-label">Visibility</label>
+        <div class="d-flex gap-3">
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="is_public" id="visibility_private" value="0" {{ old('is_public', optional($recipe)->is_public) ? '' : 'checked' }}>
+                <label class="form-check-label" for="visibility_private">
+                    <i class="fa-solid fa-lock me-1"></i>Private
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="is_public" id="visibility_public" value="1" {{ old('is_public', optional($recipe)->is_public) ? 'checked' : '' }}>
+                <label class="form-check-label" for="visibility_public">
+                    <i class="fa-solid fa-globe me-1"></i>Public
+                </label>
+            </div>
+        </div>
+        <small class="text-muted">Private recipes are only visible to you. Public recipes can be viewed by others.</small>
+    </div>
+
+    <div class="col-12">
         <label class="form-label">Title</label>
         <input name="title" class="form-control" value="{{ old('title', optional($recipe)->title) }}">
         @if($errors->has('title'))

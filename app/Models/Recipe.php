@@ -17,10 +17,12 @@ class Recipe extends Model
         'image',
         'time',
         'user_id',
+        'is_public',
     ];
 
     protected $casts = [
         'time' => 'integer',
+        'is_public' => 'boolean',
     ];
 
     /**

@@ -1,6 +1,7 @@
 <div class="card h-100">
     @php
         $image = data_get($recipe, 'image');
+        $isOwnedByUser = auth()->check() && data_get($recipe, 'user_id') === auth()->id();
     @endphp
     @if($image)
         <img src="{{ Storage::url($image) }}" class="card-img-top" alt="{{ data_get($recipe, 'title') }}" style="height: 200px; object-fit: cover;">
@@ -9,6 +10,15 @@
             <i class="fa-regular fa-image text-muted" style="font-size: 3rem;"></i>
         </div>
     @endif
+    
+    @if($isOwnedByUser && !request()->routeIs('recipes.my'))
+        <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
+            <span class="badge bg-primary bg-opacity-75 backdrop-blur">
+                <i class="fa-solid fa-user"></i>
+            </span>
+        </div>
+    @endif
+    
     <div class="card-body d-flex flex-column position-relative">
         @auth
             @php
@@ -55,6 +65,14 @@
             @endphp
             {{ $displayTime }}
         </p>
+        @if(data_get($recipe, 'is_public') !== null)
+            <p class="mb-2">
+                <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }}">
+                    <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }} me-1"></i>
+                    {{ data_get($recipe, 'is_public') ? 'Public' : 'Private' }}
+                </span>
+            </p>
+        @endif
         <p class="card-text" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 3em; line-height: 1.5em;">{{ data_get($recipe, 'description') }}</p>
         
         @php

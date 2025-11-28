@@ -57,7 +57,7 @@
                     @php
                         $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
                     @endphp
-                    <form action="{{ route('recipes.favorite', $recipe->id) }}" method="POST" class="mb-0">
+                    <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="mb-0">
                         @csrf
                         <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-warning' : 'btn-outline-warning' }} px-3">
                             <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-star me-1"></i>
@@ -65,9 +65,9 @@
                         </button>
                     </form>
                     @if($recipe->user_id === auth()->id())
-                    <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-secondary px-3">Edit</a>
+                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-sm btn-secondary px-3">Edit</a>
 
-                    <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="mb-0">
+                    <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST" class="mb-0">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-sm btn-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>

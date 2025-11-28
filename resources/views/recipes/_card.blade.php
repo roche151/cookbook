@@ -4,7 +4,7 @@
             @php
                 $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', data_get($recipe, 'id'))->exists();
             @endphp
-            <form action="{{ route('recipes.favorite', data_get($recipe, 'id')) }}" method="POST" class="position-absolute top-0 end-0 m-2">
+            <form action="{{ route('recipes.favorite', data_get($recipe, 'slug')) }}" method="POST" class="position-absolute top-0 end-0 m-2">
                 @csrf
                 <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-warning' : 'btn-outline-secondary' }}" title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
                     <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-star"></i>
@@ -38,10 +38,10 @@
             {{ $displayTime }}</p>
         <p class="card-text grow">{{ data_get($recipe, 'description') }}</p>
         <div class="mt-3 text-end d-flex justify-content-end gap-2">
-            <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'id')) }}" class="btn btn-sm btn-primary">View</a>
+            <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug')) }}" class="btn btn-sm btn-primary">View</a>
             @auth
                 @if(data_get($recipe, 'user_id') === auth()->id())
-                    <a href="{{ route('recipes.edit', data_get($recipe, 'id')) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{{ route('recipes.edit', data_get($recipe, 'slug')) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
                 @endif
             @endauth
         </div>

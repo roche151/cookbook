@@ -9,6 +9,7 @@ use App\Models\Direction;
 class Recipe extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'title',
         'slug',
@@ -21,6 +22,14 @@ class Recipe extends Model
     protected $casts = [
         'time' => 'integer',
     ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function tags()
     {

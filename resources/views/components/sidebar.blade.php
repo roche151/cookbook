@@ -40,7 +40,7 @@
 <nav class="navbar navbar-dark bg-body d-md-none">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url('/') }}">{{ config('app.name', 'Laravel') }}</a>
-        <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">Menu</button>
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar"><i class="fa fa-bars" aria-hidden="true"></i></button>
     </div>
 </nav>
 
@@ -83,7 +83,7 @@
                         <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">Profile</a>
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Logout</button>
                         </form>
                     </div>
                 </div>
@@ -127,12 +127,10 @@
                     <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">Profile</a>
                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Logout</button>
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">Logout</button>
                     </form>
                 </div>
             </div>
         @endguest
     </div>
 </aside>
-
-<!-- Logout form is no longer needed -->

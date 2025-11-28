@@ -56,4 +56,26 @@ class Recipe extends Model
         return $this->belongsToMany(User::class, 'favorite_recipe')
                     ->withTimestamps();
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(RecipeRating::class);
+    }
+
+    /**
+     * Get the average rating for the recipe.
+     */
+    public function averageRating(): ?float
+    {
+        $avg = $this->ratings()->avg('rating');
+        return $avg ? round($avg, 1) : null;
+    }
+
+    /**
+     * Get the total number of ratings.
+     */
+    public function ratingsCount(): int
+    {
+        return $this->ratings()->count();
+    }
 }

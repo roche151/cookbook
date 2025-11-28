@@ -44,6 +44,27 @@
                 
                 <p class="lead">{{ data_get($recipe, 'description') }}</p>
 
+                <!-- Rating Display -->
+                <div class="mb-3">
+                    @php
+                        $avgRating = $recipe->averageRating();
+                        $ratingsCount = $recipe->ratingsCount();
+                    @endphp
+                    @if($avgRating)
+                        <div class="d-flex align-items-center">
+                            <div class="text-warning me-2">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star"></i>
+                                @endfor
+                            </div>
+                            <span class="fw-bold">{{ number_format($avgRating, 1) }}</span>
+                            <span class="text-muted ms-1">({{ $ratingsCount }} {{ Str::plural('rating', $ratingsCount) }})</span>
+                        </div>
+                    @else
+                        <p class="text-muted mb-0">No ratings yet</p>
+                    @endif
+                </div>
+
                 <hr>
                 <h5>Method</h5>
                 @if($recipe->directions && $recipe->directions->count())
@@ -82,6 +103,36 @@
                     @endif
                 </div>
                 @endauth
+
+                <!-- Rating Form (only for logged-in users who don't own the recipe) -->
+                @auth
+                    @if($recipe->user_id !== auth()->id())
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Rate this recipe</h6>
+                                @php
+                                    $userRating = auth()->user()->recipeRatings()->where('recipe_id', $recipe->id)->first();
+                                @endphp
+                                <form action="{{ route('recipes.rate', $recipe->slug) }}" method="POST">
+                                    @csrf
+                                    <div class="d-flex gap-2 align-items-center">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <label class="mb-0" style="cursor: pointer;">
+                                                <input type="radio" name="rating" value="{{ $i }}" class="d-none rating-input" {{ $userRating && $userRating->rating == $i ? 'checked' : '' }} required>
+                                                <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.5rem;"></i>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                    @if($userRating)
+                                        <p class="text-muted small mb-2 mt-2">Your current rating: {{ $userRating->rating }} stars</p>
+                                    @endif
+                                    <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Rating</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
+                @endauth
+
                 <div class="card">
                     <div class="card-body">
                         <h6>Ingredients</h6>
@@ -106,5 +157,49 @@
             </div>
         </div>
     </div>
+
+    @auth
+        @if($recipe->user_id !== auth()->id())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const stars = document.querySelectorAll('.rating-star');
+                const inputs = document.querySelectorAll('.rating-input');
+                
+                // Hover effect
+                stars.forEach((star, index) => {
+                    star.addEventListener('mouseenter', function() {
+                        highlightStars(index + 1);
+                    });
+                    
+                    star.parentElement.addEventListener('mouseleave', function() {
+                        const checkedInput = document.querySelector('.rating-input:checked');
+                        if (checkedInput) {
+                            const checkedValue = parseInt(checkedInput.value);
+                            highlightStars(checkedValue);
+                        } else {
+                            highlightStars(0);
+                        }
+                    });
+                    
+                    star.parentElement.addEventListener('click', function() {
+                        highlightStars(index + 1);
+                    });
+                });
+                
+                function highlightStars(count) {
+                    stars.forEach((star, index) => {
+                        if (index < count) {
+                            star.classList.remove('fa-regular', 'text-muted');
+                            star.classList.add('fa-solid', 'text-warning');
+                        } else {
+                            star.classList.remove('fa-solid', 'text-warning');
+                            star.classList.add('fa-regular', 'text-muted');
+                        }
+                    });
+                }
+            });
+        </script>
+        @endif
+    @endauth
 
 </x-app-layout>

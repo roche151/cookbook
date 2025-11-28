@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-recipes', [RecipesController::class, 'myRecipes'])->name('recipes.my');
     Route::get('/my-favorites', [RecipesController::class, 'myFavorites'])->name('recipes.favorites');
     Route::post('/recipes/{recipe}/favorite', [RecipesController::class, 'toggleFavorite'])->name('recipes.favorite');
+    Route::post('/recipes/{recipe}/rate', [RecipesController::class, 'storeRating'])->name('recipes.rate');
     Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
     Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes.store');
     Route::get('/recipes/{recipe}/edit', [RecipesController::class, 'edit'])->name('recipes.edit');

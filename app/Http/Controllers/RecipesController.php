@@ -7,6 +7,7 @@ use App\Models\Recipe;
 use App\Models\Tag;
 use App\Models\Direction;
 use App\Models\Ingredient;
+use App\Models\RecipeRating;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -156,6 +157,33 @@ class RecipesController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    public function storeRating(Request $request, Recipe $recipe)
+    {
+        $user = auth()->user();
+
+        // Prevent owner from rating their own recipe
+        if ($recipe->user_id === $user->id) {
+            return back()->with('error', 'You cannot rate your own recipe.');
+        }
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        // Update or create the rating
+        RecipeRating::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'recipe_id' => $recipe->id,
+            ],
+            [
+                'rating' => $validated['rating'],
+            ]
+        );
+
+        return back()->with('success', 'Rating submitted successfully!');
     }
 
     public function show(Recipe $recipe)

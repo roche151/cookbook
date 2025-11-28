@@ -34,6 +34,11 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
+    public function recipeRatings()
+    {
+        return $this->hasMany(RecipeRating::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

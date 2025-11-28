@@ -37,6 +37,23 @@
             @endphp
             {{ $displayTime }}</p>
         <p class="card-text grow">{{ data_get($recipe, 'description') }}</p>
+        
+        @php
+            $avgRating = is_object($recipe) && method_exists($recipe, 'averageRating') ? $recipe->averageRating() : null;
+            $ratingsCount = is_object($recipe) && method_exists($recipe, 'ratingsCount') ? $recipe->ratingsCount() : 0;
+        @endphp
+        @if($avgRating)
+            <div class="mb-2">
+                <div class="text-warning">
+                    @for($i = 1; $i <= 5; $i++)
+                        <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star" style="font-size: 0.875rem;"></i>
+                    @endfor
+                    <span class="text-light fw-bold ms-1 small">{{ number_format($avgRating, 1) }}</span>
+                    <span class="text-muted small">({{ $ratingsCount }})</span>
+                </div>
+            </div>
+        @endif
+        
         <div class="mt-3 text-end d-flex justify-content-end gap-2">
             <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug')) }}" class="btn btn-sm btn-primary">View</a>
             @auth

@@ -4,4 +4,5 @@ import './directions';
 import './ingredients';
 
 // Initialize delete confirmation dialogs
-window.bootbox = require('bootbox');
+import bootbox from 'bootbox';
+window.bootbox = bootbox;

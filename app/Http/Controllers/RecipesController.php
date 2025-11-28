@@ -17,136 +17,124 @@ class RecipesController extends Controller
 {
     public function index(Request $request)
     {
-        $q = $request->query('q');
-        $tag = $request->query('tag');
-
-        $query = Recipe::query();
-
-        // Only show public recipes or recipes owned by the authenticated user
-        if (Auth::check()) {
-            $query->where(function ($qb) {
-                $qb->where('is_public', true)
-                    ->orWhere('user_id', Auth::id());
-            });
-        } else {
-            $query->where('is_public', true);
-        }
-
-        // Support ?tag=TagName (case-insensitive), or tag as slug/id
-        if ($tag) {
-            $normalized = mb_strtolower($tag);
-            $tg = \App\Models\Tag::whereRaw('LOWER(name) = ?', [$normalized])
-                ->orWhere('slug', $tag)
-                ->orWhere('id', $tag)
-                ->first();
-
-            if ($tg) {
-                $query->whereHas('tags', function ($qb) use ($tg) {
-                    $qb->where('tags.id', $tg->id);
-                });
-            }
-        }
-
-        if ($q) {
-            $query->where(function ($qbuilder) use ($q) {
-                $qbuilder->where('title', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%");
-            });
-        }
-
-        $recipes = $query->with('tags')->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
-
-        return view('recipes.index', [
-            'recipes' => $recipes,
-            'q' => $request->query('q'),
-            'tag' => $tag,
-            'title' => 'All Recipes',
-            'emptyMessage' => $q ? 'No recipes found matching "' . $q . '".' : 'No recipes found.',
-        ]);
+        return $this->listRecipes($request, 'all');
     }
 
     public function myRecipes(Request $request)
     {
-        $q = $request->query('q');
-        $tag = $request->query('tag');
-
-        $query = Recipe::where('user_id', Auth::id());
-
-        // Support ?tag=TagName (case-insensitive), or tag as slug/id
-        // Support ?tag=TagName (case-insensitive), or tag as slug/id
-        if ($tag) {
-            $normalized = mb_strtolower($tag);
-            $tg = \App\Models\Tag::whereRaw('LOWER(name) = ?', [$normalized])
-                ->orWhere('slug', $tag)
-                ->orWhere('id', $tag)
-                ->first();
-
-            if ($tg) {
-                $query->whereHas('tags', function ($qb) use ($tg) {
-                    $qb->where('tags.id', $tg->id);
-                });
-            }
-        }
-
-        if ($q) {
-            $query->where(function ($qbuilder) use ($q) {
-                $qbuilder->where('title', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%");
-            });
-        }
-
-        $recipes = $query->with('tags')->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
-
-        return view('recipes.index', [
-            'recipes' => $recipes,
-            'q' => $request->query('q'),
-            'tag' => $tag,
-            'title' => 'My Recipes',
-            'emptyMessage' => $q ? 'No recipes found matching "' . $q . '".' : 'You haven\'t created any recipes yet.',
-        ]);
+        return $this->listRecipes($request, 'my');
     }
 
     public function myFavorites(Request $request)
     {
+        return $this->listRecipes($request, 'favorites');
+    }
+
+    private function listRecipes(Request $request, string $context = 'all')
+    {
         $q = $request->query('q');
-        $tag = $request->query('tag');
-        $user = Auth::user();
-        if (! $user) {
-            abort(403, 'Unauthorized action.');
-        }
-        /** @var \App\Models\User $user */
-        $query = $user->favoriteRecipes();
+        $tags = $request->query('tags', []);
+        $sort = $request->query('sort', 'date_desc');
 
-        // Support ?tag=TagName (case-insensitive), or tag as slug/id
-        if ($tag) {
-            $normalized = mb_strtolower($tag);
-            $tg = \App\Models\Tag::whereRaw('LOWER(name) = ?', [$normalized])
-                ->orWhere('slug', $tag)
-                ->orWhere('id', $tag)
+        // Support legacy ?tag=name parameter - convert to tags[] array
+        if ($request->has('tag') && !empty($request->query('tag'))) {
+            $legacyTag = $request->query('tag');
+            $normalized = mb_strtolower($legacyTag);
+            $foundTag = Tag::whereRaw('LOWER(name) = ?', [$normalized])
+                ->orWhere('slug', $legacyTag)
+                ->orWhere('id', $legacyTag)
                 ->first();
+            
+            if ($foundTag && !in_array($foundTag->id, $tags)) {
+                $tags[] = $foundTag->id;
+            }
+        }
 
-            if ($tg) {
-                $query->whereHas('tags', function ($qb) use ($tg) {
-                    $qb->where('tags.id', $tg->id);
+        // Initialize query based on context
+        if ($context === 'my') {
+            $query = Recipe::where('user_id', Auth::id());
+            $title = 'My Recipes';
+            $emptyMessage = 'You haven\'t created any recipes yet.';
+        } elseif ($context === 'favorites') {
+            $user = Auth::user();
+            if (!$user) {
+                abort(403, 'Unauthorized action.');
+            }
+            $query = $user->favoriteRecipes();
+            $title = 'My Favorite Recipes';
+            $emptyMessage = 'You haven\'t favorited any recipes yet.';
+        } else {
+            $query = Recipe::query();
+            // Only show public recipes or recipes owned by the authenticated user
+            if (Auth::check()) {
+                $query->where(function ($qb) {
+                    $qb->where('is_public', true)
+                        ->orWhere('user_id', Auth::id());
+                });
+            } else {
+                $query->where('is_public', true);
+            }
+            $title = 'All Recipes';
+            $emptyMessage = 'No recipes found.';
+        }
+
+        // Filter by tags (support multiple)
+        if (!empty($tags) && is_array($tags)) {
+            foreach ($tags as $tagId) {
+                $query->whereHas('tags', function ($qb) use ($tagId) {
+                    $qb->where('tags.id', $tagId);
                 });
             }
         }
 
+        // Search across multiple fields
         if ($q) {
             $query->where(function ($qbuilder) use ($q) {
                 $qbuilder->where('title', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%");
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhereHas('ingredients', function ($iq) use ($q) {
+                        $iq->where('name', 'like', "%{$q}%");
+                    });
             });
+            $emptyMessage = 'No recipes found matching "' . $q . '".';
         }
 
-        $recipes = $query->with('tags')->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+        // Apply sorting
+        switch ($sort) {
+            case 'date_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'time_asc':
+                $query->orderBy('time', 'asc');
+                break;
+            case 'time_desc':
+                $query->orderBy('time', 'desc');
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'date_desc':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $recipes = $query->with('tags')->paginate(12)->withQueryString();
+
+        // Get all tags for filter
+        $allTags = Tag::orderBy('sort_order')->orderBy('name')->get();
 
         return view('recipes.index', [
             'recipes' => $recipes,
-            'q' => $request->query('q'),
-            'tag' => $tag,
-            'title' => 'My Favorite Recipes',
-            'emptyMessage' => $q ? 'No favorite recipes found matching "' . $q . '".' : 'You haven\'t favorited any recipes yet.',
+            'q' => $q,
+            'selectedTags' => $tags,
+            'allTags' => $allTags,
+            'sort' => $sort,
+            'title' => $title,
+            'emptyMessage' => $emptyMessage,
         ]);
     }
 

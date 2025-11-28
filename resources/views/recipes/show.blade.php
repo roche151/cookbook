@@ -4,7 +4,7 @@
     <div class="container py-5">
         <div class="row">
             <div class="col-md-8">
-                <nav aria-label="breadcrumb" class="mb-2">
+                <nav aria-label="breadcrumb" class="mb-2 no-print">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
@@ -45,7 +45,7 @@
                 <p class="lead">{{ data_get($recipe, 'description') }}</p>
 
                 <!-- Rating Display -->
-                <div class="mb-3">
+                <div class="mb-3 no-print">
                     @php
                         $avgRating = $recipe->averageRating();
                         $ratingsCount = $recipe->ratingsCount();
@@ -65,6 +65,25 @@
                     @endif
                 </div>
 
+                <!-- Ingredients (shown before Method; visible on screen and print) -->
+                <div class="print-ingredients">
+                    <h5>Ingredients</h5>
+                    @if($recipe->ingredients && $recipe->ingredients->count())
+                        <ul class="list-group mb-0 ingredients-list">
+                            @foreach($recipe->ingredients as $ingredient)
+                                <li class="list-group-item">
+                                    @if($ingredient->amount)
+                                        <span class="text-muted me-2">{{ e($ingredient->amount) }}</span>
+                                    @endif
+                                    <span>{{ e($ingredient->name) }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-muted">No ingredients provided for this recipe.</p>
+                    @endif
+                </div>
+
                 <hr>
                 <h5>Method</h5>
                 @if($recipe->directions && $recipe->directions->count())
@@ -81,7 +100,7 @@
             </div>
             <div class="col-md-4">
                 @auth
-                <div class="d-flex gap-2 align-items-center mb-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-2 no-print">
                     @php
                         $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
                     @endphp
@@ -95,6 +114,8 @@
                     @if($recipe->user_id === auth()->id())
                     <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-sm btn-secondary px-3">Edit</a>
 
+                    
+
                     <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST" class="mb-0">
                         @csrf
                         @method('DELETE')
@@ -104,10 +125,17 @@
                 </div>
                 @endauth
 
+                <!-- Print Button -->
+                <div class="mb-3 no-print">
+                    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+                        <i class="fa-solid fa-print me-1"></i>Print Recipe
+                    </button>
+                </div>
+
                 <!-- Rating Form (only for logged-in users who don't own the recipe) -->
                 @auth
                     @if($recipe->user_id !== auth()->id())
-                        <div class="card mb-3">
+                        <div class="card mb-3 no-print">
                             <div class="card-body">
                                 <h6 class="card-title">Rate this recipe</h6>
                                 @php
@@ -133,27 +161,7 @@
                     @endif
                 @endauth
 
-                <div class="card">
-                    <div class="card-body">
-                        <h6>Ingredients</h6>
-                        @if($recipe->ingredients && $recipe->ingredients->count())
-                            <ul class="list-group mb-0">
-                                @foreach($recipe->ingredients as $ingredient)
-                                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                                        <div>
-                                            @if($ingredient->amount)
-                                                <span class="text-muted me-2">{{ e($ingredient->amount) }}</span>
-                                            @endif
-                                            <span>{{ e($ingredient->name) }}</span>
-                                        </div>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @else
-                            <p class="text-muted">No ingredients provided for this recipe.</p>
-                        @endif
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -201,5 +209,203 @@
         </script>
         @endif
     @endauth
+
+    <style>
+        @media print {
+            /* Hide all non-essential elements */
+            .no-print,
+            nav,
+            .btn,
+            button,
+            form,
+            a,
+            header,
+            footer,
+            .sidebar {
+                display: none !important;
+            }
+            /* Ensure ingredients block is displayed and styled in print */
+            .print-ingredients { display: block !important; }
+
+
+            /* Show ingredients card specifically */
+            .print-ingredients {
+                display: block !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .print-ingredients .card-body {
+                padding: 0 !important;
+            }
+
+            /* Full page layout */
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                font-family: Arial, sans-serif;
+                padding: 20px !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .row {
+                display: block !important;
+                margin: 0 !important;
+            }
+
+            .col-md-8,
+            .col-md-4 {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                float: none !important;
+            }
+
+            /* Title styling */
+            h1 {
+                font-size: 28pt !important;
+                margin-bottom: 8pt !important;
+                font-weight: bold !important;
+                color: black !important;
+            }
+
+            /* Tags and time */
+            .text-muted {
+                color: #666 !important;
+                font-size: 10pt !important;
+                margin-bottom: 12pt !important;
+            }
+
+            /* Image optimization */
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+                margin: 12pt 0 !important;
+                page-break-inside: avoid;
+            }
+
+            /* Description */
+            .lead {
+                font-size: 11pt !important;
+                margin-bottom: 16pt !important;
+                color: black !important;
+            }
+
+            /* Section headings */
+            h5 {
+                font-size: 14pt !important;
+                font-weight: bold !important;
+                margin-top: 16pt !important;
+                margin-bottom: 8pt !important;
+                color: black !important;
+                page-break-after: avoid;
+            }
+
+            h6 {
+                font-size: 12pt !important;
+                font-weight: bold !important;
+                margin-top: 12pt !important;
+                margin-bottom: 6pt !important;
+                color: black !important;
+            }
+
+            /* Method steps */
+            .list-group {
+                margin: 0 !important;
+                padding: 0 !important;
+                list-style: decimal inside !important;
+            }
+
+            .list-group-numbered {
+                counter-reset: item !important;
+                list-style: none !important;
+                padding-left: 0 !important;
+            }
+
+            .list-group-numbered .list-group-item {
+                counter-increment: item !important;
+                padding: 6pt 0 !important;
+                border: none !important;
+                background: transparent !important;
+                color: black !important;
+                font-size: 11pt !important;
+                line-height: 1.6 !important;
+                page-break-inside: avoid;
+            }
+
+            .list-group-numbered .list-group-item::before {
+                content: counter(item) ". " !important;
+                font-weight: bold !important;
+                margin-right: 8pt !important;
+            }
+
+            /* Ingredients styling - show them */
+            .col-md-4 {
+                display: block !important;
+                margin-top: 16pt !important;
+            }
+
+            .print-ingredients h6 {
+                font-size: 12pt !important;
+                font-weight: bold !important;
+                margin-bottom: 8pt !important;
+                color: black !important;
+            }
+
+            .ingredients-list {
+                list-style: none !important;
+                padding: 0 !important;
+                display: block !important;
+            }
+
+            .ingredients-list .list-group-item {
+                padding: 4pt 0 !important;
+                border: none !important;
+                background: transparent !important;
+                color: black !important;
+                font-size: 11pt !important;
+                display: block !important;
+            }
+
+            .ingredients-list .list-group-item span {
+                color: black !important;
+            }
+
+            .ingredients-list .list-group-item .text-muted {
+                color: #666 !important;
+            }
+
+            /* Remove Bootstrap styling */
+            hr {
+                border: 1px solid #ccc !important;
+                margin: 12pt 0 !important;
+            }
+
+            /* Ensure readable colors */
+            p, span, div, li {
+                color: black !important;
+            }
+
+            /* Page breaks */
+            .page-break-before {
+                page-break-before: always;
+            }
+
+            .page-break-after {
+                page-break-after: always;
+            }
+        }
+    </style>
 
 </x-app-layout>

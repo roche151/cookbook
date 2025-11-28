@@ -28,7 +28,11 @@
         <p class="card-text grow">{{ data_get($recipe, 'description') }}</p>
         <div class="mt-3 text-end d-flex justify-content-end gap-2">
             <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'id')) }}" class="btn btn-sm btn-primary">View</a>
-            <a href="{{ route('recipes.edit', data_get($recipe, 'id')) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+            @auth
+                @if(data_get($recipe, 'user_id') === auth()->id())
+                    <a href="{{ route('recipes.edit', data_get($recipe, 'id')) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                @endif
+            @endauth
         </div>
     </div>
 </div>

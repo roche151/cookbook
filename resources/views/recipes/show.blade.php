@@ -80,11 +80,9 @@
                     @if($recipe->ingredients && $recipe->ingredients->count())
                         <ul class="list-group mb-0 ingredients-list">
                             @foreach($recipe->ingredients as $ingredient)
-                                <li class="list-group-item">
-                                    @if($ingredient->amount)
-                                        <span class="text-muted me-2">{{ e($ingredient->amount) }}</span>
-                                    @endif
-                                    <span>{{ e($ingredient->name) }}</span>
+                                <li class="list-group-item ingredient-row">
+                                    <span class="ingredient-amount {{ $ingredient->amount ? '' : 'ingredient-amount-empty' }}">{{ $ingredient->amount ? e($ingredient->amount) : '' }}</span>
+                                    <span class="ingredient-name">{{ e($ingredient->name) }}</span>
                                 </li>
                             @endforeach
                         </ul>
@@ -415,6 +413,16 @@
                 page-break-after: always;
             }
         }
+
+        /* Refined ingredient layout (screen) */
+        .ingredients-list { --amount-width: 110px; }
+        .ingredients-list .ingredient-row { display:flex; align-items:baseline; gap:.75rem; padding:.5rem .75rem; }
+        .ingredients-list .ingredient-row + .ingredient-row { border-top:1px solid rgba(255,255,255,.05); }
+        .ingredients-list .ingredient-amount { flex:0 0 var(--amount-width); font-variant-numeric: tabular-nums; font-weight:500; color:var(--bs-secondary-color); white-space:nowrap; }
+        .ingredients-list .ingredient-amount-empty { opacity:.35; }
+        .ingredients-list .ingredient-name { flex:1 1 auto; min-width:0; }
+        @media (max-width: 576px) { .ingredients-list { --amount-width: 80px; } }
+        @media (prefers-color-scheme: light) { .ingredients-list .ingredient-row + .ingredient-row { border-color: rgba(0,0,0,.08); } }
     </style>
 
 </x-app-layout>

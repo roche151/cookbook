@@ -60,9 +60,3 @@
     @stack('scripts')
 </body>
 </html>
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
-</html>

@@ -19,8 +19,8 @@ return [
         // These use Font Awesome classes (bundled via Vite).
         ['label' => 'Home',        'href' => '/',        'auth' => null, 'icon_class' => 'fa-solid fa-house'],
         ['label' => 'All Recipes', 'href' => '/recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-book-open'],
-        ['label' => 'My Recipes',  'href' => '/my-recipes', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-user'],
-        ['label' => 'Create Recipe',  'href' => '/recipes/create', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-plus'],
+        ['label' => 'My Recipes',  'href' => '/my-recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-user'],
+        ['label' => 'Create Recipe',  'href' => '/recipes/create', 'auth' => null, 'icon_class' => 'fa-solid fa-plus'],
         // ['label' => 'About',       'href' => '/about',   'auth' => null, 'icon_class' => 'fa-solid fa-circle-info'],
         // Named route example (only for authenticated users)
         // ['label' => 'Dashboard', 'route' => 'dashboard', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-gauge'],

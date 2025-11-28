@@ -224,7 +224,7 @@
     
     <div class="col-12">
         <button class="btn btn-primary" type="submit">{{ $buttonText }}</button>
-        <a href="{{ url('/recipes') }}" class="btn btn-link">Cancel</a>
+        <a href="{{ url('/recipes') }}" class="btn btn-link text-decoration-none">Cancel</a>
     </div>
 </form>
 

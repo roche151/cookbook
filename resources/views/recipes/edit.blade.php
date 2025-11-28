@@ -14,7 +14,7 @@
 
         @include('recipes._form', [
             'action' => route('recipes.update', $recipe->id),
-            'method' => 'PUT',
+            'method' => 'PATCH',
             'buttonText' => 'Update Recipe',
             'recipe' => $recipe,
             'tags' => $tags,

@@ -83,6 +83,7 @@ class RecipesController extends Controller
             'ingredients' => 'required|array|min:1',
             'ingredients.*.name' => 'required|string',
             'ingredients.*.amount' => 'nullable|string',
+            'ingredients.*.sort_order' => 'required|integer',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
         ];
@@ -241,6 +242,7 @@ class RecipesController extends Controller
             'ingredients.*.id' => 'nullable|integer|exists:ingredients,id',
             'ingredients.*.name' => 'required|string',
             'ingredients.*.amount' => 'nullable|string',
+            'ingredients.*.sort_order' => 'required|integer',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',

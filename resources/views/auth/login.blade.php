@@ -44,4 +44,26 @@
             <a href="{{ route('register') }}" class="text-decoration-none">Don't have an account? Register</a>
         </div>
     </form>
+
+    @if(config('app.env') !== 'production')
+    <div class="mt-4 pt-3 border-top">
+        <p class="text-muted small mb-2">Quick Login (Testing):</p>
+        @php
+            $testUsers = [
+                ['name' => 'James', 'email' => 'james@email.com', 'password' => 'Password1'],
+                ['name' => 'Test User', 'email' => 'test@example.com', 'password' => 'password'],
+            ];
+        @endphp
+        @foreach($testUsers as $user)
+        <form method="POST" action="{{ route('login') }}" class="mb-2">
+            @csrf
+            <input type="hidden" name="email" value="{{ $user['email'] }}">
+            <input type="hidden" name="password" value="{{ $user['password'] }}">
+            <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
+                Login as {{ $user['name'] }} ({{ $user['email'] }})
+            </button>
+        </form>
+        @endforeach
+    </div>
+    @endif
 </x-guest-layout>

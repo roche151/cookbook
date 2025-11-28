@@ -2,7 +2,10 @@ import axios from 'axios';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-import 'bootstrap/dist/js/bootstrap.bundle';
+
+// Import Bootstrap and expose it globally
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
 
 // Provide jQuery for bootbox (bootbox expects jQuery & $.fn.modal).
 // We import jQuery, expose it as `window.$` / `window.jQuery`, and shim

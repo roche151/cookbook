@@ -1,5 +1,16 @@
 <div class="card h-100">
-    <div class="card-body d-flex flex-column">
+    <div class="card-body d-flex flex-column position-relative">
+        @auth
+            @php
+                $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', data_get($recipe, 'id'))->exists();
+            @endphp
+            <form action="{{ route('recipes.favorite', data_get($recipe, 'id')) }}" method="POST" class="position-absolute top-0 end-0 m-2">
+                @csrf
+                <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-warning' : 'btn-outline-secondary' }}" title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
+                    <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-star"></i>
+                </button>
+            </form>
+        @endauth
         <h5 class="card-title">{{ data_get($recipe, 'title') }}</h5>
         <p class="text-muted mb-2 small">
             @php

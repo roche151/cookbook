@@ -53,17 +53,27 @@
             </div>
             <div class="col-md-4">
                 @auth
-                @if($recipe->user_id === auth()->id())
                 <div class="d-flex gap-2 align-items-center mb-2">
-                    <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-outline-secondary px-3">Edit</a>
+                    @php
+                        $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
+                    @endphp
+                    <form action="{{ route('recipes.favorite', $recipe->id) }}" method="POST" class="mb-0">
+                        @csrf
+                        <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-warning' : 'btn-outline-warning' }} px-3">
+                            <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-star me-1"></i>
+                            {{ $isFavorited ? 'Unfavorite' : 'Favorite' }}
+                        </button>
+                    </form>
+                    @if($recipe->user_id === auth()->id())
+                    <a href="{{ route('recipes.edit', $recipe->id) }}" class="btn btn-sm btn-secondary px-3">Edit</a>
 
                     <form action="{{ route('recipes.destroy', $recipe->id) }}" method="POST" class="mb-0">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-sm btn-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
                     </form>
+                    @endif
                 </div>
-                @endif
                 @endauth
                 <div class="card">
                     <div class="card-body">

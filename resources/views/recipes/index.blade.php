@@ -4,9 +4,6 @@
     <div class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h4 mb-0">{{ $title ?? 'Recipes' }}</h1>
-            @auth
-                <a href="{{ route('recipes.create') }}" class="btn btn-primary">Create Recipe</a>
-            @endauth
         </div>
 
         <form method="GET" class="mb-4">

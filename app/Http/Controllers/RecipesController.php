@@ -92,6 +92,61 @@ class RecipesController extends Controller
         ]);
     }
 
+    public function myFavorites(Request $request)
+    {
+        $q = $request->query('q');
+        $tag = $request->query('tag');
+
+        $query = auth()->user()->favoriteRecipes();
+
+        // Support ?tag=TagName (case-insensitive), or tag as slug/id
+        if ($tag) {
+            $normalized = mb_strtolower($tag);
+            $tg = \App\Models\Tag::whereRaw('LOWER(name) = ?', [$normalized])
+                ->orWhere('slug', $tag)
+                ->orWhere('id', $tag)
+                ->first();
+
+            if ($tg) {
+                $query->whereHas('tags', function ($qb) use ($tg) {
+                    $qb->where('tags.id', $tg->id);
+                });
+            }
+        }
+
+        if ($q) {
+            $query->where(function ($qbuilder) use ($q) {
+                $qbuilder->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        $recipes = $query->with('tags')->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+
+        return view('recipes.index', [
+            'recipes' => $recipes,
+            'q' => $request->query('q'),
+            'tag' => $tag,
+            'title' => 'My Favorite Recipes',
+            'emptyMessage' => $q ? 'No favorite recipes found matching "' . $q . '".' : 'You haven\'t favorited any recipes yet.',
+        ]);
+    }
+
+    public function toggleFavorite(Recipe $recipe)
+    {
+        $user = auth()->user();
+        
+        if ($user->favoriteRecipes()->where('recipe_id', $recipe->id)->exists()) {
+            $user->favoriteRecipes()->detach($recipe->id);
+            $message = 'Recipe removed from favorites';
+        } else {
+            $user->favoriteRecipes()->attach($recipe->id);
+            $message = 'Recipe added to favorites';
+        }
+
+        return back()->with('success', $message);
+    }
+
     public function show(Recipe $recipe)
     {
         return view('recipes.show', ['recipe' => $recipe]);

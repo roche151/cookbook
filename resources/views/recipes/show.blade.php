@@ -113,7 +113,7 @@
                     @php
                         $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
                     @endphp
-                    <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="mb-0">
+                    <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="mb-0 js-favorite-form" data-recipe-id="{{ $recipe->id }}">
                         @csrf
                         <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-danger' }} px-3">
                             <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart me-1"></i>

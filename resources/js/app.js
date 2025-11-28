@@ -75,52 +75,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle favorite button clicks with AJAX
     document.addEventListener('submit', function(e) {
         const form = e.target.closest('.js-favorite-form');
-        if (form) {
-            e.preventDefault();
-            
-            const button = form.querySelector('button[type="submit"]');
-            const icon = button.querySelector('i');
-            const url = form.action;
-            
-            // Disable button during request
-            button.disabled = true;
-            
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+        if (!form) return;
+        e.preventDefault();
+
+        const button = form.querySelector('button[type="submit"]');
+        const url = form.action;
+        if (!button) return;
+
+        button.disabled = true;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.success) {
+                const favorited = !!data.favorited;
+                const iconOnly = button.hasAttribute('data-icon-only');
+                button.classList.toggle('btn-danger', favorited);
+                button.classList.toggle('btn-outline-danger', !favorited);
+                button.title = favorited ? 'Remove from favorites' : 'Add to favorites';
+                if (iconOnly) {
+                    // Card variant: icon only
+                    button.innerHTML = `<i class=\"fa-${favorited ? 'solid' : 'regular'} fa-heart\"></i>`;
+                } else {
+                    // Show page variant: icon + text
+                    button.innerHTML = `<i class=\"fa-${favorited ? 'solid' : 'regular'} fa-heart me-1\"></i>${favorited ? 'Unfavorite' : 'Favorite'}`;
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update button appearance
-                    if (data.favorited) {
-                        button.classList.remove('btn-outline-danger');
-                        button.classList.add('btn-danger');
-                        icon.classList.remove('fa-regular');
-                        icon.classList.add('fa-solid');
-                        button.title = 'Remove from favorites';
-                    } else {
-                        button.classList.remove('btn-danger');
-                        button.classList.add('btn-outline-danger');
-                        icon.classList.remove('fa-solid');
-                        icon.classList.add('fa-regular');
-                        button.title = 'Add to favorites';
-                    }
-                    
-                    // Show toast notification
-                    showToast(data.message, 'success');
-                }
-                button.disabled = false;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred. Please try again.', 'danger');
-                button.disabled = false;
-            });
-        }
+                showToast(data.message || (favorited ? 'Added to favorites' : 'Removed from favorites'), 'success');
+            } else {
+                showToast('Unexpected response.', 'danger');
+            }
+        })
+        .catch(err => {
+            console.error('Favorite toggle error:', err);
+            showToast('An error occurred. Please try again.', 'danger');
+        })
+        .finally(() => {
+            button.disabled = false;
+        });
     });
 });

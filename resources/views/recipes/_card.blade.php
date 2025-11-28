@@ -6,8 +6,8 @@
             @endphp
             <form action="{{ route('recipes.favorite', data_get($recipe, 'slug')) }}" method="POST" class="position-absolute top-0 end-0 m-2">
                 @csrf
-                <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-warning' : 'btn-outline-secondary' }}" title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
-                    <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-star"></i>
+                <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-secondary' }}" title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
+                    <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart"></i>
                 </button>
             </form>
         @endauth

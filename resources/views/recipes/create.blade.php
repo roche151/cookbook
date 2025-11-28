@@ -14,7 +14,7 @@
         @include('recipes._form', [
             'action' => route('recipes.store'),
             'method' => 'POST',
-            'buttonText' => 'Create Recipe',
+            'buttonText' => 'Save',
             'recipe' => null,
             'tags' => $tags,
         ])

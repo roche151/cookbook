@@ -6,7 +6,8 @@
     'tags' => [],
 ])
 
-<form action="{{ $action }}" method="POST" enctype="multipart/form-data" class="row g-3" novalidate>
+@php $confirm = $confirmOnSubmit ?? false; @endphp
+<form action="{{ $action }}" method="POST" enctype="multipart/form-data" class="row g-3 {{ $confirm ? 'js-edit-confirm-form' : '' }}" novalidate>
     @csrf
     @if(strtoupper($method) !== 'POST')
         @method($method)

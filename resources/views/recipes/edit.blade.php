@@ -15,9 +15,10 @@
         @include('recipes._form', [
             'action' => route('recipes.update', $recipe->slug),
             'method' => 'PATCH',
-            'buttonText' => 'Update Recipe',
+            'buttonText' => 'Save Changes',
             'recipe' => $recipe,
             'tags' => $tags,
+            'confirmOnSubmit' => true,
         ])
     </div>
 

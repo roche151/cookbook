@@ -74,6 +74,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle favorite button clicks with AJAX
     document.addEventListener('submit', function(e) {
+        // Edit form confirmation
+        const editForm = e.target.closest('.js-edit-confirm-form');
+        if (editForm && !editForm.dataset.confirmed) {
+            e.preventDefault();
+            bootbox.confirm({
+                message: 'Save changes to this recipe?',
+                buttons: {
+                    confirm: { label: 'Save', className: 'btn-primary' },
+                    cancel: { label: 'Cancel', className: 'btn-secondary' }
+                },
+                callback: function(result) {
+                    if (result) {
+                        editForm.dataset.confirmed = 'true';
+                        editForm.submit();
+                    }
+                }
+            });
+            return; // Do not proceed to other handlers
+        }
+
         const form = e.target.closest('.js-favorite-form');
         if (!form) return;
         e.preventDefault();

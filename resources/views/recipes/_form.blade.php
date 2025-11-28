@@ -191,12 +191,12 @@
             </div>
 
             <div>
-                <button type="button" id="js-add-ingredient" class="btn btn-sm btn-outline-primary mt-2">Add ingredient</button>
+                <button type="button" id="js-add-ingredient" class="btn btn-sm btn-outline-primary mt-2">Add Ingredient</button>
             </div>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Directions</label>
+            <label class="form-label">Method</label>
 
             <div id="directions-container" data-next-index="0">
                 @php
@@ -241,7 +241,7 @@
             </div>
 
             <div>
-                <button type="button" id="js-add-direction" class="btn btn-sm btn-outline-primary mt-2">Add direction</button>
+                <button type="button" id="js-add-direction" class="btn btn-sm btn-outline-primary mt-2">Add Step</button>
             </div>
         </div>
         @if($errors->has('directions'))

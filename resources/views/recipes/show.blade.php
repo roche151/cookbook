@@ -45,7 +45,7 @@
                 <p class="lead">{{ data_get($recipe, 'description') }}</p>
 
                 <hr>
-                <h5>Directions</h5>
+                <h5>Method</h5>
                 @if($recipe->directions && $recipe->directions->count())
                     <ol class="list-group list-group-numbered mb-3">
                         @foreach($recipe->directions as $direction)
@@ -55,7 +55,7 @@
                         @endforeach
                     </ol>
                 @else
-                    <p class="text-muted">No directions provided for this recipe.</p>
+                    <p class="text-muted">No method provided for this recipe.</p>
                 @endif
             </div>
             <div class="col-md-4">

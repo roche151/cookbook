@@ -35,6 +35,13 @@
                     @endphp
                     {{ $displayTime }}
                 </p>
+                
+                @if($recipe->image)
+                    <div class="mb-4">
+                        <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="img-fluid rounded shadow-sm" style="max-height: 400px; width: 100%; object-fit: cover;">
+                    </div>
+                @endif
+                
                 <p class="lead">{{ data_get($recipe, 'description') }}</p>
 
                 <hr>

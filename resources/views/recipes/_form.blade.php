@@ -56,23 +56,33 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label">Recipe Image (optional)</label>
-        <div class="image-drop-zone border rounded p-4 text-center" style="cursor: pointer; position: relative; min-height: 200px; background: var(--bs-body-bg); border: 2px dashed var(--bs-border-color) !important;">
+        <label class="form-label">Image (optional)</label>
+        @php
+            $tempImage = session('temp_image');
+            $hasTemp = $tempImage && Storage::disk('public')->exists($tempImage);
+        @endphp
+        
+        @if($hasTemp)
+            <input type="hidden" name="existing_temp_image" value="{{ $tempImage }}">
+        @endif
+        
+        <div class="image-drop-zone border rounded p-4 text-center" tabindex="0" style="position: relative; min-height: 200px; background: var(--bs-body-bg); border: 2px dashed var(--bs-border-color) !important; outline: none;">
             <input type="file" name="image" accept="image/*" class="d-none" id="recipe-image">
-            <div class="upload-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px;">
-                <i class="fa-solid fa-cloud-arrow-up fa-3x mb-3 text-muted"></i>
-                <p class="mb-1">Drag & drop an image here, paste from clipboard, or click to browse</p>
-                <p class="text-muted small">Supports: JPG, PNG, GIF, WebP (max 5MB)</p>
+            <div class="upload-placeholder" style="display: {{ $hasTemp ? 'none' : 'flex' }}; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; gap: 1rem;">
+                <i class="fa-solid fa-cloud-arrow-up fa-3x text-muted"></i>
+                <p class="mb-2">Choose a file or drag & drop it here</p>
+                <p class="text-muted small mb-3">JPEG, PNG, GIF, and WebP formats, up to 5MB</p>
+                <button type="button" class="btn btn-outline-secondary btn-sm browse-file-btn">Browse File</button>
             </div>
-            <img class="image-preview rounded" style="display: none; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
-            <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: none;">
+            <img class="image-preview rounded" src="{{ $hasTemp ? Storage::url($tempImage) : '' }}" style="display: {{ $hasTemp ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
+            <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: {{ $hasTemp ? 'block' : 'none' }};">
                 <i class="fa-solid fa-times"></i>
             </button>
         </div>
         @if($recipe && $recipe->image)
             <div class="mt-2">
                 <p class="text-muted small mb-1">Current image:</p>
-                <img src="{{ Storage::url($recipe->image) }}" alt="Current recipe image" class="img-thumbnail" style="max-height: 150px;">
+                <img src="{{ Storage::url($recipe->image) }}" alt="Current image" class="img-thumbnail" style="max-height: 150px;">
             </div>
         @endif
     </div>
@@ -246,19 +256,121 @@
 </form>
 
 <script>
-    // Ensure click on the drop zone opens the file picker even if bundled JS isn't loaded
+    // Image uploader: Browse button, drag & drop, and paste support
     (function initImageDropZones() {
         function bindZones() {
             const zones = document.querySelectorAll('.image-drop-zone');
             zones.forEach(zone => {
+                if (zone.dataset.uploadBound) return;
+                zone.dataset.uploadBound = 'true';
+                
                 const input = zone.querySelector('input[type="file"]');
+                const preview = zone.querySelector('.image-preview');
+                const placeholder = zone.querySelector('.upload-placeholder');
+                const browseBtn = zone.querySelector('.browse-file-btn');
                 const removeBtn = zone.querySelector('.remove-image-btn');
                 if (!input) return;
 
-                zone.addEventListener('click', function(e) {
-                    if (removeBtn && (e.target === removeBtn || removeBtn.contains(e.target))) return;
-                    input.click();
+                // Browse button opens file picker
+                if (browseBtn) {
+                    browseBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        input.click();
+                    });
+                }
+
+                // File input change handler
+                input.addEventListener('change', function(e) {
+                    handleFiles(e.target.files);
                 });
+
+                // Drag and drop handlers
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    zone.style.borderColor = 'var(--bs-primary)';
+                });
+                
+                zone.addEventListener('dragleave', function() {
+                    zone.style.borderColor = '';
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    zone.style.borderColor = '';
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        const dt = new DataTransfer();
+                        dt.items.add(files[0]);
+                        input.files = dt.files;
+                        handleFiles(files);
+                    }
+                });
+
+                // Paste support when zone is focused
+                zone.addEventListener('paste', function(e) {
+                    const items = e.clipboardData?.items;
+                    if (!items) return;
+                    
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            const blob = items[i].getAsFile();
+                            const file = new File([blob], 'pasted-image-' + Date.now() + '.png', { type: blob.type });
+                            
+                            const dt = new DataTransfer();
+                            dt.items.add(file);
+                            input.files = dt.files;
+                            handleFiles([file]);
+                            break;
+                        }
+                    }
+                });
+
+                // Focus visual feedback
+                zone.addEventListener('focus', function() {
+                    zone.style.borderColor = 'var(--bs-primary)';
+                });
+                
+                zone.addEventListener('blur', function() {
+                    zone.style.borderColor = '';
+                });
+
+                // Remove button handler
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        input.value = '';
+                        preview.style.display = 'none';
+                        placeholder.style.display = 'flex';
+                        removeBtn.style.display = 'none';
+                    });
+                }
+
+                function handleFiles(files) {
+                    if (!files || files.length === 0) return;
+                    
+                    const file = files[0];
+                    
+                    if (!file.type.match('image.*')) {
+                        alert('Please upload an image file');
+                        return;
+                    }
+                    
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Image must be less than 5MB');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        placeholder.style.display = 'none';
+                        if (removeBtn) removeBtn.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
         }
         if (document.readyState === 'loading') {

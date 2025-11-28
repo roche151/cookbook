@@ -3,19 +3,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropZones = document.querySelectorAll('.image-drop-zone');
     
     dropZones.forEach(dropZone => {
+        // Skip if already initialized by inline script
+        if (dropZone.dataset.uploadBound) return;
+        dropZone.dataset.uploadBound = 'true';
+        
         const input = dropZone.querySelector('input[type="file"]');
         const preview = dropZone.querySelector('.image-preview');
         const placeholder = dropZone.querySelector('.upload-placeholder');
         const removeBtn = dropZone.querySelector('.remove-image-btn');
+        const browseBtn = dropZone.querySelector('.browse-file-btn');
         
         if (!input) return;
         
-        // Click to upload
-        dropZone.addEventListener('click', (e) => {
-            if (e.target !== removeBtn && !removeBtn?.contains(e.target)) {
+        // Browse button opens file picker
+        if (browseBtn) {
+            browseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 input.click();
-            }
-        });
+            });
+        }
         
         // File input change
         input.addEventListener('change', (e) => {
@@ -25,16 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Drag and drop
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropZone.classList.add('drag-over');
+            dropZone.style.borderColor = 'var(--bs-primary)';
         });
         
         dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
+            dropZone.style.borderColor = '';
         });
         
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('drag-over');
+            dropZone.style.borderColor = '';
             
             const files = e.dataTransfer.files;
             if (files.length > 0) {
@@ -47,8 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Paste support
-        document.addEventListener('paste', (e) => {
+        // Paste support when zone is focused
+        dropZone.addEventListener('paste', (e) => {
             const items = e.clipboardData?.items;
             if (!items) return;
             
@@ -69,6 +75,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
                 }
             }
+        });
+
+        // Focus visual feedback
+        dropZone.addEventListener('focus', () => {
+            dropZone.style.borderColor = 'var(--bs-primary)';
+        });
+        
+        dropZone.addEventListener('blur', () => {
+            dropZone.style.borderColor = '';
         });
         
         // Remove image

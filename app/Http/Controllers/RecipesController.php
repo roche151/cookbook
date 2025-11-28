@@ -278,6 +278,12 @@ class RecipesController extends Controller
                 }
             }
 
+            // Store uploaded image temporarily if validation fails
+            if ($request->hasFile('image')) {
+                $tempPath = $request->file('image')->store('temp', 'public');
+                session()->flash('temp_image', $tempPath);
+            }
+
             return redirect()->back()->withErrors($ordered)->withInput();
         }
 
@@ -292,6 +298,16 @@ class RecipesController extends Controller
         // Handle image upload
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('recipes', 'public');
+        } elseif ($request->input('existing_temp_image')) {
+            // Use temp image from validation failure
+            $tempPath = $request->input('existing_temp_image');
+            if (Storage::disk('public')->exists($tempPath)) {
+                $newPath = str_replace('temp/', 'recipes/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                $data['image'] = $newPath;
+            } else {
+                $data['image'] = null;
+            }
         } else {
             $data['image'] = null;
         }
@@ -305,6 +321,7 @@ class RecipesController extends Controller
                 'description' => $data['description'] ?? null,
                 'time' => $data['time'] ?? null,
                 'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
+                'image' => $data['image'] ?? null,
                 'user_id' => Auth::id(),
             ]);
             // Attach selected tags
@@ -448,6 +465,12 @@ class RecipesController extends Controller
                 }
             }
 
+            // Store uploaded image temporarily if validation fails
+            if ($request->hasFile('image')) {
+                $tempPath = $request->file('image')->store('temp', 'public');
+                session()->flash('temp_image', $tempPath);
+            }
+            
             return redirect()->back()->withErrors($ordered)->withInput();
         }
 
@@ -466,6 +489,18 @@ class RecipesController extends Controller
                 Storage::disk('public')->delete($recipe->image);
             }
             $data['image'] = $request->file('image')->store('recipes', 'public');
+        } elseif ($request->input('existing_temp_image')) {
+            // Move temp image from validation failure to recipes folder
+            $tempPath = $request->input('existing_temp_image');
+            if (Storage::disk('public')->exists($tempPath)) {
+                $newPath = str_replace('temp/', 'recipes/', $tempPath);
+                Storage::disk('public')->move($tempPath, $newPath);
+                // Delete old image if exists
+                if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
+                    Storage::disk('public')->delete($recipe->image);
+                }
+                $data['image'] = $newPath;
+            }
         } else {
             // Keep existing image if no new upload
             unset($data['image']);

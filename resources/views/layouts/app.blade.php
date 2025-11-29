@@ -239,9 +239,9 @@
                 const i = toggleBtn.querySelector('i');
                 if (!i) return;
                 if (theme === 'light') {
-                    i.className = 'fa-regular fa-sun';
-                } else {
                     i.className = 'fa-regular fa-moon';
+                } else {
+                    i.className = 'fa-regular fa-sun';
                 }
             }
             // Initialize icon to current theme

@@ -81,28 +81,26 @@
                     <i class="fa-solid fa-user-plus me-2"></i>Register
                 </a>
             @else
-                <div class="card bg-body-secondary border-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
-                                <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold text-truncate">{{ Auth::user()->name }}</div>
-                                <small class="text-muted">{{ Auth::user()->email }}</small>
-                            </div>
+                <div class="px-2 py-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                            <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                         </div>
-                        <div class="d-grid gap-2">
-                            <a class="btn btn-sm btn-outline-light" href="{{ route('profile.edit') }}">
-                                <i class="fa-solid fa-user me-1"></i> Profile
-                            </a>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-light w-100">
-                                    <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
-                                </button>
-                            </form>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold text-truncate">{{ Auth::user()->name }}</div>
+                            <small class="text-muted">{{ Auth::user()->email }}</small>
                         </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
+                            <i class="fa-solid fa-user me-1"></i> Profile
+                        </a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
             @endguest
@@ -113,13 +111,16 @@
 <!-- Sidebar for md+ screens -->
 <aside class="app-sidebar bg-body d-none d-md-flex flex-column p-0" style="border-right: 1px solid var(--bs-border-color);">
     <!-- Brand/Logo Section -->
-    <div class="p-4 border-bottom">
+    <div class="p-4 border-bottom d-flex align-items-center justify-content-between">
         <a class="d-flex align-items-center text-decoration-none" href="{{ url('/') }}">
             <div class="d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
                 <img src="{{ asset('favicon.svg') }}" alt="Culina" width="28" height="28" style="display:block; border-radius:50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" />
             </div>
             <span class="fs-5 fw-bold">{{ config('app.name', 'Laravel') }}</span>
         </a>
+        <button id="themeToggle" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Toggle theme" title="Toggle dark/light">
+            <i class="fa-regular fa-sun"></i>
+        </button>
     </div>
 
     <!-- Navigation Links -->
@@ -161,29 +162,25 @@
                 </a>
             </div>
         @else
-            <div class="card bg-dark bg-opacity-10 border-0">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0 me-2" style="width: 40px; height: 40px;">
-                            <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                        </div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="fw-semibold text-truncate small">{{ Auth::user()->name }}</div>
-                            <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ Auth::user()->email }}</small>
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2">
-                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
-                            <i class="fa-solid fa-user me-1"></i> Profile
-                        </a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
-                                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
-                            </button>
-                        </form>
-                    </div>
+            <div class="d-flex align-items-center mb-3">
+                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0 me-2" style="width: 40px; height: 40px;">
+                    <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                 </div>
+                <div class="flex-grow-1 overflow-hidden">
+                    <div class="fw-semibold text-truncate small">{{ Auth::user()->name }}</div>
+                    <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ Auth::user()->email }}</small>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
+                    <i class="fa-solid fa-user me-1"></i> Profile
+                </a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                    </button>
+                </form>
             </div>
         @endguest
     </div>

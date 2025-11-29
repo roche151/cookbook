@@ -59,8 +59,7 @@
 					@foreach($tags as $tag)
 						<div class="col-sm-6 col-md-4 col-lg-3">
 							<a href="/recipes?tag={{ urlencode($tag->name) }}" 
-							   class="card h-100 text-decoration-none border hover-lift"
-							   style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+							   class="card h-100 text-decoration-none border">
 								<div class="card-body text-center p-4">
 									@if(!empty($tag->icon))
 										<div class="mb-3">
@@ -140,12 +139,5 @@
 			</div>
 		</div>
 	</div>
-
-	<style>
-		.hover-lift:hover {
-			transform: translateY(-4px);
-			box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-		}
-	</style>
 
 </x-app-layout>

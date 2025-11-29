@@ -51,20 +51,9 @@
             line-height: 1.7;
         }
 
-        /* Recipe card hover effects */
+        /* Recipe card styling */
         .card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .card:hover {
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3) !important;
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-        .card img.card-img-top {
-            transition: transform 0.3s ease;
-        }
-        .card:hover img.card-img-top {
-            transform: scale(1.05);
         }
 
         /* Button improvements */
@@ -137,6 +126,79 @@
             margin: 0 0.125rem;
         }
     </style>
+    <style>
+        /* Light theme polish */
+        [data-bs-theme="light"] {
+            --bs-body-bg: #ffffff; /* cleaner modern white */
+            --bs-body-color: #1f2937;
+            --bs-border-color: #e5e7eb;
+            --bs-secondary-bg: #ffffff; /* avoid gray sections */
+            --bs-tertiary-bg: #ffffff; /* ensure tertiary panels are white */
+        }
+        [data-bs-theme="light"] .bg-body-secondary { background-color: #ffffff !important; }
+        [data-bs-theme="light"] .bg-body-tertiary { background-color: #ffffff !important; }
+        [data-bs-theme="light"] .bg-light { background-color: #ffffff !important; }
+        /* Home hero used bg-dark bg-opacity-10 which appears gray on white */
+        [data-bs-theme="light"] .bg-dark.bg-opacity-10 { background-color: transparent !important; }
+        /* Common hero wrappers */
+        [data-bs-theme="light"] .hero,
+        [data-bs-theme="light"] .showcase,
+            [data-bs-theme="light"] .hero-section,
+            [data-bs-theme="light"] .home-hero,
+            [data-bs-theme="light"] .hero-card {
+            background-color: #ffffff !important;
+        }
+        [data-bs-theme="light"] .bg-secondary-subtle { background-color: #ffffff !important; }
+        [data-bs-theme="light"] .app-sidebar {
+            background: #ffffff;
+            border-right: 1px solid var(--bs-border-color);
+        }
+        [data-bs-theme="light"] .card {
+            background: #ffffff;
+            border-color: #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        [data-bs-theme="light"] .card .card-header {
+            background: #ffffff;
+            border-bottom-color: #e5e7eb;
+        }
+        [data-bs-theme="light"] .btn-outline-secondary {
+            border-color: #9ca3af;
+            color: #374151;
+        }
+        [data-bs-theme="light"] .btn-outline-secondary:hover {
+            background: #f3f4f6;
+        }
+        [data-bs-theme="light"] .badge.bg-secondary.bg-opacity-25 {
+            background: #e6f0ff !important; /* higher contrast */
+            border-color: #93c5fd !important;
+            color: #1e3a8a !important;
+        }
+        [data-bs-theme="light"] .badge.bg-secondary {
+            background: #dde7ff !important;
+            color: #1f2937 !important;
+            border-color: #93c5fd !important;
+        }
+        [data-bs-theme="light"] .text-muted { color: #4b5563 !important; }
+        [data-bs-theme="light"] .alert-info {
+            background: #eff6ff;
+            color: #0c4a6e;
+        }
+        [data-bs-theme="light"] .breadcrumb .breadcrumb-item a {
+            color: #2563eb;
+        }
+        [data-bs-theme="light"] .form-control,
+        [data-bs-theme="light"] .form-select {
+            background: #ffffff;
+            border-color: #e5e7eb;
+        }
+        [data-bs-theme="light"] .img-thumbnail,
+        [data-bs-theme="light"] .card-img-top.d-flex,
+        [data-bs-theme="light"] .card .ratio,
+        [data-bs-theme="light"] .card .image-wrapper {
+            background: transparent;
+        }
+    </style>
     @stack('head')
 </head>
 <body>
@@ -160,10 +222,43 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     @endif
     <script>
+        // Apply saved theme on first paint
+        (function() {
+            try {
+                var saved = localStorage.getItem('culina-theme');
+                var theme = saved === 'light' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-bs-theme', theme);
+            } catch (e) {}
+        })();
+
         // Initialize Bootstrap tooltips
         document.addEventListener('DOMContentLoaded', function() {
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            // Theme toggle logic
+            const toggleBtn = document.getElementById('themeToggle');
+            function setIcon(theme) {
+                if (!toggleBtn) return;
+                const i = toggleBtn.querySelector('i');
+                if (!i) return;
+                if (theme === 'light') {
+                    i.className = 'fa-regular fa-sun';
+                } else {
+                    i.className = 'fa-regular fa-moon';
+                }
+            }
+            // Initialize icon to current theme
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'dark';
+            setIcon(currentTheme);
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    const now = document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+                    document.documentElement.setAttribute('data-bs-theme', now);
+                    try { localStorage.setItem('culina-theme', now); } catch (e) {}
+                    setIcon(now);
+                });
+            }
         });
     </script>
     @stack('scripts')

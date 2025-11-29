@@ -147,6 +147,19 @@
         @endif
     </div>
 
+    <div class="col-md-4">
+        <label class="form-label">Difficulty</label>
+        <select name="difficulty" class="form-select" required>
+            <option value="">Select difficulty</option>
+            <option value="easy" {{ old('difficulty', optional($recipe)->difficulty) === 'easy' ? 'selected' : '' }}>Easy</option>
+            <option value="medium" {{ old('difficulty', optional($recipe)->difficulty ?? 'medium') === 'medium' ? 'selected' : '' }}>Medium</option>
+            <option value="hard" {{ old('difficulty', optional($recipe)->difficulty) === 'hard' ? 'selected' : '' }}>Hard</option>
+        </select>
+        @if($errors->has('difficulty'))
+            <div class="text-danger small mt-1">{{ $errors->first('difficulty') }}</div>
+        @endif
+    </div>
+
     <div class="col-12">
         <label class="form-label">Description</label>
         <textarea name="description" class="form-control" rows="4">{{ old('description', optional($recipe)->description) }}</textarea>

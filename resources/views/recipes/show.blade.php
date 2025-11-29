@@ -1,174 +1,220 @@
 <x-app-layout>
     <x-slot name="title">{{ data_get($recipe, 'title') }}</x-slot>
 
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-md-8">
-                <nav aria-label="breadcrumb" class="mb-2 no-print">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                        <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ data_get($recipe, 'title') }}</li>
-                    </ol>
-                </nav>
-                <h1 class="display-6">{{ data_get($recipe, 'title') }}</h1>
-                @php $tags = data_get($recipe, 'tags'); @endphp
-                <p class="text-muted">
-                    @if($tags && is_iterable($tags) && count($tags))
-                        @foreach($tags as $t)
-                            <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none small me-1">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>
-                        @endforeach
-                    @endif
-                    @php
-                        $displayTime = '';
-                        if (is_numeric($recipe->time) && (int)$recipe->time > 0) {
-                            $total = (int)$recipe->time;
-                            $h = intdiv($total, 60);
-                            $m = $total % 60;
-                            $parts = [];
-                            if ($h > 0) $parts[] = $h . ' hour' . ($h === 1 ? '' : 's');
-                            if ($m > 0) $parts[] = $m . ' minute' . ($m === 1 ? '' : 's');
-                            $displayTime = $parts ? implode(' ', $parts) : '';
-                        } else {
-                            $displayTime = data_get($recipe, 'time') ?? '';
-                        }
-                    @endphp
-                    {{ $displayTime }}
-                    @if($displayTime && $recipe->is_public !== null)
-                        <span class="mx-2">•</span>
-                    @endif
-                    @if($recipe->is_public !== null)
-                        <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print">
-                            <i class="fa-solid fa-{{ $recipe->is_public ? 'globe' : 'lock' }} me-1"></i>
-                            {{ $recipe->is_public ? 'Public' : 'Private' }}
-                        </span>
-                    @endif
-                </p>
-                
-                @if($recipe->image)
-                    <div class="mb-4">
-                        <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="img-fluid rounded shadow-sm" style="max-height: 400px; width: 100%; object-fit: cover;">
-                    </div>
-                @endif
-                
-                <p class="lead">{{ data_get($recipe, 'description') }}</p>
+    <div class="container py-4">
+        <nav aria-label="breadcrumb" class="mb-3 no-print">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ data_get($recipe, 'title') }}</li>
+            </ol>
+        </nav>
 
-                <!-- Rating Display -->
-                <div class="mb-3 no-print">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Header Section -->
+                <div class="mb-4">
+                    <h1 class="display-5 mb-3">{{ data_get($recipe, 'title') }}</h1>
+                    
+                    <!-- Metadata Row -->
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        @php 
+                            $tags = data_get($recipe, 'tags');
+                            $displayTime = '';
+                            if (is_numeric($recipe->time) && (int)$recipe->time > 0) {
+                                $total = (int)$recipe->time;
+                                $h = intdiv($total, 60);
+                                $m = $total % 60;
+                                $parts = [];
+                                if ($h > 0) $parts[] = $h . 'h';
+                                if ($m > 0) $parts[] = $m . 'm';
+                                $displayTime = $parts ? implode(' ', $parts) : '';
+                            } else {
+                                $displayTime = data_get($recipe, 'time') ?? '';
+                            }
+                        @endphp
+                        
+                        @if($tags && is_iterable($tags) && count($tags))
+                            @foreach($tags as $t)
+                                <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="badge bg-secondary text-decoration-none">
+                                    {{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}
+                                </a>
+                            @endforeach
+                        @endif
+                        
+                        @if($displayTime)
+                            <span class="text-muted">
+                                <i class="fa-regular fa-clock"></i> {{ $displayTime }}
+                            </span>
+                        @endif
+                        
+                        @if($recipe->difficulty)
+                            <span style="letter-spacing: 1px;">
+                                @if($recipe->difficulty === 'easy')
+                                    <span style="color: #28a745;" title="Easy difficulty">
+                                        <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.5rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.5rem;"></i>
+                                    </span>
+                                @elseif($recipe->difficulty === 'medium')
+                                    <span style="color: #ffc107;" title="Medium difficulty">
+                                        <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.5rem;"></i>
+                                    </span>
+                                @else
+                                    <span style="color: #dc3545;" title="Hard difficulty">
+                                        <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i>
+                                    </span>
+                                @endif
+                            </span>
+                        @endif
+                        
+                        @if($recipe->is_public !== null)
+                            <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print">
+                                <i class="fa-solid fa-{{ $recipe->is_public ? 'globe' : 'lock' }}"></i>
+                            </span>
+                        @endif
+                    </div>
+
+                    <!-- Rating -->
                     @php
                         $avgRating = $recipe->averageRating();
                         $ratingsCount = $recipe->ratingsCount();
                     @endphp
                     @if($avgRating)
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center mb-3 no-print">
                             <div class="text-warning me-2">
                                 @for($i = 1; $i <= 5; $i++)
                                     <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star"></i>
                                 @endfor
                             </div>
                             <span class="fw-bold">{{ number_format($avgRating, 1) }}</span>
-                            <span class="text-muted ms-1">({{ $ratingsCount }} {{ Str::plural('rating', $ratingsCount) }})</span>
+                            <span class="text-muted ms-1">({{ $ratingsCount }})</span>
                         </div>
-                    @else
-                        <p class="text-muted mb-0">No ratings yet</p>
+                    @endif
+
+                    @if($recipe->description)
+                        <p class="lead text-muted mb-0">{{ data_get($recipe, 'description') }}</p>
                     @endif
                 </div>
 
-                <!-- Ingredients (shown before Method; visible on screen and print) -->
-                <div class="print-ingredients">
-                    <h5>Ingredients</h5>
-                    @if($recipe->ingredients && $recipe->ingredients->count())
-                        <ul class="list-group mb-0 ingredients-list">
-                            @foreach($recipe->ingredients as $ingredient)
-                                <li class="list-group-item ingredient-row">
-                                    <span class="ingredient-amount {{ $ingredient->amount ? '' : 'ingredient-amount-empty' }}">{{ $ingredient->amount ? e($ingredient->amount) : '' }}</span>
-                                    <span class="ingredient-name">{{ e($ingredient->name) }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p class="text-muted">No ingredients provided for this recipe.</p>
-                    @endif
-                </div>
-
-                <hr>
-                <h5>Method</h5>
-                @if($recipe->directions && $recipe->directions->count())
-                    <ol class="list-group list-group-numbered mb-3">
-                        @foreach($recipe->directions as $direction)
-                            <li class="list-group-item">
-                                {!! nl2br(e($direction->body)) !!}
-                            </li>
-                        @endforeach
-                    </ol>
-                @else
-                    <p class="text-muted">No method provided for this recipe.</p>
+                @if($recipe->image)
+                    <div class="mb-4">
+                        <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="img-fluid rounded shadow-sm" style="max-height: 500px; width: 100%; object-fit: cover;">
+                    </div>
                 @endif
+
+                <!-- Ingredients & Method -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Ingredients</h5>
+                                @if($recipe->ingredients && $recipe->ingredients->count())
+                                    <ul class="list-unstyled mb-0">
+                                        @foreach($recipe->ingredients as $ingredient)
+                                            <li class="mb-2 d-flex">
+                                                <i class="fa-solid fa-check text-success me-2 mt-1" style="font-size: 0.875rem;"></i>
+                                                <span>
+                                                    @if($ingredient->amount)
+                                                        <strong>{{ e($ingredient->amount) }}</strong>
+                                                    @endif
+                                                    {{ e($ingredient->name) }}
+                                                </span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <p class="text-muted mb-0">No ingredients provided</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Method</h5>
+                                @if($recipe->directions && $recipe->directions->count())
+                                    <ol class="mb-0 ps-3">
+                                        @foreach($recipe->directions as $direction)
+                                            <li class="mb-3">
+                                                {!! nl2br(e($direction->body)) !!}
+                                            </li>
+                                        @endforeach
+                                    </ol>
+                                @else
+                                    <p class="text-muted mb-0">No method provided</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                @auth
-                <div class="d-flex flex-wrap gap-2 align-items-center mb-2 no-print">
-                    @php
-                        $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
-                    @endphp
-                    <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="mb-0 js-favorite-form" data-recipe-id="{{ $recipe->id }}">
-                        @csrf
-                        <button type="submit" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-danger' }} px-3">
-                            <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart me-1"></i>
-                            {{ $isFavorited ? 'Unfavorite' : 'Favorite' }}
-                        </button>
-                    </form>
-                    @if($recipe->user_id === auth()->id())
-                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-sm btn-secondary px-3">Edit</a>
-
-                    
-
-                    <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST" class="mb-0">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-outline-danger px-3 js-delete-btn" type="button" data-confirm="Delete this recipe?">Delete</button>
-                    </form>
-                    @endif
+            
+            <div class="col-lg-4">
+                <!-- Action Buttons -->
+                <div class="card mb-3 no-print">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            @auth
+                                @php
+                                    $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
+                                @endphp
+                                <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="js-favorite-form" data-recipe-id="{{ $recipe->id }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-secondary w-100">
+                                        <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart me-2"></i>
+                                        {{ $isFavorited ? 'Unfavorite' : 'Favorite' }}
+                                    </button>
+                                </form>
+                                
+                                @if($recipe->user_id === auth()->id())
+                                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">
+                                        <i class="fa-solid fa-edit me-2"></i>Edit Recipe
+                                    </a>
+                                    <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-outline-secondary w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?">
+                                            <i class="fa-solid fa-trash me-2"></i>Delete
+                                        </button>
+                                    </form>
+                                @endif
+                            @endauth
+                            
+                            <button onclick="window.print()" class="btn btn-outline-secondary">
+                                <i class="fa-solid fa-print me-2"></i>Print Recipe
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                @endauth
 
-                <!-- Print Button -->
-                <div class="mb-3 no-print">
-                    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
-                        <i class="fa-solid fa-print me-1"></i>Print Recipe
-                    </button>
-                </div>
-
-                <!-- Rating Form (only for logged-in users who don't own the recipe) -->
+                <!-- Rating Form -->
                 @auth
                     @if($recipe->user_id !== auth()->id())
-                        <div class="card mb-3 no-print">
+                        <div class="card no-print">
                             <div class="card-body">
-                                <h6 class="card-title">Rate this recipe</h6>
+                                <h6 class="card-title mb-3">Rate this recipe</h6>
                                 @php
                                     $userRating = auth()->user()->recipeRatings()->where('recipe_id', $recipe->id)->first();
                                 @endphp
                                 <form action="{{ route('recipes.rate', $recipe->slug) }}" method="POST">
                                     @csrf
-                                    <div class="d-flex gap-2 align-items-center">
+                                    <div class="d-flex gap-2 justify-content-center mb-3">
                                         @for($i = 1; $i <= 5; $i++)
                                             <label class="mb-0" style="cursor: pointer;">
                                                 <input type="radio" name="rating" value="{{ $i }}" class="d-none rating-input" {{ $userRating && $userRating->rating == $i ? 'checked' : '' }} required>
-                                                <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.5rem;"></i>
+                                                <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.75rem;"></i>
                                             </label>
                                         @endfor
                                     </div>
                                     @if($userRating)
-                                        <p class="text-muted small mb-2 mt-2">Your current rating: {{ $userRating->rating }} stars</p>
+                                        <p class="text-muted small text-center mb-2">Your rating: {{ $userRating->rating }} stars</p>
                                     @endif
-                                    <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Rating</button>
+                                    <button type="submit" class="btn btn-primary w-100">Submit Rating</button>
                                 </form>
                             </div>
                         </div>
                     @endif
                 @endauth
-
-                
             </div>
         </div>
     </div>

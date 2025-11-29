@@ -19,6 +19,14 @@
         </div>
     @endif
     
+    @if(data_get($recipe, 'is_public') !== null)
+        <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+            <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }} bg-opacity-75 backdrop-blur">
+                <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }}"></i>
+            </span>
+        </div>
+    @endif
+    
     <div class="card-body d-flex flex-column position-relative">
         @auth
             @php
@@ -31,71 +39,85 @@
                 </button>
             </form>
         @endauth
-        <h5 class="card-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 2.5rem;">{{ data_get($recipe, 'title') }}</h5>
-        <p class="text-muted mb-1 small" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <h5 class="card-title mb-2" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 2.5rem;">{{ data_get($recipe, 'title') }}</h5>
+        
+        <p class="text-muted mb-2 small" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             @php
                 $tags = data_get($recipe, 'tags');
                 $tagCount = $tags && is_iterable($tags) ? count($tags) : 0;
-            @endphp
-            @if($tagCount > 0)
-                @foreach($tags as $t)
-                    @if($loop->index < 3)
-                        <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none small">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>@if($loop->index < 2 && $loop->index < $tagCount - 1) · @endif
-                    @endif
-                @endforeach
-                @if($tagCount > 3)
-                    <span class="text-muted">· +{{ $tagCount - 3 }} more</span>
-                @endif
-            @endif
-        </p>
-        <p class="text-muted mb-2 small">
-            @php
+                
                 $displayTime = '';
                 if (is_numeric($recipe->time) && (int)$recipe->time > 0) {
                     $total = (int)$recipe->time;
                     $h = intdiv($total, 60);
                     $m = $total % 60;
                     $parts = [];
-                    if ($h > 0) $parts[] = $h . ' hour' . ($h === 1 ? '' : 's');
-                    if ($m > 0) $parts[] = $m . ' minute' . ($m === 1 ? '' : 's');
+                    if ($h > 0) $parts[] = $h . 'h';
+                    if ($m > 0) $parts[] = $m . 'm';
                     $displayTime = $parts ? implode(' ', $parts) : '';
                 } else {
                     $displayTime = data_get($recipe, 'time') ?? '';
                 }
             @endphp
-            {{ $displayTime }}
-        </p>
-        @if(data_get($recipe, 'is_public') !== null)
-            <p class="mb-2">
-                <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }}">
-                    <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }} me-1"></i>
-                    {{ data_get($recipe, 'is_public') ? 'Public' : 'Private' }}
+            @if($tagCount > 0)
+                @foreach($tags as $t)
+                    @if($loop->index < 2)
+                        <a href="/recipes?tag={{ urlencode($t->name ?? $t['name'] ?? (string)$t) }}" class="text-decoration-none">{{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}</a>@if(!$loop->last && $loop->index < 1 && $tagCount > 1) · @endif
+                    @endif
+                @endforeach
+                @if($tagCount > 2)
+                    <span class="text-muted"> +{{ $tagCount - 2 }}</span>
+                @endif
+                @if($displayTime || $recipe->difficulty)
+                    <span class="mx-1">·</span>
+                @endif
+            @endif
+            @if($displayTime)
+                <i class="fa-regular fa-clock" style="font-size: 0.75rem;"></i> {{ $displayTime }}
+            @endif
+            @if($recipe->difficulty)
+                <span class="mx-1">·</span>
+                <span style="letter-spacing: 1px;">
+                    @if($recipe->difficulty === 'easy')
+                        <span style="color: #28a745;" title="Easy difficulty">
+                            <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.45rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.45rem;"></i>
+                        </span>
+                    @elseif($recipe->difficulty === 'medium')
+                        <span style="color: #ffc107;" title="Medium difficulty">
+                            <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.45rem;"></i>
+                        </span>
+                    @else
+                        <span style="color: #dc3545;" title="Hard difficulty">
+                            <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i>
+                        </span>
+                    @endif
                 </span>
-            </p>
-        @endif
-        <p class="card-text" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 3em; line-height: 1.5em;">{{ data_get($recipe, 'description') }}</p>
+            @endif
+        </p>
+
+        <p class="card-text mb-2" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ data_get($recipe, 'description') }}</p>
         
         @php
             $avgRating = is_object($recipe) && method_exists($recipe, 'averageRating') ? $recipe->averageRating() : null;
             $ratingsCount = is_object($recipe) && method_exists($recipe, 'ratingsCount') ? $recipe->ratingsCount() : 0;
         @endphp
-        <div class="mb-2" style="min-height: 1.5rem;">
+        <div class="mb-2">
             @if($avgRating)
-                <div class="text-warning">
+                <div class="text-warning small">
                     @for($i = 1; $i <= 5; $i++)
-                        <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star" style="font-size: 0.875rem;"></i>
+                        <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star" style="font-size: 0.75rem;"></i>
                     @endfor
-                    <span class="text-light fw-bold ms-1 small">{{ number_format($avgRating, 1) }}</span>
-                    <span class="text-muted small">({{ $ratingsCount }})</span>
+                    <span class="text-light fw-bold ms-1">{{ number_format($avgRating, 1) }}</span>
+                    <span class="text-muted">({{ $ratingsCount }})</span>
                 </div>
             @else
                 <div class="text-muted small">
-                    <i class="fa-regular fa-star-half-stroke me-1"></i>No ratings yet
+                    No ratings yet
                 </div>
             @endif
         </div>
         
-        <div class="mt-3 text-end d-flex justify-content-end gap-2">
+        <div class="mt-auto d-flex justify-content-end gap-2">
             <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug')) }}" class="btn btn-sm btn-primary">View</a>
             @auth
                 @if(data_get($recipe, 'user_id') === auth()->id())

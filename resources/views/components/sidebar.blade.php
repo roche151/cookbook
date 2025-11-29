@@ -74,17 +74,35 @@
             <hr>
 
             @guest
-                <a class="nav-link" href="{{ route('login') }}">Login</a>
-                <a class="nav-link" href="{{ route('register') }}">Register</a>
+                <a class="nav-link" href="{{ route('login') }}">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+                </a>
+                <a class="nav-link" href="{{ route('register') }}">
+                    <i class="fa-solid fa-user-plus me-2"></i>Register
+                </a>
             @else
-                <div class="px-3">
-                    <strong>{{ Auth::user()->name }}</strong>
-                    <div class="mt-2">
-                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">Profile</a>
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">Logout</button>
-                        </form>
+                <div class="card bg-body-secondary border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold text-truncate">{{ Auth::user()->name }}</div>
+                                <small class="text-muted">{{ Auth::user()->email }}</small>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a class="btn btn-sm btn-outline-light" href="{{ route('profile.edit') }}">
+                                <i class="fa-solid fa-user me-1"></i> Profile
+                            </a>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-light w-100">
+                                    <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @endguest
@@ -93,44 +111,90 @@
     </div>
 
 <!-- Sidebar for md+ screens -->
-<aside class="app-sidebar bg-body d-none d-md-block p-3">
-    <a class="navbar-brand d-block mb-3" href="{{ url('/') }}">{{ config('app.name', 'Laravel') }}</a>
-    <nav class="nav flex-column">
+<aside class="app-sidebar bg-body d-none d-md-flex flex-column p-0" style="border-right: 1px solid var(--bs-border-color);">
+    <!-- Brand/Logo Section -->
+    <div class="p-4 border-bottom">
+        <a class="d-flex align-items-center text-decoration-none" href="{{ url('/') }}">
+            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                <i class="fa-solid fa-utensils text-white"></i>
+            </div>
+            <span class="fs-5 fw-bold">{{ config('app.name', 'Laravel') }}</span>
+        </a>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-grow-1 p-3 overflow-auto">
+        <div class="nav flex-column gap-1">
             @foreach ($sidebarLinks as $link)
-            @if(isset($link['auth']) && $link['auth'] === 'auth' && auth()->guest())
-                @continue
-            @endif
-            @if(isset($link['auth']) && $link['auth'] === 'guest' && auth()->check())
-                @continue
-            @endif
-            @php($href = $resolveHref($link))
-            @php($active = $isActiveLink($link, $href))
-            <a class="nav-link{{ $active ? ' active text-white bg-primary rounded' : '' }}" href="{{ $href }}" aria-current="{{ $active ? 'page' : '' }}">
-                @if(!empty($link['icon']))
-                    {!! $link['icon'] !!}
-                @elseif(!empty($link['icon_class']))
-                    <i class="{{ $link['icon_class'] }} me-2" aria-hidden="true"></i>
+                @if(isset($link['auth']) && $link['auth'] === 'auth' && auth()->guest())
+                    @continue
                 @endif
-                {{ $link['label'] }}
-            </a>
-        @endforeach
+                @if(isset($link['auth']) && $link['auth'] === 'guest' && auth()->check())
+                    @continue
+                @endif
+                @php($href = $resolveHref($link))
+                @php($active = $isActiveLink($link, $href))
+                <a class="nav-link rounded px-3 py-2 d-flex align-items-center{{ $active ? ' active bg-primary text-white' : ' text-body' }}" 
+                   href="{{ $href }}" 
+                   aria-current="{{ $active ? 'page' : '' }}"
+                   style="transition: all 0.2s ease;">
+                    @if(!empty($link['icon']))
+                        <span class="me-2" style="width: 20px; text-align: center;">{!! $link['icon'] !!}</span>
+                    @elseif(!empty($link['icon_class']))
+                        <i class="{{ $link['icon_class'] }} me-2" style="width: 20px; text-align: center;" aria-hidden="true"></i>
+                    @endif
+                    <span>{{ $link['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
     </nav>
-    <hr>
-    <div class="mt-2">
+
+    <!-- User Section -->
+    <div class="p-3 border-top mt-auto">
         @guest
-            <a class="nav-link" href="{{ route('login') }}">Login</a>
-            <a class="nav-link" href="{{ route('register') }}">Register</a>
+            <div class="d-grid gap-2">
+                <a class="btn btn-outline-primary btn-sm" href="{{ route('login') }}">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+                </a>
+                <a class="btn btn-primary btn-sm" href="{{ route('register') }}">
+                    <i class="fa-solid fa-user-plus me-2"></i>Register
+                </a>
+            </div>
         @else
-            <div>
-                <strong>{{ Auth::user()->name }}</strong>
-                <div class="mt-2">
-                    <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">Profile</a>
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">Logout</button>
-                    </form>
+            <div class="card bg-dark bg-opacity-10 border-0">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0 me-2" style="width: 40px; height: 40px;">
+                            <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="fw-semibold text-truncate small">{{ Auth::user()->name }}</div>
+                            <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ Auth::user()->email }}</small>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
+                            <i class="fa-solid fa-user me-1"></i> Profile
+                        </a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         @endguest
     </div>
 </aside>
+
+<style>
+    .app-sidebar .nav-link:not(.active):hover {
+        background-color: var(--bs-secondary-bg);
+    }
+    
+    .app-sidebar .nav-link {
+        font-weight: 500;
+    }
+</style>

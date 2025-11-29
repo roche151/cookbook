@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f7931e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="url(#gradient)"/>
+    <!-- subtle inner ring for definition -->
+    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2" />
+    <!-- chef toque icon -->
+    <path d="M 35 35 Q 35 25, 50 25 Q 65 25, 65 35 Q 65 45, 60 50 L 55 55 L 55 72 M 45 72 L 45 55 L 40 50 Q 35 45, 35 35 M 40 78 L 60 78" 
+      stroke="white" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

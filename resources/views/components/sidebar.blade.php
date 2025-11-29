@@ -115,8 +115,8 @@
     <!-- Brand/Logo Section -->
     <div class="p-4 border-bottom">
         <a class="d-flex align-items-center text-decoration-none" href="{{ url('/') }}">
-            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
-                <i class="fa-solid fa-utensils text-white"></i>
+            <div class="d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                <img src="{{ asset('favicon.svg') }}" alt="Culina" width="28" height="28" style="display:block; border-radius:50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" />
             </div>
             <span class="fs-5 fw-bold">{{ config('app.name', 'Laravel') }}</span>
         </a>

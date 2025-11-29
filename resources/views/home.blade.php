@@ -59,10 +59,10 @@
 					@foreach($tags as $tag)
 						<div class="col-sm-6 col-md-4 col-lg-3">
 							<a href="/recipes?tag={{ urlencode($tag->name) }}" 
-							   class="card h-100 text-decoration-none border">
+							   class="card h-100 text-decoration-none border category-card">
 								<div class="card-body text-center p-4">
 									@if(!empty($tag->icon))
-										<div class="mb-3">
+										<div class="mb-3 category-icon">
 											<i class="{{ $tag->icon }} fa-2x text-primary" aria-hidden="true"></i>
 										</div>
 									@endif
@@ -139,5 +139,22 @@
 			</div>
 		</div>
 	</div>
+
+	<style>
+		.category-card {
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		.category-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+			border-color: var(--bs-primary) !important;
+		}
+		.category-card .category-icon {
+			transition: transform 0.3s ease;
+		}
+		.category-card:hover .category-icon {
+			transform: scale(1.15);
+		}
+	</style>
 
 </x-app-layout>

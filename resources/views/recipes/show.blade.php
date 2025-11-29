@@ -168,7 +168,7 @@
                                 
                                 @if($recipe->user_id === auth()->id())
                                     <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">
-                                        <i class="fa-solid fa-edit me-2"></i>Edit Recipe
+                                        <i class="fa-solid fa-edit me-2"></i>Edit
                                     </a>
                                     <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST">
                                         @csrf
@@ -181,7 +181,7 @@
                             @endauth
                             
                             <button onclick="window.print()" class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-print me-2"></i>Print Recipe
+                                <i class="fa-solid fa-print me-2"></i>Print
                             </button>
                         </div>
                     </div>

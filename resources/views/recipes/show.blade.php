@@ -6,7 +6,7 @@
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                 <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ data_get($recipe, 'title') }}</li>
+                <li class="breadcrumb-item active" aria-current="page" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ data_get($recipe, 'title') }}</li>
             </ol>
         </nav>
 

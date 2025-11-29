@@ -10,7 +10,7 @@
             <div class="card-header">
                 <button class="btn btn-link text-decoration-none w-100 text-start p-0 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="{{ ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc') ? 'true' : 'false' }}" aria-controls="filterCollapse">
                     <span class="fw-semibold">
-                        <i class="fa-solid fa-sliders me-2"></i>Search & Filters
+                        <i class="fa-solid fa-sliders me-2"></i>Filters
                     </span>
                     <i class="fa-solid fa-chevron-down"></i>
                 </button>

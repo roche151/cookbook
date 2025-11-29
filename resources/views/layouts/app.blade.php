@@ -58,12 +58,8 @@
 
         /* Button improvements */
         .btn {
-            transition: all 0.2s ease;
             font-weight: 500;
             letter-spacing: 0.01em;
-        }
-        .btn:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .btn-primary {
             box-shadow: 0 2px 4px rgba(13, 110, 253, 0.3);

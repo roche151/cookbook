@@ -1,9 +1,11 @@
 <section>
-    <h4>Delete Account</h4>
-    <p class="text-muted">Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
+    <h5 class="fw-semibold mb-3 text-danger">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>Danger Zone
+    </h5>
+    <p class="text-muted mb-4">Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
 
-    <button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmUserDeletion">
-        Delete Account
+    <button type="button" class="btn btn-danger btn-lg px-4" data-bs-toggle="modal" data-bs-target="#confirmUserDeletion">
+        <i class="fa-solid fa-trash me-2"></i>Delete Account
     </button>
 
     <!-- Modal -->

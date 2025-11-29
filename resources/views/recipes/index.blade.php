@@ -2,32 +2,46 @@
     <x-slot name="title">{{ $title ?? 'Recipes' }}</x-slot>
 
     <div class="container py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h4 mb-0">{{ $title ?? 'Recipes' }}</h1>
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ $title ?? 'Recipes' }}</li>
+            </ol>
+        </nav>
+
+        <div class="mb-4">
+            <h1 class="h3 mb-2">
+                <i class="fa-solid fa-book-open me-2 text-primary"></i>{{ $title ?? 'All Recipes' }}
+            </h1>
+            <p class="text-muted mb-0">{{ $subtitle ?? 'Discover and explore delicious recipes' }}</p>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-body-secondary border-0">
                 <button class="btn btn-link text-decoration-none w-100 text-start p-0 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="{{ ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc') ? 'true' : 'false' }}" aria-controls="filterCollapse">
-                    <span class="fw-semibold">
-                        <i class="fa-solid fa-sliders me-2"></i>Filters
+                    <span class="fw-semibold fs-6">
+                        <i class="fa-solid fa-sliders me-2 text-primary"></i>Filters & Search
                     </span>
                     <i class="fa-solid fa-chevron-down"></i>
                 </button>
             </div>
             <div id="filterCollapse" class="collapse {{ ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc') ? 'show' : '' }}">
-                <div class="card-body">
+                <div class="card-body p-4">
                         <form method="GET">
                             <div class="row g-3">
                                 <!-- Search Box -->
                                 <div class="col-md-8">
-                                    <label class="form-label small fw-semibold">Search</label>
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa-solid fa-magnifying-glass me-1 text-primary"></i>Search
+                                    </label>
                                     <input type="text" name="q" class="form-control" placeholder="Search recipes, ingredients..." value="{{ $q ?? '' }}">
                                 </div>
 
                                 <!-- Sort Dropdown -->
                                 <div class="col-md-4">
-                                    <label class="form-label small fw-semibold">Sort By</label>
+                                    <label class="form-label fw-semibold">
+                                        <i class="fa-solid fa-arrow-down-short-wide me-1 text-primary"></i>Sort By
+                                    </label>
                                     <select name="sort" class="form-select">
                                         <option value="date_desc" {{ ($sort ?? 'date_desc') === 'date_desc' ? 'selected' : '' }}>Newest First</option>
                                         <option value="date_asc" {{ ($sort ?? '') === 'date_asc' ? 'selected' : '' }}>Oldest First</option>
@@ -41,10 +55,12 @@
                                 <!-- Tag Filters -->
                                 @if(isset($allTags) && $allTags->count())
                                     <div class="col-12">
-                                        <label class="form-label small fw-semibold">Tags</label>
+                                        <label class="form-label fw-semibold">
+                                            <i class="fa-solid fa-tags me-1 text-primary"></i>Tags
+                                        </label>
                                         <div class="d-flex flex-wrap gap-2">
                                             @foreach($allTags as $tag)
-                                                <div class="form-check form-check-inline mb-0">
+                                                <div class="form-check mb-0">
                                                     <input 
                                                         class="form-check-input" 
                                                         type="checkbox" 
@@ -53,7 +69,7 @@
                                                         id="tag-{{ $tag->id }}"
                                                         {{ in_array($tag->id, $selectedTags ?? []) ? 'checked' : '' }}
                                                     >
-                                                    <label class="form-check-label" for="tag-{{ $tag->id }}">
+                                                    <label class="form-check-label badge bg-secondary bg-opacity-25 border border-secondary py-2 px-3" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
                                                         @if($tag->icon)
                                                             <i class="{{ $tag->icon }} me-1"></i>
                                                         @endif
@@ -68,12 +84,12 @@
                                 <!-- Buttons -->
                                 <div class="col-12">
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="fa-solid fa-search me-1"></i>Apply Filters
+                                        <button class="btn btn-primary px-4" type="submit">
+                                            <i class="fa-solid fa-search me-2"></i>Apply Filters
                                         </button>
                                         @if($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc')
-                                            <a href="{{ url()->current() }}" class="btn btn-outline-secondary">
-                                                <i class="fa-solid fa-times me-1"></i>Clear All
+                                            <a href="{{ url()->current() }}" class="btn btn-outline-secondary px-4">
+                                                <i class="fa-solid fa-times me-2"></i>Clear All
                                             </a>
                                         @endif
                                     </div>
@@ -97,15 +113,25 @@
                 {{ $recipes->links() }}
             </div>
         @else
-            <div class="alert alert-info">
-                {{ $emptyMessage ?? 'No recipes found.' }}
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="fa-solid fa-info-circle me-2"></i>{{ $emptyMessage ?? 'No recipes found.' }}
             </div>
         @endif
     </div>
 
     <style>
+        /* Prevent horizontal jump when scrollbar appears */
+        html {
+            overflow-y: scroll;
+        }
+        
+        /* Smooth collapse animation */
+        #filterCollapse {
+            transition: height 0.3s ease;
+        }
+        
         [data-bs-toggle="collapse"] .fa-chevron-down {
-            transition: transform 0.2s ease;
+            transition: transform 0.3s ease;
         }
         [data-bs-toggle="collapse"][aria-expanded="true"] .fa-chevron-down {
             transform: rotate(180deg);

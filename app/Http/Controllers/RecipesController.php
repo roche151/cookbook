@@ -54,6 +54,7 @@ class RecipesController extends Controller
         if ($context === 'my') {
             $query = Recipe::where('user_id', Auth::id());
             $title = 'My Recipes';
+            $subtitle = 'View and manage all your created recipes';
             $emptyMessage = 'You haven\'t created any recipes yet.';
         } elseif ($context === 'favorites') {
             $user = Auth::user();
@@ -62,6 +63,7 @@ class RecipesController extends Controller
             }
             $query = $user->favoriteRecipes();
             $title = 'My Favorite Recipes';
+            $subtitle = 'Your collection of saved and loved recipes';
             $emptyMessage = 'You haven\'t favorited any recipes yet.';
         } else {
             $query = Recipe::query();
@@ -75,6 +77,7 @@ class RecipesController extends Controller
                 $query->where('is_public', true);
             }
             $title = 'All Recipes';
+            $subtitle = 'Discover and explore delicious recipes';
             $emptyMessage = 'No recipes found.';
         }
 
@@ -134,6 +137,7 @@ class RecipesController extends Controller
             'allTags' => $allTags,
             'sort' => $sort,
             'title' => $title,
+            'subtitle' => $subtitle ?? 'Discover and explore delicious recipes',
             'emptyMessage' => $emptyMessage,
         ]);
     }

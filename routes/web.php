@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipesController;
+use App\Http\Controllers\ShoppingListController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Tag;
 
@@ -28,6 +29,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Shopping list
+    Route::get('/shopping-list', [ShoppingListController::class, 'index'])->name('shopping-list.index');
+    Route::post('/shopping-list/items', [ShoppingListController::class, 'storeItem'])->name('shopping-list.items.store');
+    Route::patch('/shopping-list/items/{item}/toggle', [ShoppingListController::class, 'toggleItem'])->name('shopping-list.items.toggle');
+    Route::patch('/shopping-list/items/{item}', [ShoppingListController::class, 'updateItem'])->name('shopping-list.items.update');
+    Route::delete('/shopping-list/items/{item}', [ShoppingListController::class, 'deleteItem'])->name('shopping-list.items.delete');
+    Route::delete('/shopping-list/clear-checked', [ShoppingListController::class, 'clearChecked'])->name('shopping-list.items.clear-checked');
+    Route::post('/shopping-list/add-recipe/{recipe}', [ShoppingListController::class, 'addFromRecipe'])->name('shopping-list.add-from-recipe');
 });
 
 // Public recipe show route - define AFTER /create to avoid conflicts

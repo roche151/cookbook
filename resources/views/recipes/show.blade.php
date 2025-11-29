@@ -172,6 +172,14 @@
                                         <span>{{ $isFavorited ? 'Unfavorite' : 'Favorite' }}</span>
                                     </button>
                                 </form>
+
+                                <form action="{{ route('shopping-list.add-from-recipe', $recipe->slug) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                        <span>Add ingredients to Shopping List</span>
+                                    </button>
+                                </form>
                                 
                                 @if($recipe->user_id === auth()->id())
                                     <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">

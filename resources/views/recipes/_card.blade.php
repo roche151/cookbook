@@ -13,7 +13,7 @@
     
     @if($isOwnedByUser && !request()->routeIs('recipes.my'))
         <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
-            <span class="badge bg-primary bg-opacity-75 backdrop-blur">
+            <span class="badge bg-primary bg-opacity-75 backdrop-blur" data-bs-toggle="tooltip" data-bs-title="Your recipe">
                 <i class="fa-solid fa-user"></i>
             </span>
         </div>
@@ -21,7 +21,7 @@
     
     @if(data_get($recipe, 'is_public') !== null)
         <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
-            <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }} bg-opacity-75 backdrop-blur">
+            <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }} bg-opacity-75 backdrop-blur" data-bs-toggle="tooltip" data-bs-title="{{ data_get($recipe, 'is_public') ? 'Public recipe - visible to everyone' : 'Private recipe - only visible to you' }}">
                 <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }}"></i>
             </span>
         </div>
@@ -34,7 +34,7 @@
             @endphp
             <form action="{{ route('recipes.favorite', data_get($recipe, 'slug')) }}" method="POST" class="position-absolute top-0 end-0 m-2 js-favorite-form" data-recipe-id="{{ data_get($recipe, 'id') }}">
                 @csrf
-                <button type="submit" data-icon-only="true" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-danger' }}" title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
+                <button type="submit" data-icon-only="true" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-danger' }}" data-bs-toggle="tooltip" data-bs-title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
                     <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart"></i>
                 </button>
             </form>
@@ -79,15 +79,15 @@
                 <span class="mx-1">·</span>
                 <span style="letter-spacing: 1px;">
                     @if($recipe->difficulty === 'easy')
-                        <span style="color: #28a745;" title="Easy difficulty">
+                        <span style="color: #28a745;" data-bs-toggle="tooltip" data-bs-title="Easy difficulty">
                             <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.45rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.45rem;"></i>
                         </span>
                     @elseif($recipe->difficulty === 'medium')
-                        <span style="color: #ffc107;" title="Medium difficulty">
+                        <span style="color: #ffc107;" data-bs-toggle="tooltip" data-bs-title="Medium difficulty">
                             <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.45rem;"></i>
                         </span>
                     @else
-                        <span style="color: #dc3545;" title="Hard difficulty">
+                        <span style="color: #dc3545;" data-bs-toggle="tooltip" data-bs-title="Hard difficulty">
                             <i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.45rem;"></i>
                         </span>
                     @endif

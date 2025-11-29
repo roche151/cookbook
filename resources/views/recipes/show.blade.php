@@ -51,15 +51,15 @@
                         @if($recipe->difficulty)
                             <span style="letter-spacing: 1px;">
                                 @if($recipe->difficulty === 'easy')
-                                    <span style="color: #28a745;" title="Easy difficulty">
+                                    <span style="color: #28a745;" data-bs-toggle="tooltip" data-bs-title="Easy difficulty">
                                         <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.5rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.5rem;"></i>
                                     </span>
                                 @elseif($recipe->difficulty === 'medium')
-                                    <span style="color: #ffc107;" title="Medium difficulty">
+                                    <span style="color: #ffc107;" data-bs-toggle="tooltip" data-bs-title="Medium difficulty">
                                         <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-regular fa-circle" style="font-size: 0.5rem;"></i>
                                     </span>
                                 @else
-                                    <span style="color: #dc3545;" title="Hard difficulty">
+                                    <span style="color: #dc3545;" data-bs-toggle="tooltip" data-bs-title="Hard difficulty">
                                         <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i><i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i>
                                     </span>
                                 @endif
@@ -67,7 +67,7 @@
                         @endif
                         
                         @if($recipe->is_public !== null)
-                            <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print">
+                            <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print" data-bs-toggle="tooltip" data-bs-title="{{ $recipe->is_public ? 'Public recipe - visible to everyone' : 'Private recipe - only visible to you' }}">
                                 <i class="fa-solid fa-{{ $recipe->is_public ? 'globe' : 'lock' }}"></i>
                             </span>
                         @endif

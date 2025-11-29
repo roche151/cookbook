@@ -1,31 +1,33 @@
-<div class="card h-100">
+<div class="card h-100 shadow-sm">
     @php
         $image = data_get($recipe, 'image');
         $isOwnedByUser = auth()->check() && data_get($recipe, 'user_id') === auth()->id();
     @endphp
-    @if($image)
-        <img src="{{ Storage::url($image) }}" class="card-img-top" alt="{{ data_get($recipe, 'title') }}" style="height: 200px; object-fit: cover;">
-    @else
-        <div class="card-img-top d-flex align-items-center justify-content-center bg-secondary bg-opacity-25" style="height: 200px;">
-            <i class="fa-regular fa-image text-muted" style="font-size: 3rem;"></i>
-        </div>
-    @endif
-    
-    @if($isOwnedByUser && !request()->routeIs('recipes.my'))
-        <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
-            <span class="badge bg-primary bg-opacity-75 backdrop-blur" data-bs-toggle="tooltip" data-bs-title="Your recipe">
-                <i class="fa-solid fa-user"></i>
-            </span>
-        </div>
-    @endif
-    
-    @if(data_get($recipe, 'is_public') !== null)
-        <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
-            <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }} bg-opacity-75 backdrop-blur" data-bs-toggle="tooltip" data-bs-title="{{ data_get($recipe, 'is_public') ? 'Public recipe - visible to everyone' : 'Private recipe - only visible to you' }}">
-                <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }}"></i>
-            </span>
-        </div>
-    @endif
+    <div style="position: relative; overflow: hidden; border-radius: calc(0.375rem - 1px) calc(0.375rem - 1px) 0 0;">
+        @if($image)
+            <img src="{{ Storage::url($image) }}" class="card-img-top" alt="{{ data_get($recipe, 'title') }}" style="height: 200px; object-fit: cover;">
+        @else
+            <div class="card-img-top d-flex align-items-center justify-content-center bg-secondary bg-opacity-25" style="height: 200px;">
+                <i class="fa-regular fa-image text-muted" style="font-size: 3rem; opacity: 0.5;"></i>
+            </div>
+        @endif
+        
+        @if($isOwnedByUser && !request()->routeIs('recipes.my'))
+            <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
+                <span class="badge bg-primary shadow-sm" data-bs-toggle="tooltip" data-bs-title="Your recipe" style="backdrop-filter: blur(8px); background: rgba(13, 110, 253, 0.9) !important;">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+            </div>
+        @endif
+        
+        @if(data_get($recipe, 'is_public') !== null)
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+                <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }} shadow-sm" data-bs-toggle="tooltip" data-bs-title="{{ data_get($recipe, 'is_public') ? 'Public recipe - visible to everyone' : 'Private recipe - only visible to you' }}" style="backdrop-filter: blur(8px); {{ data_get($recipe, 'is_public') ? 'background: rgba(25, 135, 84, 0.9) !important;' : 'background: rgba(108, 117, 125, 0.9) !important;' }}">
+                    <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }}"></i>
+                </span>
+            </div>
+        @endif
+    </div>
     
     <div class="card-body d-flex flex-column position-relative">
         @auth
@@ -39,7 +41,7 @@
                 </button>
             </form>
         @endauth
-        <h5 class="card-title mb-2" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 2.5rem;">{{ data_get($recipe, 'title') }}</h5>
+        <h5 class="card-title mb-2 fw-semibold" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 2.5rem; line-height: 1.4;">{{ data_get($recipe, 'title') }}</h5>
         
         <p class="text-muted mb-2 small" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             @php
@@ -95,35 +97,43 @@
             @endif
         </p>
 
-        <p class="card-text mb-2" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ data_get($recipe, 'description') }}</p>
+        <p class="card-text mb-3 text-muted" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.5; min-height: 3em;">{{ data_get($recipe, 'description') }}</p>
         
         @php
             $avgRating = is_object($recipe) && method_exists($recipe, 'averageRating') ? $recipe->averageRating() : null;
             $ratingsCount = is_object($recipe) && method_exists($recipe, 'ratingsCount') ? $recipe->ratingsCount() : 0;
         @endphp
-        <div class="mb-2">
+        <div class="mb-3">
             @if($avgRating)
-                <div class="text-warning small">
-                    @for($i = 1; $i <= 5; $i++)
-                        <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star" style="font-size: 0.75rem;"></i>
-                    @endfor
-                    <span class="text-light fw-bold ms-1">{{ number_format($avgRating, 1) }}</span>
+                <div class="text-warning small d-flex align-items-center gap-1">
+                    <span>
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fa-{{ $i <= round($avgRating) ? 'solid' : 'regular' }} fa-star" style="font-size: 0.875rem;"></i>
+                        @endfor
+                    </span>
+                    <span class="text-light fw-semibold">{{ number_format($avgRating, 1) }}</span>
                     <span class="text-muted">({{ $ratingsCount }})</span>
                 </div>
             @else
-                <div class="text-muted small">
-                    No ratings yet
+                <div class="text-muted small" style="opacity: 0.7;">
+                    <i class="fa-regular fa-star"></i> No ratings yet
                 </div>
             @endif
         </div>
         
-        <div class="mt-auto d-flex justify-content-end gap-2">
-            <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug')) }}" class="btn btn-sm btn-primary">View</a>
-            @auth
-                @if(data_get($recipe, 'user_id') === auth()->id())
-                    <a href="{{ route('recipes.edit', data_get($recipe, 'slug')) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
-                @endif
-            @endauth
+        <div class="mt-auto pt-2 border-top border-secondary border-opacity-25">
+            <div class="d-flex justify-content-end gap-2 mt-2">
+                <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug')) }}" class="btn btn-sm btn-primary px-3">
+                    <i class="fa-solid fa-eye me-1"></i>View
+                </a>
+                @auth
+                    @if(data_get($recipe, 'user_id') === auth()->id())
+                        <a href="{{ route('recipes.edit', data_get($recipe, 'slug')) }}" class="btn btn-sm btn-outline-secondary px-3">
+                            <i class="fa-solid fa-pen me-1"></i>Edit
+                        </a>
+                    @endif
+                @endauth
+            </div>
         </div>
     </div>
 </div>

@@ -14,10 +14,10 @@
             <div class="col-lg-8">
                 <!-- Header Section -->
                 <div class="mb-4">
-                    <h1 class="display-5 mb-3">{{ data_get($recipe, 'title') }}</h1>
+                    <h1 class="display-6 fw-bold mb-3">{{ data_get($recipe, 'title') }}</h1>
                     
                     <!-- Metadata Row -->
-                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
                         @php 
                             $tags = data_get($recipe, 'tags');
                             $displayTime = '';
@@ -97,16 +97,18 @@
 
                 @if($recipe->image)
                     <div class="mb-4">
-                        <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="img-fluid rounded shadow-sm" style="max-height: 500px; width: 100%; object-fit: cover;">
+                        <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="img-fluid rounded-3 shadow" style="max-height: 500px; width: 100%; object-fit: cover;">
                     </div>
                 @endif
 
                 <!-- Ingredients & Method -->
                 <div class="row">
                     <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">Ingredients</h5>
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-4 fw-semibold">
+                                    <i class="fa-solid fa-list-check me-2 text-primary"></i>Ingredients
+                                </h5>
                                 @if($recipe->ingredients && $recipe->ingredients->count())
                                     <ul class="list-unstyled mb-0">
                                         @foreach($recipe->ingredients as $ingredient)
@@ -129,9 +131,11 @@
                     </div>
 
                     <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">Method</h5>
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body p-4">
+                                <h5 class="card-title mb-4 fw-semibold">
+                                    <i class="fa-solid fa-list-ol me-2 text-primary"></i>Method
+                                </h5>
                                 @if($recipe->directions && $recipe->directions->count())
                                     <ol class="mb-0 ps-3">
                                         @foreach($recipe->directions as $direction)
@@ -151,8 +155,11 @@
             
             <div class="col-lg-4">
                 <!-- Action Buttons -->
-                <div class="card mb-3 no-print">
-                    <div class="card-body">
+                <div class="card mb-4 shadow-sm border-0 no-print">
+                    <div class="card-body p-4">
+                        <h6 class="card-title mb-3 fw-semibold" hidden>
+                            <i class="fa-solid fa-ellipsis-vertical me-2 text-primary"></i>Actions
+                        </h6>
                         <div class="d-grid gap-2">
                             @auth
                                 @php
@@ -190,9 +197,11 @@
                 <!-- Rating Form -->
                 @auth
                     @if($recipe->user_id !== auth()->id())
-                        <div class="card no-print">
-                            <div class="card-body">
-                                <h6 class="card-title mb-3">Rate this recipe</h6>
+                        <div class="card shadow-sm border-0 no-print">
+                            <div class="card-body p-4">
+                                <h6 class="card-title mb-3 fw-semibold">
+                                    <i class="fa-solid fa-star me-2 text-primary"></i>Rate this recipe
+                                </h6>
                                 @php
                                     $userRating = auth()->user()->recipeRatings()->where('recipe_id', $recipe->id)->first();
                                 @endphp

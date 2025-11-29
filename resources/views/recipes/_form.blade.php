@@ -26,34 +26,45 @@
     @endif
 
     <div class="col-12">
-        <label class="form-label">Visibility</label>
-        <div class="d-flex gap-3">
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="is_public" id="visibility_private" value="0" {{ old('is_public', optional($recipe)->is_public) ? '' : 'checked' }}>
-                <label class="form-check-label" for="visibility_private">
-                    <i class="fa-solid fa-lock me-1"></i>Private
-                </label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="is_public" id="visibility_public" value="1" {{ old('is_public', optional($recipe)->is_public) ? 'checked' : '' }}>
-                <label class="form-check-label" for="visibility_public">
-                    <i class="fa-solid fa-globe me-1"></i>Public
-                </label>
+        <div class="card bg-body-secondary border-0 mb-3">
+            <div class="card-body p-3">
+                <h6 class="card-title mb-3">
+                    <i class="fa-solid fa-eye me-2"></i>Visibility
+                </h6>
+                <div class="d-flex gap-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="is_public" id="visibility_private" value="0" {{ old('is_public', optional($recipe)->is_public) ? '' : 'checked' }}>
+                        <label class="form-check-label" for="visibility_private">
+                            <i class="fa-solid fa-lock me-1"></i>Private
+                            <small class="d-block text-muted">Only you can view</small>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="is_public" id="visibility_public" value="1" {{ old('is_public', optional($recipe)->is_public) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="visibility_public">
+                            <i class="fa-solid fa-globe me-1"></i>Public
+                            <small class="d-block text-muted">Visible to everyone</small>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
-        <small class="text-muted">Private recipes are only visible to you. Public recipes can be viewed by others.</small>
     </div>
 
     <div class="col-12">
-        <label class="form-label">Title</label>
-        <input name="title" class="form-control" value="{{ old('title', optional($recipe)->title) }}">
+        <label class="form-label fw-semibold">
+            <i class="fa-solid fa-utensils me-1 text-primary"></i>Recipe Title
+        </label>
+        <input name="title" class="form-control form-control-lg" placeholder="e.g., Grandma's Chocolate Chip Cookies" value="{{ old('title', optional($recipe)->title) }}">
         @if($errors->has('title'))
             <div class="text-danger small mt-1">{{ $errors->first('title') }}</div>
         @endif
     </div>
 
     <div class="col-12">
-        <label class="form-label">Tags</label>
+        <label class="form-label fw-semibold">
+            <i class="fa-solid fa-tags me-1 text-primary"></i>Tags
+        </label>
         <div class="d-flex flex-wrap gap-2">
             @foreach($tags as $tag)
                 @php
@@ -66,7 +77,9 @@
                 @endphp
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="tags[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}" {{ $checked ? 'checked' : '' }}>
-                    <label class="form-check-label" for="tag-{{ $tag->id }}">{{ $tag->name }}</label>
+                    <label class="form-check-label badge bg-secondary bg-opacity-25 border border-secondary py-2 px-3" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
+                        <i class="{{ $tag->icon }} me-1"></i>{{ $tag->name }}
+                    </label>
                 </div>
             @endforeach
         </div>
@@ -76,7 +89,9 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label">Image (optional)</label>
+        <label class="form-label fw-semibold">
+            <i class="fa-solid fa-image me-1 text-primary"></i>Recipe Image <span class="text-muted fw-normal">(optional)</span>
+        </label>
         @php
             $tempImage = session('temp_image');
             $hasTemp = $tempImage && Storage::disk('public')->exists($tempImage);
@@ -86,15 +101,19 @@
             <input type="hidden" name="existing_temp_image" value="{{ $tempImage }}">
         @endif
         
-        <div class="image-drop-zone border rounded p-4 text-center" tabindex="0" style="position: relative; min-height: 200px; background: var(--bs-body-bg); border: 2px dashed var(--bs-border-color) !important; outline: none;">
+        <div class="image-drop-zone border rounded-3 p-4 text-center" tabindex="0" style="position: relative; min-height: 200px; background: var(--bs-body-secondary); border: 2px dashed var(--bs-border-color) !important; outline: none; transition: all 0.2s;">
             <input type="file" name="image" accept="image/*" class="d-none" id="recipe-image">
             <div class="upload-placeholder" style="display: {{ $hasTemp ? 'none' : 'flex' }}; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; gap: 1rem;">
-                <i class="fa-solid fa-cloud-arrow-up fa-3x text-muted"></i>
-                <p class="mb-2">Choose a file or drag & drop it here</p>
-                <p class="text-muted small mb-3">JPEG, PNG, GIF, and WebP formats, up to 5MB</p>
-                <button type="button" class="btn btn-outline-secondary btn-sm browse-file-btn">Browse File</button>
+                <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary opacity-75"></i>
+                <div>
+                    <p class="mb-1 fw-semibold">Choose a file or drag & drop it here</p>
+                    <p class="text-muted small mb-3">JPEG, PNG, GIF, and WebP formats, up to 5MB</p>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm browse-file-btn">
+                    <i class="fa-solid fa-folder-open me-2"></i>Browse Files
+                </button>
             </div>
-            <img class="image-preview rounded" src="{{ $hasTemp ? Storage::url($tempImage) : '' }}" style="display: {{ $hasTemp ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
+            <img class="image-preview rounded-3" src="{{ $hasTemp ? Storage::url($tempImage) : '' }}" style="display: {{ $hasTemp ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
             <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: {{ $hasTemp ? 'block' : 'none' }};">
                 <i class="fa-solid fa-times"></i>
             </button>
@@ -107,8 +126,10 @@
         @endif
     </div>
 
-    <div class="col-md-4">
-        <label class="form-label">Time</label>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">
+            <i class="fa-solid fa-clock me-1 text-primary"></i>Prep Time
+        </label>
         @php
             $timeHoursOld = old('time_hours');
             $timeMinutesOld = old('time_minutes');
@@ -132,12 +153,12 @@
         @endphp
 
         <div class="d-flex gap-2 align-items-center">
-            <div class="input-group" style="width:170px">
+            <div class="input-group flex-grow-1">
                 <input name="time_hours" type="number" min="0" class="form-control" value="{{ $hours }}" placeholder="0" aria-label="Hours">
                 <span class="input-group-text">hours</span>
             </div>
 
-            <div class="input-group" style="width:170px">
+            <div class="input-group flex-grow-1">
                 <input name="time_minutes" type="number" min="0" max="59" class="form-control" value="{{ $minutes }}" placeholder="0" aria-label="Minutes" oninput="if(this.value==='')return; if(Number(this.value) > 59) this.value = 59; if(Number(this.value) < 0) this.value = 0;">
                 <span class="input-group-text">minutes</span>
             </div>
@@ -147,13 +168,15 @@
         @endif
     </div>
 
-    <div class="col-md-4">
-        <label class="form-label">Difficulty</label>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">
+            <i class="fa-solid fa-signal me-1 text-primary"></i>Difficulty Level
+        </label>
         <select name="difficulty" class="form-select" required>
             <option value="">Select difficulty</option>
-            <option value="easy" {{ old('difficulty', optional($recipe)->difficulty) === 'easy' ? 'selected' : '' }}>Easy</option>
-            <option value="medium" {{ old('difficulty', optional($recipe)->difficulty ?? 'medium') === 'medium' ? 'selected' : '' }}>Medium</option>
-            <option value="hard" {{ old('difficulty', optional($recipe)->difficulty) === 'hard' ? 'selected' : '' }}>Hard</option>
+            <option value="easy" {{ old('difficulty', optional($recipe)->difficulty) === 'easy' ? 'selected' : '' }}>● Easy - Perfect for beginners</option>
+            <option value="medium" {{ old('difficulty', optional($recipe)->difficulty ?? 'medium') === 'medium' ? 'selected' : '' }}>●● Medium - Some experience needed</option>
+            <option value="hard" {{ old('difficulty', optional($recipe)->difficulty) === 'hard' ? 'selected' : '' }}>●●● Hard - Advanced techniques</option>
         </select>
         @if($errors->has('difficulty'))
             <div class="text-danger small mt-1">{{ $errors->first('difficulty') }}</div>
@@ -161,16 +184,20 @@
     </div>
 
     <div class="col-12">
-        <label class="form-label">Description</label>
-        <textarea name="description" class="form-control" rows="4">{{ old('description', optional($recipe)->description) }}</textarea>
+        <label class="form-label fw-semibold">
+            <i class="fa-solid fa-align-left me-1 text-primary"></i>Description
+        </label>
+        <textarea name="description" class="form-control" rows="4" placeholder="Describe your recipe, its origins, or what makes it special...">{{ old('description', optional($recipe)->description) }}</textarea>
         @if($errors->has('description'))
             <div class="text-danger small mt-1">{{ $errors->first('description') }}</div>
         @endif
     </div>
 
     <div class="col-12">
-        <div class="mb-3">
-            <label class="form-label">Ingredients</label>
+        <div class="mb-4">
+            <label class="form-label fw-semibold fs-5 mb-3">
+                <i class="fa-solid fa-list-check me-2 text-primary"></i>Ingredients
+            </label>
 
             <div id="ingredients-container" data-next-index="0">
                 @php
@@ -224,12 +251,16 @@
             </div>
 
             <div>
-                <button type="button" id="js-add-ingredient" class="btn btn-sm btn-outline-primary mt-2">Add Ingredient</button>
+                <button type="button" id="js-add-ingredient" class="btn btn-primary mt-2">
+                    <i class="fa-solid fa-plus me-2"></i>Add Ingredient
+                </button>
             </div>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Method</label>
+        <div class="mb-4">
+            <label class="form-label fw-semibold fs-5 mb-3">
+                <i class="fa-solid fa-list-ol me-2 text-primary"></i>Method
+            </label>
 
             <div id="directions-container" data-next-index="0">
                 @php
@@ -274,7 +305,9 @@
             </div>
 
             <div>
-                <button type="button" id="js-add-direction" class="btn btn-sm btn-outline-primary mt-2">Add Step</button>
+                <button type="button" id="js-add-direction" class="btn btn-primary mt-2">
+                    <i class="fa-solid fa-plus me-2"></i>Add Step
+                </button>
             </div>
         </div>
         @if($errors->has('directions'))
@@ -283,8 +316,15 @@
     </div>
     
     <div class="col-12">
-        <button class="btn btn-primary" type="submit">{{ $buttonText }}</button>
-        <a href="{{ url('/recipes') }}" class="btn btn-link text-decoration-none">Cancel</a>
+        <hr class="my-4">
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-lg px-4" type="submit">
+                <i class="fa-solid fa-save me-2"></i>{{ $buttonText }}
+            </button>
+            <a href="{{ url('/recipes') }}" class="btn btn-outline-secondary btn-lg px-4">
+                <i class="fa-solid fa-times me-2"></i>Cancel
+            </a>
+        </div>
     </div>
 </form>
 

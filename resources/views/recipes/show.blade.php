@@ -167,28 +167,28 @@
                                 @endphp
                                 <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="js-favorite-form" data-recipe-id="{{ $recipe->id }}">
                                     @csrf
-                                    <button type="submit" class="btn btn-outline-secondary w-100">
-                                        <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart me-2"></i>
-                                        {{ $isFavorited ? 'Unfavorite' : 'Favorite' }}
+                                    <button type="submit" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1">
+                                        <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart"></i>
+                                        <span>{{ $isFavorited ? 'Unfavorite' : 'Favorite' }}</span>
                                     </button>
                                 </form>
                                 
                                 @if($recipe->user_id === auth()->id())
                                     <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">
-                                        <i class="fa-solid fa-edit me-2"></i>Edit
+                                        <i class="fa-solid fa-edit me-1"></i>Edit
                                     </a>
                                     <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button class="btn btn-outline-secondary w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?">
-                                            <i class="fa-solid fa-trash me-2"></i>Delete
+                                            <i class="fa-solid fa-trash me-1"></i>Delete
                                         </button>
                                     </form>
                                 @endif
                             @endauth
                             
                             <button onclick="window.print()" class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-print me-2"></i>Print
+                                <i class="fa-solid fa-print me-1"></i>Print
                             </button>
                         </div>
                     </div>

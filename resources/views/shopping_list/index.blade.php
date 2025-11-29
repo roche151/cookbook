@@ -48,11 +48,6 @@
                     <div class="col-md-6">
                         <div class="d-flex align-items-center justify-content-between">
                             <h6 class="fw-semibold mb-2">Checked</h6>
-                            <form action="{{ route('shopping-list.items.clear-checked') }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-secondary" type="submit">Clear checked</button>
-                            </form>
                         </div>
                         <ul class="list-unstyled mb-0 text-muted" id="checkedList">
                             @foreach($items->where('is_checked', true) as $item)
@@ -73,6 +68,11 @@
                                 </li>
                             @endforeach
                         </ul>
+                        <form action="{{ route('shopping-list.items.clear-checked') }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-outline-secondary float-end" type="submit">Clear All</button>
+                        </form>
                     </div>
                 </div>
             </div>

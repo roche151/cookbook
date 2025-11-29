@@ -156,7 +156,7 @@
                 <a class="btn btn-outline-primary btn-sm" href="{{ route('login') }}">
                     <i class="fa-solid fa-right-to-bracket me-2"></i>Login
                 </a>
-                <a class="btn btn-primary btn-sm" href="{{ route('register') }}">
+                <a class="btn btn-outline-primary btn-sm" href="{{ route('register') }}">
                     <i class="fa-solid fa-user-plus me-2"></i>Register
                 </a>
             </div>

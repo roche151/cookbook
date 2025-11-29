@@ -91,7 +91,7 @@
                     @endif
 
                     @if($recipe->description)
-                        <p class="lead text-muted mb-0">{{ data_get($recipe, 'description') }}</p>
+                        <p class="lead text-muted mb-0">{!! nl2br(e(data_get($recipe, 'description'))) !!}</p>
                     @endif
                 </div>
 

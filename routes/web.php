@@ -14,8 +14,8 @@ Route::get('/', function () {
 // Public recipe routes (anyone can view)
 Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index');
 
-// Protected recipe routes (must be logged in) - define /create BEFORE /{recipe}
-Route::middleware('auth')->group(function () {
+// Protected recipe routes (must be logged in and verified email) - define /create BEFORE /{recipe}
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('recipes.my');
     })->name('dashboard');

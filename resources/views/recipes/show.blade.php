@@ -195,9 +195,9 @@
                                 @endif
                             @endauth
                             
-                            <button onclick="window.print()" class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-print me-1"></i>Print
-                            </button>
+                            <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-outline-secondary" target="_blank">
+                                <i class="fa-solid fa-file-pdf me-1"></i>View PDF
+                            </a>
                         </div>
                     </div>
                 </div>

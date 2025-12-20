@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RecipesController extends Controller
 {
@@ -208,6 +209,21 @@ class RecipesController extends Controller
         }
 
         return view('recipes.show', ['recipe' => $recipe]);
+    }
+
+    public function downloadPdf(Recipe $recipe)
+    {
+        // Check if the recipe is private and user is not the owner
+        if (!$recipe->is_public && (!Auth::check() || $recipe->user_id !== Auth::id())) {
+            abort(403, 'This recipe is private.');
+        }
+
+        $pdf = Pdf::loadView('recipes.pdf', ['recipe' => $recipe])
+            ->setPaper('a4', 'portrait');
+        
+        $filename = \Illuminate\Support\Str::slug($recipe->title) . '-recipe.pdf';
+        
+        return $pdf->stream($filename);
     }
 
     public function create()

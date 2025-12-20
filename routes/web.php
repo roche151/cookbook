@@ -13,6 +13,7 @@ Route::get('/', function () {
 
 // Public recipe routes (anyone can view)
 Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index');
+Route::get('/recipes/{recipe}/pdf', [RecipesController::class, 'downloadPdf'])->name('recipes.pdf');
 
 // Protected recipe routes (must be logged in and verified email) - define /create BEFORE /{recipe}
 Route::middleware(['auth', 'verified'])->group(function () {

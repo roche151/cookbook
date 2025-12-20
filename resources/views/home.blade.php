@@ -31,8 +31,8 @@
 
 				<div class="col-lg-6">
 					<div class="position-relative">
-						<img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80&auto=format&fit=crop" 
-							 alt="Delicious food" 
+						<img src="{{ asset('images/culina-hero.png') }}" 
+							 alt="Culina hero illustration" 
 							 class="img-fluid rounded-4 shadow-lg" 
 							 style="max-height: 450px; width: 100%; object-fit: cover;">
 						<div class="position-absolute bottom-0 start-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2">

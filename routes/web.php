@@ -16,6 +16,10 @@ Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index
 
 // Protected recipe routes (must be logged in) - define /create BEFORE /{recipe}
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return redirect()->route('recipes.my');
+    })->name('dashboard');
+    
     Route::get('/my-recipes', [RecipesController::class, 'myRecipes'])->name('recipes.my');
     Route::get('/my-favorites', [RecipesController::class, 'myFavorites'])->name('recipes.favorites');
     Route::post('/recipes/{recipe}/favorite', [RecipesController::class, 'toggleFavorite'])->name('recipes.favorite');

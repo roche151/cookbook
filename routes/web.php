@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/recipes/{recipe}/favorite', [RecipesController::class, 'toggleFavorite'])->name('recipes.favorite');
     Route::post('/recipes/{recipe}/rate', [RecipesController::class, 'storeRating'])->name('recipes.rate');
     Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
+    Route::post('/recipes/import', [RecipesController::class, 'importFromUrl'])->name('recipes.import');
     Route::post('/recipes', [RecipesController::class, 'store'])->name('recipes.store');
     Route::get('/recipes/{recipe}/edit', [RecipesController::class, 'edit'])->name('recipes.edit');
     Route::patch('/recipes/{recipe}', [RecipesController::class, 'update'])->name('recipes.update');

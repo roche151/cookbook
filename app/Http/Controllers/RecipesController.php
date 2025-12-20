@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class RecipesController extends Controller
@@ -230,6 +231,228 @@ class RecipesController extends Controller
     {
         $tags = \App\Models\Tag::orderBy('sort_order')->orderBy('name')->get();
         return view('recipes.create', ['tags' => $tags]);
+    }
+
+    public function importFromUrl(Request $request)
+    {
+        $request->validate([
+            'url' => 'required|url'
+        ]);
+
+        try {
+            $url = $request->input('url');
+            $response = Http::timeout(10)->get($url);
+            $html = $response->body();
+            
+            // Parse JSON-LD structured data
+            $recipe = $this->parseJsonLD($html);
+            
+            if (!$recipe) {
+                return response()->json(['message' => 'Could not find recipe data on this page'], 422);
+            }
+            
+            return response()->json($recipe);
+            
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to fetch recipe: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function parseJsonLD($html)
+    {
+        // Look for JSON-LD scripts (with or without type attribute)
+        preg_match_all('/<script[^>]*>(.*?)<\/script>/is', $html, $allScripts);
+        
+        $jsonLDScripts = [];
+        
+        // First, check for proper application/ld+json scripts
+        preg_match_all('/<script type="application\/ld\+json">(.*?)<\/script>/is', $html, $matches);
+        if (!empty($matches[1])) {
+            $jsonLDScripts = array_merge($jsonLDScripts, $matches[1]);
+        }
+        
+        // Also check regular script tags that contain Schema.org Recipe data
+        foreach ($allScripts[1] as $idx => $script) {
+            $trimmed = trim($script);
+            if (empty($trimmed)) continue;
+            
+            // Check if it looks like JSON and contains Recipe type
+            if (preg_match('/^\s*[\[\{]/', $trimmed) && 
+                (strpos($trimmed, '"@type":"Recipe"') !== false || 
+                 strpos($trimmed, '"@type": "Recipe"') !== false)) {
+                $jsonLDScripts[] = $trimmed;
+            }
+        }
+        
+        if (empty($jsonLDScripts)) {
+            return null;
+        }
+        
+        // Try each JSON block
+        foreach ($jsonLDScripts as $jsonString) {
+            try {
+                $json = json_decode($jsonString, true);
+                
+                if (!$json) continue;
+                
+                // Try to find a Recipe object
+                $recipe = $this->findRecipeInJson($json);
+                
+                if ($recipe) {
+                    return $this->extractRecipeData($recipe);
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+        
+        return null;
+    }
+    
+    private function findRecipeInJson($json)
+    {
+        // Case 1: Direct Recipe object
+        if (isset($json['@type']) && $json['@type'] === 'Recipe') {
+            return $json;
+        }
+        
+        // Case 2: @graph array at root
+        if (isset($json['@graph']) && is_array($json['@graph'])) {
+            foreach ($json['@graph'] as $item) {
+                if (is_array($item) && isset($item['@type']) && $item['@type'] === 'Recipe') {
+                    return $item;
+                }
+            }
+        }
+        
+        // Case 3: Array of objects (check each object)
+        if (is_array($json)) {
+            foreach ($json as $item) {
+                if (!is_array($item)) continue;
+                
+                // Check if item is a Recipe directly
+                if (isset($item['@type']) && $item['@type'] === 'Recipe') {
+                    return $item;
+                }
+                
+                // Check if item has @graph with Recipe
+                if (isset($item['@graph']) && is_array($item['@graph'])) {
+                    foreach ($item['@graph'] as $graphItem) {
+                        if (is_array($graphItem) && isset($graphItem['@type']) && $graphItem['@type'] === 'Recipe') {
+                            return $graphItem;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    private function extractRecipeData($json)
+    {
+        // Extract ingredients
+        $ingredients = [];
+        if (isset($json['recipeIngredient'])) {
+            foreach ((array)$json['recipeIngredient'] as $ing) {
+                $ing = trim($ing);
+                // Try to separate amount from name using regex
+                if (preg_match('/^([\d\/\.\s]+(?:g|kg|ml|l|cup|cups|tbsp|tsp|oz|lb|lbs|handful|pinch|clove|cloves)?)\s+(.+)$/i', $ing, $parts)) {
+                    $ingredients[] = [
+                        'amount' => trim($parts[1]),
+                        'name' => trim($parts[2])
+                    ];
+                } else {
+                    $ingredients[] = [
+                        'amount' => '',
+                        'name' => $ing
+                    ];
+                }
+            }
+        }
+        
+        // Extract directions
+        $directions = [];
+        if (isset($json['recipeInstructions'])) {
+            $instructions = $json['recipeInstructions'];
+            
+            // Handle different instruction formats
+            if (is_string($instructions)) {
+                $steps = preg_split('/\n+|\d+\.\s*/', $instructions);
+                foreach ($steps as $step) {
+                    $step = trim($step);
+                    if (!empty($step)) {
+                        $directions[] = $step;
+                    }
+                }
+            } elseif (is_array($instructions)) {
+                foreach ($instructions as $instruction) {
+                    if (is_string($instruction)) {
+                        $directions[] = trim($instruction);
+                    } elseif (isset($instruction['text'])) {
+                        $directions[] = trim($instruction['text']);
+                    } elseif (isset($instruction['itemListElement'])) {
+                        foreach ((array)$instruction['itemListElement'] as $step) {
+                            if (isset($step['text'])) {
+                                $directions[] = trim($step['text']);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Extract time (convert ISO 8601 duration to minutes)
+        $time = null;
+        if (isset($json['totalTime'])) {
+            $time = $this->parseDuration($json['totalTime']);
+        } elseif (isset($json['cookTime'])) {
+            $time = $this->parseDuration($json['cookTime']);
+        } elseif (isset($json['prepTime'])) {
+            $time = $this->parseDuration($json['prepTime']);
+        }
+        
+        // Extract image URL
+        $imageUrl = null;
+        if (isset($json['image'])) {
+            $image = $json['image'];
+            // Image can be a string URL or an object with url property
+            if (is_string($image)) {
+                $imageUrl = $image;
+            } elseif (is_array($image) && isset($image['url'])) {
+                $imageUrl = $image['url'];
+            } elseif (is_array($image) && !empty($image)) {
+                // Could be array of images, take first one
+                $firstImage = reset($image);
+                if (is_array($firstImage) && isset($firstImage['url'])) {
+                    $imageUrl = $firstImage['url'];
+                } elseif (is_string($firstImage)) {
+                    $imageUrl = $firstImage;
+                }
+            }
+        }
+        
+        return [
+            'title' => $json['name'] ?? '',
+            'description' => $json['description'] ?? '',
+            'time' => $time,
+            'ingredients' => $ingredients,
+            'directions' => $directions,
+            'imageUrl' => $imageUrl,
+        ];
+    }
+
+    private function parseDuration($duration)
+    {
+        // Parse ISO 8601 duration (e.g., PT30M, PT1H30M)
+        if (!preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?/', $duration, $matches)) {
+            return null;
+        }
+        
+        $hours = isset($matches[1]) ? (int)$matches[1] : 0;
+        $minutes = isset($matches[2]) ? (int)$matches[2] : 0;
+        
+        return ($hours * 60) + $minutes;
     }
 
     public function edit(Recipe $recipe)

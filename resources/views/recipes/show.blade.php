@@ -1,5 +1,30 @@
 <x-app-layout>
     <x-slot name="title">{{ data_get($recipe, 'title') }}</x-slot>
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <x-slot name="head">
+        <meta property="og:type" content="article">
+        <meta property="og:title" content="{{ $recipe->title }}">
+        <meta property="og:description" content="{{ Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200) }}">
+        <meta property="og:url" content="{{ route('recipes.show', $recipe) }}">
+        @if($recipe->image)
+            <meta property="og:image" content="{{ url(Storage::url($recipe->image)) }}">
+            <meta property="og:image:width" content="1200">
+            <meta property="og:image:height" content="630">
+        @endif
+        <meta property="og:site_name" content="{{ config('app.name') }}">
+        
+        <!-- Twitter Card Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $recipe->title }}">
+        <meta name="twitter:description" content="{{ Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200) }}">
+        @if($recipe->image)
+            <meta name="twitter:image" content="{{ url(Storage::url($recipe->image)) }}">
+        @endif
+        
+        <!-- WhatsApp/Generic -->
+        <meta property="og:image:alt" content="{{ $recipe->title }}">
+    </x-slot>
 
     <div class="container py-4">
         <nav aria-label="breadcrumb" class="mb-3 no-print">
@@ -126,6 +151,17 @@
                                 @else
                                     <p class="text-muted mb-0">No ingredients provided</p>
                                 @endif
+                                
+                                @auth
+                                    @if($recipe->ingredients && $recipe->ingredients->count())
+                                        <form action="{{ route('shopping-list.add-from-recipe', $recipe->slug) }}" method="POST" class="mt-4 pt-3 border-top">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="fa-solid fa-cart-plus me-2"></i>Add to Shopping List
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endauth
                             </div>
                         </div>
                     </div>
@@ -154,51 +190,59 @@
             </div>
             
             <div class="col-lg-4">
-                <!-- Action Buttons -->
-                <div class="card mb-4 shadow-sm border-0 no-print">
-                    <div class="card-body p-4">
-                        <h6 class="card-title mb-3 fw-semibold" hidden>
-                            <i class="fa-solid fa-ellipsis-vertical me-2 text-primary"></i>Actions
-                        </h6>
-                        <div class="d-grid gap-2">
-                            @auth
+                @auth
+                    <!-- Quick Actions -->
+                    <div class="card mb-4 shadow-sm border-0 no-print">
+                        <div class="card-body p-4">
+                            <div class="d-grid gap-2">
                                 @php
                                     $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
                                 @endphp
                                 <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="js-favorite-form" data-recipe-id="{{ $recipe->id }}">
                                     @csrf
-                                    <button type="submit" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1">
-                                        <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart"></i>
-                                        <span>{{ $isFavorited ? 'Unfavorite' : 'Favorite' }}</span>
-                                    </button>
-                                </form>
-
-                                <form action="{{ route('shopping-list.add-from-recipe', $recipe->slug) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1">
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                        <span>Add ingredients to Shopping List</span>
+                                    <button type="submit" class="btn btn-{{ $isFavorited ? 'danger' : 'outline-secondary' }} w-100">
+                                        <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart me-2"></i>{{ $isFavorited ? 'Unfavorite' : 'Favorite' }}
                                     </button>
                                 </form>
                                 
                                 @if($recipe->user_id === auth()->id())
                                     <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">
-                                        <i class="fa-solid fa-edit me-1"></i>Edit
+                                        <i class="fa-solid fa-edit me-2"></i>Edit
                                     </a>
                                     <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-outline-secondary w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?">
-                                            <i class="fa-solid fa-trash me-1"></i>Delete
+                                        <button class="btn btn-outline-danger w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?">
+                                            <i class="fa-solid fa-trash me-2"></i>Delete
                                         </button>
                                     </form>
                                 @endif
-                            @endauth
-                            
-                            <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-outline-secondary" target="_blank">
-                                <i class="fa-solid fa-file-pdf me-1"></i>View PDF
-                            </a>
+                            </div>
                         </div>
+                    </div>
+                @endauth
+                
+                <!-- Share & Export -->
+                <div class="card mb-4 shadow-sm border-0 no-print">
+                    <div class="card-body p-4">
+                        <h6 class="card-title mb-3 fw-semibold" hidden>
+                            <i class="fa-solid fa-share-nodes me-2 text-primary"></i>Share & Export
+                        </h6>
+                        
+                        <!-- Export PDF -->
+                        <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-outline-secondary w-100 mb-2" target="_blank">
+                            <i class="fa-solid fa-file-pdf me-2"></i>PDF
+                        </a>
+                        
+                        <!-- Print PDF -->
+                        <button onclick="printRecipe()" class="btn btn-outline-secondary w-100 mb-2">
+                            <i class="fa-solid fa-print me-2"></i>Print
+                        </button>
+                        
+                        <!-- Share Button -->
+                        <button onclick="shareRecipe()" class="btn btn-outline-secondary w-100">
+                            <i class="fa-solid fa-share-nodes me-2"></i>Share
+                        </button>
                     </div>
                 </div>
 
@@ -487,5 +531,69 @@
         @media (max-width: 576px) { .ingredients-list { --amount-width: 80px; } }
         @media (prefers-color-scheme: light) { .ingredients-list .ingredient-row + .ingredient-row { border-color: rgba(0,0,0,.08); } }
     </style>
+
+    <script>
+        function printRecipe() {
+            const pdfUrl = '{{ route('recipes.pdf', $recipe) }}';
+            const printWindow = window.open(pdfUrl, '_blank');
+            
+            if (printWindow) {
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            }
+        }
+
+        function shareRecipe() {
+            const shareData = {
+                title: '{{ $recipe->title }}',
+                text: '{{ Str::limit($recipe->description ?? "Check out this recipe!", 100) }}',
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData)
+                    .then(() => console.log('Shared successfully'))
+                    .catch((error) => {
+                        console.log('Error sharing:', error);
+                        // Fall back to copy link if share fails
+                        fallbackCopyLink();
+                    });
+            } else {
+                // Fallback: copy link to clipboard
+                fallbackCopyLink();
+            }
+        }
+
+        function fallbackCopyLink() {
+            const url = window.location.href;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard! You can now paste it anywhere to share.');
+                }).catch(() => {
+                    prompt('Copy this link to share:', url);
+                });
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    alert('Link copied to clipboard! You can now paste it anywhere to share.');
+                } catch {
+                    prompt('Copy this link to share:', url);
+                }
+                
+                document.body.removeChild(textArea);
+            }
+        }
+    </script>
 
 </x-app-layout>

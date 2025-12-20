@@ -2,6 +2,11 @@
 # Exit on first error
 set -e
 
+# Install Node dependencies and build frontend assets
+echo "Building frontend assets..."
+npm ci
+npm run build
+
 # Ensure storage link exists (ignore if already exists)
 php artisan storage:link || true
 

@@ -22,15 +22,6 @@ class DatabaseSeeder extends Seeder
             ['email' => 'test@example.com'],
             ['name' => 'Test User', 'password' => bcrypt('password')]
         );
-    }
-}
-    {
-        // User::factory(10)->create();
-
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            ['name' => 'Test User', 'password' => bcrypt('password')]
-        );
 
         // Seed recipes only when table is empty
         if (Recipe::count() === 0) {
@@ -156,28 +147,29 @@ class DatabaseSeeder extends Seeder
         // Ensure tags exist and attach them to each recipe (runs only when the seed list exists)
         if (isset($recipes) && is_array($recipes)) {
             foreach ($recipes as $data) {
-            if (empty($data['tags']) || !is_array($data['tags'])) {
-                continue;
-            }
-
-            $recipe = Recipe::where('title', $data['title'])->first();
-            if (! $recipe) {
-                continue;
-            }
-
-            $tagIds = [];
-            foreach ($data['tags'] as $tagName) {
-                // Only link to existing tags; do not create new ones.
-                $tag = Tag::where('name', $tagName)
-                    ->orWhere('slug', Str::slug($tagName))
-                    ->first();
-                if ($tag) {
-                    $tagIds[] = $tag->id;
+                if (empty($data['tags']) || !is_array($data['tags'])) {
+                    continue;
                 }
-            }
 
-            if (! empty($tagIds)) {
-                $recipe->tags()->syncWithoutDetaching($tagIds);
+                $recipe = Recipe::where('title', $data['title'])->first();
+                if (!$recipe) {
+                    continue;
+                }
+
+                $tagIds = [];
+                foreach ($data['tags'] as $tagName) {
+                    // Only link to existing tags; do not create new ones.
+                    $tag = Tag::where('name', $tagName)
+                        ->orWhere('slug', Str::slug($tagName))
+                        ->first();
+                    if ($tag) {
+                        $tagIds[] = $tag->id;
+                    }
+                }
+
+                if (!empty($tagIds)) {
+                    $recipe->tags()->syncWithoutDetaching($tagIds);
+                }
             }
         }
     }

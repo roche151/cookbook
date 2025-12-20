@@ -96,7 +96,27 @@ You'll see:
 
 Your app is deployed but the database is empty. You need to run migrations.
 
-### Option A: SSH into Railway (Recommended)
+### Option A: Use Railway Deploy/Start Commands (Recommended)
+
+Add helper scripts and wire them in Railway so migrations run automatically and services start reliably.
+
+1) Scripts (already added in repo under `railway/`):
+   - `railway/init-app.sh` — runs migrations and caches config/routes/views
+   - `railway/run-app.sh` — starts the Laravel web app
+   - `railway/run-worker.sh` — starts the queue worker
+   - `railway/run-cron.sh` — runs the Laravel scheduler
+
+2) In Railway UI:
+   - Web (app) service → Settings → Commands:
+     - Deploy Command: `bash railway/init-app.sh`
+     - Start Command: `bash railway/run-app.sh`
+   - Add two more services if desired:
+     - Worker service → Start Command: `bash railway/run-worker.sh`
+     - Cron service → Start Command: `bash railway/run-cron.sh`
+
+This approach avoids manual terminals and ensures migrations run on each deploy.
+
+### Option B: SSH into Railway
 
 1. In your Railway project, go to the Laravel service
 2. Click "Terminal" tab
@@ -108,7 +128,7 @@ php artisan db:seed --force
 
 This creates all tables and seeds 12 sample recipes + test user.
 
-### Option B: Add a One-Time Deploy Job
+### Option C: Add a One-Time Deploy Job
 
 If Option A doesn't work:
 

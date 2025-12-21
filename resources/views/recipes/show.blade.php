@@ -266,9 +266,9 @@
                                 @endphp
                                 <form action="{{ route('recipes.rate', $recipe->slug) }}" method="POST">
                                     @csrf
-                                    <div class="d-flex gap-2 justify-content-center mb-3">
+                                    <div class="d-flex justify-content-center mb-3 rating-submit-stars">
                                         @for($i = 1; $i <= 5; $i++)
-                                            <label class="mb-0" style="cursor: pointer;">
+                                            <label class="mb-0" style="cursor: pointer; line-height: 1;">
                                                 <input type="radio" name="rating" value="{{ $i }}" class="d-none rating-input" {{ $userRating && $userRating->rating == $i ? 'checked' : '' }} required>
                                                 <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.75rem;"></i>
                                             </label>
@@ -299,7 +299,7 @@
                     star.addEventListener('mouseenter', function() {
                         highlightStars(index + 1);
                     });
-                    
+
                     star.parentElement.addEventListener('mouseleave', function() {
                         const checkedInput = document.querySelector('.rating-input:checked');
                         if (checkedInput) {
@@ -309,7 +309,7 @@
                             highlightStars(0);
                         }
                     });
-                    
+
                     star.parentElement.addEventListener('click', function() {
                         highlightStars(index + 1);
                     });
@@ -332,6 +332,20 @@
     @endauth
 
     <style>
+        .rating-submit-stars {
+            gap: 0;
+        }
+
+        .rating-submit-stars label {
+            padding: 0;
+            margin: 0 8px 0 0;
+            line-height: 1;
+        }
+
+        .rating-submit-stars label:last-child {
+            margin-right: 0;
+        }
+
         @media print {
             /* Hide all non-essential elements */
             .no-print,

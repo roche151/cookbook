@@ -59,7 +59,7 @@
                                     </label>
                                     @php $ratingMinValue = (int) ($ratingMin ?? 0); @endphp
                                     <div class="d-flex align-items-center gap-3">
-                                        <div class="rating-filter-stars d-flex align-items-center gap-2" role="radiogroup" aria-label="Minimum rating">
+                                        <div class="rating-filter-stars d-flex align-items-center" role="radiogroup" aria-label="Minimum rating">
                                             <input type="radio" name="rating_min" value="0" class="d-none rating-filter-input rating-reset" {{ $ratingMinValue === 0 ? 'checked' : '' }}>
                                             @for($i = 1; $i <= 5; $i++)
                                                 <label class="mb-0 d-flex align-items-center" style="cursor: pointer; line-height: 1;">
@@ -155,7 +155,24 @@
         }
 
         .rating-filter-star:hover {
-            transform: scale(1.05);
+            transform: none;
+        }
+
+        .rating-filter-stars {
+            gap: 0;
+            font-size: 0; /* collapse whitespace between inline elements */
+        }
+
+        .rating-filter-stars label {
+            display: inline-flex;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .rating-filter-stars label + label {
+            margin-left: 0;
         }
 
         /* Smooth collapse animation */

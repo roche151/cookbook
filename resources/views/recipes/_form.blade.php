@@ -13,6 +13,9 @@
         @method($method)
     @endif
 
+    <input type="hidden" name="source_url" value="{{ old('source_url', optional($recipe)->source_url) }}">
+    <input type="hidden" name="imported_image_url" value="{{ old('imported_image_url') }}">
+
     @if (false && $errors->any())
         <div class="col-12">
             <div class="alert alert-danger">

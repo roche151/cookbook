@@ -19,6 +19,7 @@ class Recipe extends Model
         'user_id',
         'is_public',
         'difficulty',
+        'source_url',
     ];
 
     protected $casts = [

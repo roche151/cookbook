@@ -57,6 +57,7 @@
                             } else {
                                 $displayTime = data_get($recipe, 'time') ?? '';
                             }
+                            $sourceHost = $recipe->source_url ? parse_url($recipe->source_url, PHP_URL_HOST) : null;
                         @endphp
                         
                         @if($tags && is_iterable($tags) && count($tags))
@@ -65,6 +66,15 @@
                                     {{ $t->name ?? ($t['name'] ?? ucfirst((string)$t)) }}
                                 </a>
                             @endforeach
+                        @endif
+
+                        @if($recipe->source_url)
+                            <span class="text-muted">
+                                <i class="fa-solid fa-link"></i>
+                                <a href="{{ $recipe->source_url }}" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none">
+                                    Source{{ $sourceHost ? ': ' . $sourceHost : '' }}
+                                </a>
+                            </span>
                         @endif
                         
                         @if($displayTime)

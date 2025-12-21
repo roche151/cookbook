@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class RecipesController extends Controller
@@ -260,6 +261,9 @@ class RecipesController extends Controller
                 return response()->json(['message' => 'Could not find recipe data on this page'], 422);
             }
             
+            if ($recipe) {
+                $recipe['sourceUrl'] = $url;
+            }
             return response()->json($recipe);
             
         } catch (\Exception $e) {
@@ -499,11 +503,13 @@ class RecipesController extends Controller
             'directions' => 'required|array|min:1',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.name' => 'required|string',
-            'ingredients.*.amount' => 'required|string|min:1',
+            'ingredients.*.amount' => 'nullable|string',
             'ingredients.*.sort_order' => 'required|integer',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
             'is_public' => 'nullable|boolean',
+            'source_url' => 'nullable|url',
+            'imported_image_url' => 'nullable|url',
         ];
 
         // Custom messages and attribute names
@@ -610,11 +616,34 @@ class RecipesController extends Controller
                 $newPath = str_replace('temp/', 'recipes/', $tempPath);
                 Storage::disk('public')->move($tempPath, $newPath);
                 $data['image'] = $newPath;
-            } else {
-                $data['image'] = null;
             }
-        } else {
-            $data['image'] = null;
+        }
+
+        // If no uploaded image but we have an imported image URL, fetch and store it
+        if (empty($data['image']) && !empty($data['imported_image_url'])) {
+            try {
+                $imageUrl = $data['imported_image_url'];
+                $response = Http::timeout(10)->get($imageUrl);
+                if ($response->successful()) {
+                    $mime = $response->header('Content-Type');
+                    if ($mime && str_starts_with($mime, 'image/')) {
+                        $extMap = [
+                            'image/jpeg' => 'jpg',
+                            'image/jpg' => 'jpg',
+                            'image/png' => 'png',
+                            'image/gif' => 'gif',
+                            'image/webp' => 'webp',
+                        ];
+                        $ext = $extMap[$mime] ?? 'jpg';
+                        $filename = Str::slug($data['title'] ?? 'recipe') . '-' . Str::random(6) . '.' . $ext;
+                        $path = 'recipes/' . $filename;
+                        Storage::disk('public')->put($path, $response->body());
+                        $data['image'] = $path;
+                    }
+                }
+            } catch (\Exception $e) {
+                // swallow fetch errors; image stays null
+            }
         }
 
         $recipe = null;
@@ -628,6 +657,7 @@ class RecipesController extends Controller
                 'image' => $data['image'] ?? null,
                 'user_id' => Auth::id(),
                 'is_public' => $data['is_public'] ?? false,
+                'source_url' => $data['source_url'] ?? null,
             ]);
             // Attach selected tags
             $recipe->tags()->sync($data['tags']);
@@ -690,12 +720,13 @@ class RecipesController extends Controller
             'ingredients' => 'required|array|min:1',
             'ingredients.*.id' => 'nullable|integer|exists:ingredients,id',
             'ingredients.*.name' => 'required|string',
-            'ingredients.*.amount' => 'required|string|min:1',
+            'ingredients.*.amount' => 'nullable|string',
             'ingredients.*.sort_order' => 'required|integer',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
             'directions.*.body' => 'required|string',
             'directions.*.sort_order' => 'required|integer',
             'is_public' => 'nullable|boolean',
+            'source_url' => 'nullable|url',
         ];
 
         $messages = [
@@ -824,6 +855,11 @@ class RecipesController extends Controller
             // Only update image if explicitly provided (new upload)
             if (array_key_exists('image', $data)) {
                 $updatePayload['image'] = $data['image'];
+            }
+
+            // Update source_url if provided
+            if (array_key_exists('source_url', $data)) {
+                $updatePayload['source_url'] = $data['source_url'];
             }
 
             $recipe->update($updatePayload);

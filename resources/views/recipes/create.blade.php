@@ -141,6 +141,14 @@
                     uploadPlaceholder.style.display = 'none';
                     removeBtn.style.display = 'block';
                 }
+                const importedImageInput = document.querySelector('[name="imported_image_url"]');
+                if (importedImageInput) importedImageInput.value = data.imageUrl;
+            }
+
+            // Persist source URL if provided
+            if (data.sourceUrl) {
+                const srcEl = getInput('source_url', 'source_url');
+                if (srcEl) srcEl.value = data.sourceUrl;
             }
             
             // Populate ingredients

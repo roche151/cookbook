@@ -60,8 +60,9 @@
                                         </label>
                                         <div class="d-flex flex-wrap gap-2">
                                             @foreach($allTags as $tag)
-                                                <div class="form-check mb-0">
+                                                <div class="form-check mb-0 ps-0">
                                                     <input 
+                                                    hidden
                                                         class="form-check-input" 
                                                         type="checkbox" 
                                                         name="tags[]" 
@@ -69,7 +70,7 @@
                                                         id="tag-{{ $tag->id }}"
                                                         {{ in_array($tag->id, $selectedTags ?? []) ? 'checked' : '' }}
                                                     >
-                                                    <label class="form-check-label badge bg-secondary bg-opacity-25 border border-secondary py-2 px-3" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
+                                                    <label class="form-check-label badge bg-opacity-25 border border-secondary py-2 px-3 {{ in_array($tag->id, $selectedTags ?? []) ? 'bg-primary text-white' : 'bg-secondary border-secondary-subtle' }}" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
                                                         @if($tag->icon)
                                                             <i class="{{ $tag->icon }} me-1"></i>
                                                         @endif

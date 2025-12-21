@@ -3,6 +3,7 @@ import 'bootstrap';
 import './directions';
 import './ingredients';
 import './image-upload';
+import './tag-filter';
 
 // Initialize delete confirmation dialogs
 import bootbox from 'bootbox';

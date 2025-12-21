@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/shopping-list/items/{item}', [ShoppingListController::class, 'updateItem'])->name('shopping-list.items.update');
     Route::delete('/shopping-list/items/{item}', [ShoppingListController::class, 'deleteItem'])->name('shopping-list.items.delete');
     Route::delete('/shopping-list/clear-checked', [ShoppingListController::class, 'clearChecked'])->name('shopping-list.items.clear-checked');
+    Route::patch('/shopping-list/mark-all-checked', [ShoppingListController::class, 'markAllChecked'])->name('shopping-list.items.mark-all-checked');
     Route::post('/shopping-list/add-recipe/{recipe}', [ShoppingListController::class, 'addFromRecipe'])->name('shopping-list.add-from-recipe');
 });
 

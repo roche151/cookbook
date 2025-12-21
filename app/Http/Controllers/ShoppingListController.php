@@ -73,6 +73,13 @@ class ShoppingListController extends Controller
         return Redirect::back();
     }
 
+    public function markAllChecked()
+    {
+        $list = $this->ensureList();
+        ShoppingListItem::where('shopping_list_id', $list->id)->where('is_checked', false)->update(['is_checked' => true]);
+        return Redirect::back();
+    }
+
     public function addFromRecipe(Recipe $recipe)
     {
         $list = $this->ensureList();

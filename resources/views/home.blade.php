@@ -11,13 +11,13 @@
 
 				<form action="/recipes" method="GET" class="mb-4">
 					<div class="input-group input-group-lg shadow-sm">
-						<input name="q" type="search" class="form-control" placeholder="Search recipes, ingredients, or tags..." aria-label="Search recipes">
+						<input name="q" type="search" class="form-control" placeholder="Search recipes, ingredients..." aria-label="Search recipes">
 						<button class="btn btn-primary px-4" type="submit" aria-label="Search">
 							<i class="fa-solid fa-magnifying-glass me-2"></i>
 						</button>
 					</div>
 					<small class="text-muted d-block mt-2">
-						<i class="fa-solid fa-lightbulb me-1"></i>Try: "chocolate", "gluten-free", "30 minute"
+						<i class="fa-solid fa-lightbulb me-1"></i>Try: "pie", "chocolate"
 					</small>
 				</form>					<div class="d-flex gap-3 flex-wrap">
 						<a href="/recipes/create" class="btn btn-primary btn-lg">

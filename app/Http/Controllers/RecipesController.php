@@ -727,6 +727,7 @@ class RecipesController extends Controller
             'directions.*.sort_order' => 'required|integer',
             'is_public' => 'nullable|boolean',
             'source_url' => 'nullable|url',
+            'remove_image' => 'nullable|boolean',
         ];
 
         $messages = [
@@ -838,8 +839,14 @@ class RecipesController extends Controller
                 }
                 $data['image'] = $newPath;
             }
+        } elseif ($request->boolean('remove_image')) {
+            // Explicit remove
+            if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
+                Storage::disk('public')->delete($recipe->image);
+            }
+            $data['image'] = null;
         } else {
-            // Keep existing image if no new upload
+            // Keep existing image if no new upload or removal
             unset($data['image']);
         }
 
@@ -948,6 +955,11 @@ class RecipesController extends Controller
         // Check if user owns the recipe
         if ($recipe->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
+        }
+
+        // Remove stored image file if present
+        if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
+            Storage::disk('public')->delete($recipe->image);
         }
 
         // Detach all tags first (pivot cleanup), then delete the recipe

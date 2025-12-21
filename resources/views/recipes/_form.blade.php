@@ -125,6 +125,12 @@
             <div class="mt-2">
                 <p class="text-muted small mb-1">Current image:</p>
                 <img src="{{ Storage::url($recipe->image) }}" alt="Current image" class="img-thumbnail" style="max-height: 150px;">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="remove_image" value="1" id="remove-image-checkbox">
+                    <label class="form-check-label" for="remove-image-checkbox">
+                        Remove image
+                    </label>
+                </div>
             </div>
         @endif
     </div>

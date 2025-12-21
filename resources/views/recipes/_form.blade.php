@@ -197,7 +197,7 @@
         <select name="difficulty" class="form-select" required>
             <option value="">Select difficulty</option>
             <option value="easy" {{ old('difficulty', optional($recipe)->difficulty) === 'easy' ? 'selected' : '' }}>● Easy - Perfect for beginners</option>
-            <option value="medium" {{ old('difficulty', optional($recipe)->difficulty ?? 'medium') === 'medium' ? 'selected' : '' }}>●● Medium - Some experience needed</option>
+            <option value="medium" {{ old('difficulty', optional($recipe)->difficulty) === 'medium' ? 'selected' : '' }}>●● Medium - Some experience needed</option>
             <option value="hard" {{ old('difficulty', optional($recipe)->difficulty) === 'hard' ? 'selected' : '' }}>●●● Hard - Advanced techniques</option>
         </select>
         @if($errors->has('difficulty'))

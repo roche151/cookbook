@@ -13,6 +13,15 @@
         @method($method)
     @endif
 
+    @if($errors->has('profanity'))
+        <div class="col-12">
+            <div class="alert alert-danger d-flex align-items-start">
+                <i class="fa-solid fa-ban me-2 mt-1"></i>
+                <div>{{ $errors->first('profanity') }}</div>
+            </div>
+        </div>
+    @endif
+
     <input type="hidden" name="source_url" value="{{ old('source_url', optional($recipe)->source_url) }}">
     <input type="hidden" name="imported_image_url" value="{{ old('imported_image_url') }}">
 

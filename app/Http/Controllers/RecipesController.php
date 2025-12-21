@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Rules\NoLinks;
+use App\Services\ProfanityChecker;
 
 class RecipesController extends Controller
 {
@@ -121,18 +123,18 @@ class RecipesController extends Controller
 
         // Apply sorting
         switch ($sort) {
-            case 'rating_desc':
-                // Ensure rating avg is available when sorting by rating
-                $query->withAvg('ratings', 'rating')->orderByDesc('ratings_avg_rating');
-                break;
             case 'date_asc':
                 $query->orderBy('created_at', 'asc');
                 break;
+            case 'rating_desc':
+                $query->withAvg('ratings', 'rating')
+                    ->orderBy('ratings_avg_rating', 'desc');
+                break;
             case 'time_asc':
-                $query->orderBy('time', 'asc');
+                $query->orderByRaw('COALESCE(time_hours * 60, 0) + COALESCE(time_minutes, 0) asc');
                 break;
             case 'time_desc':
-                $query->orderBy('time', 'desc');
+                $query->orderByRaw('COALESCE(time_hours * 60, 0) + COALESCE(time_minutes, 0) desc');
                 break;
             case 'title_asc':
                 $query->orderBy('title', 'asc');
@@ -246,6 +248,27 @@ class RecipesController extends Controller
         $filename = \Illuminate\Support\Str::slug($recipe->title) . '-recipe.pdf';
         
         return $pdf->stream($filename);
+    }
+
+    private function containsProfanity(array $data): bool
+    {
+        $texts = [
+            $data['title'] ?? null,
+            $data['description'] ?? null,
+        ];
+
+        foreach (($data['ingredients'] ?? []) as $ing) {
+            $texts[] = $ing['name'] ?? null;
+            $texts[] = $ing['amount'] ?? null;
+        }
+
+        foreach (($data['directions'] ?? []) as $dir) {
+            $texts[] = $dir['body'] ?? null;
+        }
+
+        return collect($texts)
+            ->filter(fn($t) => is_string($t) && ProfanityChecker::hasProfanity($t))
+            ->isNotEmpty();
     }
 
     public function create()
@@ -513,8 +536,8 @@ class RecipesController extends Controller
     {
         // Validation rules
         $rules = [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'title' => ['required','string','max:255', new NoLinks],
+            'description' => ['required','string', new NoLinks],
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
@@ -522,10 +545,10 @@ class RecipesController extends Controller
             'tags' => 'required|array|min:1',
             'directions' => 'required|array|min:1',
             'ingredients' => 'required|array|min:1',
-            'ingredients.*.name' => 'required|string',
-            'ingredients.*.amount' => 'nullable|string',
+            'ingredients.*.name' => ['required','string', new NoLinks],
+            'ingredients.*.amount' => ['nullable','string', new NoLinks],
             'ingredients.*.sort_order' => 'required|integer',
-            'directions.*.body' => 'required|string',
+            'directions.*.body' => ['required','string', new NoLinks],
             'directions.*.sort_order' => 'required|integer',
             'is_public' => 'nullable|boolean',
             'source_url' => 'nullable|url',
@@ -619,6 +642,10 @@ class RecipesController extends Controller
         }
 
         $data = $validator->validated();
+
+        if ($this->containsProfanity($data)) {
+            return back()->withErrors(['profanity' => 'Please remove profanity from your recipe.'])->withInput();
+        }
 
         // Save total minutes into the existing `time` column (as integer)
         $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
@@ -728,8 +755,8 @@ class RecipesController extends Controller
 
         // Validation rules
         $rules = [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'title' => ['required','string','max:255', new NoLinks],
+            'description' => ['required','string', new NoLinks],
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
@@ -739,11 +766,11 @@ class RecipesController extends Controller
             'directions' => 'required|array|min:1',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.id' => 'nullable|integer|exists:ingredients,id',
-            'ingredients.*.name' => 'required|string',
-            'ingredients.*.amount' => 'nullable|string',
+            'ingredients.*.name' => ['required','string', new NoLinks],
+            'ingredients.*.amount' => ['nullable','string', new NoLinks],
             'ingredients.*.sort_order' => 'required|integer',
             'directions.*.id' => 'nullable|integer|exists:directions,id',
-            'directions.*.body' => 'required|string',
+            'directions.*.body' => ['required','string', new NoLinks],
             'directions.*.sort_order' => 'required|integer',
             'is_public' => 'nullable|boolean',
             'source_url' => 'nullable|url',
@@ -833,6 +860,10 @@ class RecipesController extends Controller
         }
 
         $data = $validator->validated();
+
+        if ($this->containsProfanity($data)) {
+            return back()->withErrors(['profanity' => 'Please remove profanity from your recipe.'])->withInput();
+        }
 
         // Save total minutes into the existing `time` column (as integer)
         $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;

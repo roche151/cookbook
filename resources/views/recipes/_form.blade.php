@@ -199,7 +199,7 @@
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-align-left me-1 text-primary"></i>Description
         </label>
-        <textarea name="description" class="form-control" rows="4" placeholder="Describe your recipe, its origins, or what makes it special...">{{ old('description', optional($recipe)->description) }}</textarea>
+        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe your recipe, its origins, or what makes it special...">{{ old('description', optional($recipe)->description) }}</textarea>
         @if($errors->has('description'))
             <div class="text-danger small mt-1">{{ $errors->first('description') }}</div>
         @endif

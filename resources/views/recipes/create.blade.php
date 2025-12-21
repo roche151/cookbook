@@ -95,6 +95,8 @@
         }
         
         function populateForm(data) {
+            console.log('Populating form with data:', data);
+            
             // Helper function to find input by name or id
             const getInput = (id, name) => {
                 return document.getElementById(id) || document.querySelector(`[name="${name}"]`);
@@ -107,9 +109,14 @@
             }
             
             // Populate description
+            console.log('Description from API:', data.description, 'Length:', data.description ? data.description.length : 0);
             if (data.description) {
                 const descEl = getInput('description', 'description');
-                if (descEl) descEl.value = data.description;
+                console.log('Description element found:', !!descEl);
+                if (descEl) {
+                    descEl.value = data.description;
+                    console.log('Description populated, new value:', descEl.value.substring(0, 50));
+                }
             }
             
             // Populate time (it's already in minutes from backend)

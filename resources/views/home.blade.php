@@ -94,7 +94,7 @@
                                 </div>
                             </div>
                             <div>
-                                <h5 class="card-title mb-2">Save Favorites</h5>
+                                <h5 class="card-title mb-2">My Favorites</h5>
                                 <p class="card-text text-muted mb-3">Keep track of recipes you love</p>
                                 <a href="/my-favorites" class="btn btn-sm btn-primary">View Recipes</a>
                             </div>

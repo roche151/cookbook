@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Recipe;
+use App\Models\Collection;
 use App\Models\Tag;
 use App\Models\Direction;
 use App\Models\Ingredient;
@@ -181,14 +182,25 @@ class RecipesController extends Controller
         return back()->with('success', 'Rating submitted successfully!');
     }
 
-    public function show(Recipe $recipe)
+    public function show(Request $request, Recipe $recipe)
     {
         // Check if the recipe is private and user is not the owner
         if (!$recipe->is_public && (!Auth::check() || $recipe->user_id !== Auth::id())) {
             abort(403, 'This recipe is private.');
         }
 
-        return view('recipes.show', ['recipe' => $recipe]);
+        // Load collection context if coming from a collection
+        $fromCollection = null;
+        if ($request->query('from_collection')) {
+            $fromCollection = Collection::where('slug', $request->query('from_collection'))
+                ->where('user_id', Auth::id())
+                ->first();
+        }
+
+        return view('recipes.show', [
+            'recipe' => $recipe,
+            'fromCollection' => $fromCollection,
+        ]);
     }
 
     public function downloadPdf(Recipe $recipe)

@@ -49,6 +49,12 @@
                 </button>
             @endif
         @endauth
+        @php
+            $recipeUrl = data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug'));
+            if (isset($collectionSlug) && $collectionSlug) {
+                $recipeUrl .= '?from_collection=' . $collectionSlug;
+            }
+        @endphp
         <h5 class="card-title mb-2 fw-semibold" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 2.5rem; line-height: 1.4;">{{ data_get($recipe, 'title') }}</h5>
         
         <p class="text-muted mb-2 small" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -131,7 +137,7 @@
         
         <div class="mt-auto pt-2 border-top border-secondary border-opacity-25">
             <div class="d-flex justify-content-end gap-2 mt-2">
-                <a href="{{ data_get($recipe, 'href') ?? url('/recipes/'.data_get($recipe, 'slug')) }}" class="btn btn-sm btn-primary px-3">
+                <a href="{{ $recipeUrl }}" class="btn btn-sm btn-primary px-3">
                     <i class="fa-solid fa-eye me-1"></i>View
                 </a>
                 @auth

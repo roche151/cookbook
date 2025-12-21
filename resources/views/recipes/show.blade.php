@@ -30,7 +30,12 @@
         <nav aria-label="breadcrumb" class="mb-3 no-print">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
+                @if(isset($fromCollection) && $fromCollection)
+                    <li class="breadcrumb-item"><a href="{{ route('collections.index') }}">My Collections</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('collections.show', $fromCollection->slug) }}">{{ $fromCollection->name }}</a></li>
+                @else
+                    <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
+                @endif
                 <li class="breadcrumb-item active" aria-current="page" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ data_get($recipe, 'title') }}</li>
             </ol>
         </nav>

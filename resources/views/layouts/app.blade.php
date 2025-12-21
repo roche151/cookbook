@@ -274,6 +274,32 @@
             if (toggleBtnMobile) {
                 toggleBtnMobile.addEventListener('click', toggleTheme);
             }
+            
+            // Toast notification for email verification
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('verified')) {
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification';
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: var(--bs-success);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    animation: slideInUp 0.3s ease;
+                    z-index: 1050;
+                `;
+                toast.innerHTML = '<i class="fa-solid fa-check-circle me-2"></i>Email verified successfully!';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.animation = 'slideInUp 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
         });
 
         // Register Service Worker for PWA

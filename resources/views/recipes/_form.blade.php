@@ -55,7 +55,7 @@
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-utensils me-1 text-primary"></i>Recipe Title
         </label>
-        <input name="title" class="form-control form-control-lg" placeholder="e.g., Grandma's Chocolate Chip Cookies" value="{{ old('title', optional($recipe)->title) }}">
+        <input name="title" class="form-control form-control-lg" placeholder="e.g. Chicken and Mushroom Risotto" value="{{ old('title', optional($recipe)->title) }}">
         @if($errors->has('title'))
             <div class="text-danger small mt-1">{{ $errors->first('title') }}</div>
         @endif

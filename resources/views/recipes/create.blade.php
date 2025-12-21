@@ -25,7 +25,7 @@
                 </h6>
                 <p class="text-muted small mb-3">Paste a recipe URL from popular cooking sites (BBC Food, AllRecipes, etc.) to automatically populate the form below.</p>
                 <div class="input-group">
-                    <input type="url" class="form-control" id="import-url" placeholder="https://www.bbc.co.uk/food/recipes/...">
+                    <input type="url" class="form-control" id="import-url">
                     <button class="btn btn-primary" type="button" id="import-btn" onclick="importRecipe()">
                         <i class="fa-solid fa-download me-1"></i>Import
                     </button>

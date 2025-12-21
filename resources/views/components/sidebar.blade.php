@@ -92,6 +92,9 @@
                         </div>
                     </div>
                     <div class="d-grid gap-2">
+                        <button id="themeToggleMobile" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Toggle theme" title="Toggle dark/light">
+                            <i class="fa-regular fa-sun"></i> Theme
+                        </button>
                         <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
                             <i class="fa-solid fa-user me-1"></i> Profile
                         </a>

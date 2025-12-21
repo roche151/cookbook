@@ -242,9 +242,11 @@
 
             // Theme toggle logic
             const toggleBtn = document.getElementById('themeToggle');
-            function setIcon(theme) {
-                if (!toggleBtn) return;
-                const i = toggleBtn.querySelector('i');
+            const toggleBtnMobile = document.getElementById('themeToggleMobile');
+            
+            function setIcon(btn, theme) {
+                if (!btn) return;
+                const i = btn.querySelector('i');
                 if (!i) return;
                 if (theme === 'light') {
                     i.className = 'fa-regular fa-moon';
@@ -252,16 +254,25 @@
                     i.className = 'fa-regular fa-sun';
                 }
             }
+            
+            function toggleTheme() {
+                const now = document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-bs-theme', now);
+                try { localStorage.setItem('culina-theme', now); } catch (e) {}
+                setIcon(toggleBtn, now);
+                setIcon(toggleBtnMobile, now);
+            }
+            
             // Initialize icon to current theme
             const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'dark';
-            setIcon(currentTheme);
+            setIcon(toggleBtn, currentTheme);
+            setIcon(toggleBtnMobile, currentTheme);
+            
             if (toggleBtn) {
-                toggleBtn.addEventListener('click', function() {
-                    const now = document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
-                    document.documentElement.setAttribute('data-bs-theme', now);
-                    try { localStorage.setItem('culina-theme', now); } catch (e) {}
-                    setIcon(now);
-                });
+                toggleBtn.addEventListener('click', toggleTheme);
+            }
+            if (toggleBtnMobile) {
+                toggleBtnMobile.addEventListener('click', toggleTheme);
             }
         });
 

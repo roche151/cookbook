@@ -5,11 +5,27 @@ use App\Http\Controllers\RecipesController;
 use App\Http\Controllers\ShoppingListController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Tag;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     $tags = Tag::orderBy('sort_order')->orderBy('name')->get();
     return view('home', ['tags' => $tags]);
 });
+
+// Dev-only quick login endpoint to impersonate any user
+if (!app()->environment('production')) {
+    Route::post('/dev/quick-login', function (Request $request) {
+        $data = $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+        ]);
+
+        Auth::loginUsingId($data['user_id']);
+        $request->session()->regenerate();
+
+        return redirect()->intended('/');
+    })->name('dev.quick-login');
+}
 
 // Public recipe routes (anyone can view)
 Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index');

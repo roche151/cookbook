@@ -103,10 +103,12 @@ class RecipesController extends Controller
 
         // Filter by minimum average rating (4+ style)
         if ($ratingMin > 0) {
-            $query->select('recipes.*')
-                ->withAvg('ratings', 'rating')
-                ->groupBy('recipes.id')
-                ->having('ratings_avg_rating', '>=', $ratingMin);
+            $query->withAvg('ratings', 'rating')
+                ->whereRaw('(
+                    select avg("recipe_ratings"."rating")
+                    from "recipe_ratings"
+                    where "recipes"."id" = "recipe_ratings"."recipe_id"
+                ) >= ?', [$ratingMin]);
         }
 
         // Search across multiple fields

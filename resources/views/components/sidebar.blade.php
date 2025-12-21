@@ -82,7 +82,7 @@
                 </a>
             @else
                 <div class="px-2 py-3">
-                    <div class="d-flex align-items-center mb-3">
+                    <a href="{{ route('profile.edit') }}" class="d-flex align-items-center mb-3 text-decoration-none text-body" style="transition: background 0.2s ease; padding: 0.5rem; margin: -0.5rem; border-radius: 0.375rem;">
                         <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
                             <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                         </div>
@@ -90,14 +90,11 @@
                             <div class="fw-semibold text-truncate">{{ Auth::user()->name }}</div>
                             <small class="text-muted">{{ Auth::user()->email }}</small>
                         </div>
-                    </div>
+                    </a>
                     <div class="d-grid gap-2">
                         <button id="themeToggleMobile" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Toggle theme" title="Toggle dark/light">
                             <i class="fa-regular fa-sun"></i> Theme
                         </button>
-                        <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
-                            <i class="fa-solid fa-user me-1"></i> Profile
-                        </a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
@@ -114,15 +111,22 @@
 <!-- Sidebar for md+ screens -->
 <aside class="app-sidebar bg-body d-none d-md-flex flex-column p-0" style="border-right: 1px solid var(--bs-border-color);">
     <!-- Brand/Logo Section -->
-    <div class="p-4 border-bottom d-flex align-items-center justify-content-between">
-        <a class="d-flex align-items-center text-decoration-none" href="{{ url('/') }}">
-            <div class="d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+    <div class="sidebar-header p-3 border-bottom d-flex align-items-center justify-content-between">
+        <a class="sidebar-brand d-flex align-items-center text-decoration-none" href="{{ url('/') }}">
+            <div class="d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                 <img src="{{ asset('favicon.svg') }}" alt="Culina" width="28" height="28" style="display:block; border-radius:50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" />
             </div>
-            <span class="fs-5 fw-bold">{{ config('app.name', 'Laravel') }}</span>
+            <span class="sidebar-text fs-5 fw-bold ms-3">{{ config('app.name', 'Laravel') }}</span>
         </a>
-        <button id="themeToggle" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Toggle theme" title="Toggle dark/light">
-            <i class="fa-regular fa-sun"></i>
+        <button id="sidebarToggle" class="btn btn-sm btn-link text-body p-1" type="button" aria-label="Toggle sidebar" data-bs-toggle="tooltip" data-bs-placement="right" title="Minimize sidebar" style="line-height: 1;">
+            <i class="fa-solid fa-angles-left"></i>
+        </button>
+    </div>
+    
+    <!-- Theme Toggle (separate row when expanded) -->
+    <div class="sidebar-theme-row px-3 pt-3 pb-2">
+        <button id="themeToggle" class="btn btn-sm btn-outline-secondary w-100 d-flex align-items-center justify-content-center" type="button" aria-label="Toggle theme" title="Toggle dark/light">
+            <i class="fa-regular fa-sun"></i><span class="sidebar-text ms-2">Toggle Theme</span>
         </button>
     </div>
 
@@ -138,52 +142,54 @@
                 @endif
                 @php($href = $resolveHref($link))
                 @php($active = $isActiveLink($link, $href))
-                <a class="nav-link rounded px-3 py-2 d-flex align-items-center{{ $active ? ' active bg-primary text-white' : ' text-body' }}" 
+                <a class="nav-link rounded d-flex align-items-center{{ $active ? ' active bg-primary text-white' : ' text-body' }}" 
                    href="{{ $href }}" 
                    aria-current="{{ $active ? 'page' : '' }}"
-                   style="transition: all 0.2s ease;">
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="right"
+                   title="{{ $link['label'] }}"
+                   style="transition: all 0.2s ease; padding: 0.625rem 0.75rem;">
                     @if(!empty($link['icon']))
-                        <span class="me-2" style="width: 20px; text-align: center;">{!! $link['icon'] !!}</span>
+                        <span class="sidebar-icon d-flex align-items-center justify-content-center" style="width: 24px;">{!! $link['icon'] !!}</span>
                     @elseif(!empty($link['icon_class']))
-                        <i class="{{ $link['icon_class'] }} me-2" style="width: 20px; text-align: center;" aria-hidden="true"></i>
+                        <i class="{{ $link['icon_class'] }} sidebar-icon d-flex align-items-center justify-content-center" style="width: 24px;" aria-hidden="true"></i>
                     @endif
-                    <span>{{ $link['label'] }}</span>
+                    <span class="sidebar-text ms-3">{{ $link['label'] }}</span>
                 </a>
             @endforeach
         </div>
     </nav>
 
     <!-- User Section -->
-    <div class="p-3 border-top mt-auto">
+    <div class="sidebar-footer p-3 border-top mt-auto">
         @guest
             <div class="d-grid gap-2">
-                <a class="btn btn-outline-primary btn-sm" href="{{ route('login') }}">
-                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+                <a class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center" href="{{ route('login') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Login">
+                    <i class="fa-solid fa-right-to-bracket sidebar-icon"></i><span class="sidebar-text ms-2">Login</span>
                 </a>
-                <a class="btn btn-outline-primary btn-sm" href="{{ route('register') }}">
-                    <i class="fa-solid fa-user-plus me-2"></i>Register
+                <a class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center" href="{{ route('register') }}" data-bs-toggle="tooltip" data-bs-placement="right" title="Register">
+                    <i class="fa-solid fa-user-plus sidebar-icon"></i><span class="sidebar-text ms-2">Register</span>
                 </a>
             </div>
         @else
-            <div class="d-flex align-items-center mb-3">
-                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0 me-2" style="width: 40px; height: 40px;">
-                    <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                </div>
-                <div class="flex-grow-1 overflow-hidden">
-                    <div class="fw-semibold text-truncate small">{{ Auth::user()->name }}</div>
-                    <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ Auth::user()->email }}</small>
-                </div>
-            </div>
-            <div class="d-grid gap-2">
-                <a class="btn btn-sm btn-outline-secondary" href="{{ route('profile.edit') }}">
-                    <i class="fa-solid fa-user me-1"></i> Profile
+            <div class="sidebar-user-section">
+                <a href="{{ route('profile.edit') }}" class="sidebar-user-info mb-3 d-flex align-items-center text-decoration-none text-body" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ Auth::user()->name }}" style="transition: background 0.2s ease; padding: 0.5rem; margin: -0.5rem; border-radius: 0.375rem;">
+                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px;">
+                        <span class="text-white fw-bold fs-5">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                    </div>
+                    <div class="sidebar-text flex-grow-1 overflow-hidden ms-3">
+                        <div class="fw-semibold text-truncate">{{ Auth::user()->name }}</div>
+                        <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">{{ Auth::user()->email }}</small>
+                    </div>
                 </a>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
-                        <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
-                    </button>
-                </form>
+                <div class="sidebar-user-actions d-grid gap-2">
+                    <form action="{{ route('logout') }}" method="POST" class="m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-secondary w-100 d-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="right" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket sidebar-icon" style="width: 24px;"></i><span class="sidebar-text ms-2">Logout</span>
+                        </button>
+                    </form>
+                </div>
             </div>
         @endguest
     </div>
@@ -197,4 +203,166 @@
     .app-sidebar .nav-link {
         font-weight: 500;
     }
+    
+    /* Minimized sidebar styles */
+    .app-sidebar {
+        transition: width 0.3s ease;
+    }
+    
+    .app-sidebar.minimized {
+        width: 80px !important;
+    }
+    
+    .app-sidebar.minimized .sidebar-text {
+        display: none;
+    }
+    
+    .app-sidebar.minimized .sidebar-theme-row {
+        display: none;
+    }
+    
+    .app-sidebar.minimized .sidebar-header {
+        justify-content: center !important;
+        padding: 1rem !important;
+    }
+    
+    .app-sidebar.minimized .sidebar-header .sidebar-brand {
+        margin: 0;
+        flex-grow: 0;
+    }
+    
+    .app-sidebar.minimized #sidebarToggle {
+        display: none;
+    }
+    
+    .app-sidebar.minimized .nav-link {
+        justify-content: center;
+        padding: 0.75rem !important;
+    }
+    
+    .app-sidebar.minimized .sidebar-icon {
+        margin: 0 !important;
+    }
+    
+    .app-sidebar.minimized .sidebar-user-info {
+        justify-content: center;
+        margin-bottom: 0 !important;
+    }
+    
+    .app-sidebar.minimized .sidebar-user-actions {
+        display: none;
+    }
+    
+    .app-sidebar.minimized .sidebar-footer {
+        position: relative;
+    }
+    
+    /* Expand button when minimized */
+    .app-sidebar.minimized::after {
+        content: '\f101';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bs-body-color);
+        background: transparent;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        z-index: 10;
+    }
+    
+    .app-sidebar.minimized::after:hover {
+        background-color: var(--bs-secondary-bg);
+    }
+    
+    .app-sidebar:not(.minimized) .sidebar-text {
+        transition: opacity 0.3s ease 0.1s;
+    }
+    
+    #sidebarToggle {
+        transition: all 0.2s ease;
+    }
+    
+    #sidebarToggle:hover {
+        background-color: var(--bs-secondary-bg);
+    }
+    
+    .sidebar-user-info:hover {
+        background-color: var(--bs-secondary-bg) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.app-sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        // Check for saved state
+        const isMinimized = localStorage.getItem('sidebarMinimized') === 'true';
+        if (isMinimized && sidebar) {
+            sidebar.classList.add('minimized');
+        }
+        
+        // Initialize tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        let tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        
+        // Toggle sidebar function
+        const toggleSidebar = function() {
+            sidebar.classList.toggle('minimized');
+            const isNowMinimized = sidebar.classList.contains('minimized');
+            localStorage.setItem('sidebarMinimized', isNowMinimized);
+            
+            // Dispose and reinitialize tooltips after toggle
+            setTimeout(() => {
+                tooltipList.forEach(tooltip => tooltip.dispose());
+                const newTooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                tooltipList = [...newTooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            }, 300);
+        };
+        
+        // Regular toggle button
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+        
+        // Click on the pseudo-element (expand button when minimized)
+        if (sidebar) {
+            sidebar.addEventListener('click', function(e) {
+                if (sidebar.classList.contains('minimized')) {
+                    const rect = sidebar.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const clickY = e.clientY - rect.top;
+                    
+                    // Check if click is on the expand button (centered below header)
+                    if (clickY > 40 && clickY < 76 && clickX > 28 && clickX < 52) {
+                        toggleSidebar();
+                    }
+                }
+            });
+            
+            // Add tooltip for expand button
+            sidebar.addEventListener('mouseenter', function(e) {
+                if (sidebar.classList.contains('minimized')) {
+                    const rect = sidebar.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    if (mouseY > 40 && mouseY < 76 && mouseX > 28 && mouseX < 52) {
+                        sidebar.setAttribute('title', 'Expand sidebar');
+                    }
+                }
+            });
+        }
+    });
+</script>
 </style>

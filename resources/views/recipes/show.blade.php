@@ -242,8 +242,13 @@
                         </button>
                         
                         <!-- Share Button -->
-                        <button onclick="shareRecipe()" class="btn btn-outline-secondary w-100">
+                        <button onclick="shareRecipe()" class="btn btn-outline-secondary w-100 mb-2">
                             <i class="fa-solid fa-share-nodes me-2"></i>Share
+                        </button>
+                        
+                        <!-- Cook Mode -->
+                        <button onclick="enterCookMode()" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-utensils me-2"></i>Cook Mode
                         </button>
                     </div>
                 </div>
@@ -596,7 +601,417 @@
                 document.body.removeChild(textArea);
             }
         }
+
+        // ========== COOK MODE ==========
+        let wakeLock = null;
+        const allIngredients = {};
+        let currentStepIndex = null;
+
+        // Build ingredient map
+        @forelse($recipe->ingredients as $ing)
+            (function() {
+                const ingName = '{{ strtolower($ing->name) }}'.toLowerCase();
+                allIngredients[ingName] = {
+                    name: '{{ $ing->name }}',
+                    amount: '{{ $ing->amount }}',
+                    id: {{ $ing->id }}
+                };
+            })();
+        @empty
+        @endforelse
+
+        async function enterCookMode() {
+            document.getElementById('cook-mode-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Auto-select first step
+            selectCookStep(0);
+
+            // Request wake lock
+            if (navigator.wakeLock) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => console.log('Wake lock released'));
+                } catch (err) {
+                    console.log('Wake lock request failed:', err);
+                }
+            }
+        }
+
+        function exitCookMode() {
+            document.getElementById('cook-mode-modal').style.display = 'none';
+            document.body.style.overflow = '';
+            currentStepIndex = null;
+
+            // Release wake lock
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+        }
+
+        function selectCookStep(stepIndex) {
+            currentStepIndex = stepIndex;
+            
+            // Highlight selected step
+            const stepElements = document.querySelectorAll('.cook-step-item');
+            stepElements.forEach((el, idx) => {
+                if (idx === stepIndex) {
+                    el.classList.add('cook-step-active');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    el.classList.remove('cook-step-active');
+                }
+            });
+
+            // Update button states
+            const prevBtn = document.getElementById('cook-prev-btn');
+            const nextBtn = document.getElementById('cook-next-btn');
+            if (prevBtn) prevBtn.disabled = stepIndex === 0;
+            if (nextBtn) nextBtn.disabled = stepIndex === stepElements.length - 1;
+
+            // Update ingredients for this step
+            const stepElement = document.querySelector(`[data-step-index="${stepIndex}"]`);
+            if (stepElement) {
+                const stepText = stepElement.getAttribute('data-step-text');
+                updateIngredientsForStep(stepText);
+            }
+        }
+
+        function previousStep() {
+            if (currentStepIndex > 0) {
+                selectCookStep(currentStepIndex - 1);
+            }
+        }
+
+        function nextStep() {
+            const stepCount = document.querySelectorAll('.cook-step-item').length;
+            if (currentStepIndex < stepCount - 1) {
+                selectCookStep(currentStepIndex + 1);
+            }
+        }
+
+        function updateIngredientsForStep(stepText) {
+            const ingredientsList = document.getElementById('cook-current-ingredients');
+            const matchedIngredients = [];
+            const mentionOrder = {};
+
+            // Common words to ignore
+            const stopWords = ['and', 'the', 'with', 'for', 'from', 'into', 'over', 'until', 'onto', 'through', 'about', 'etc'];
+
+            // Split step text into words (lowercase, remove punctuation)
+            const stepWords = stepText.toLowerCase().split(/\W+/).filter(w => w.length > 2);
+
+            // Find ingredients mentioned in this step
+            Object.entries(allIngredients).forEach(([ingName, ingData]) => {
+                // Split ingredient name into words, exclude stop words
+                const ingWords = ingName.split(/\W+/).filter(w => w.length > 2 && !stopWords.includes(w));
+                
+                // Check if any word from the step matches any word from the ingredient
+                let earliestIndex = -1;
+                for (const ingWord of ingWords) {
+                    const index = stepText.indexOf(ingWord);
+                    if (index !== -1) {
+                        if (earliestIndex === -1 || index < earliestIndex) {
+                            earliestIndex = index;
+                        }
+                    }
+                }
+                
+                if (earliestIndex !== -1) {
+                    mentionOrder[ingName] = earliestIndex;
+                    matchedIngredients.push(ingName);
+                }
+            });
+
+            // Sort by mention order in step
+            matchedIngredients.sort((a, b) => mentionOrder[a] - mentionOrder[b]);
+
+            // Render matched ingredients
+            if (matchedIngredients.length === 0) {
+                ingredientsList.innerHTML = '<p class="text-muted small">No specific ingredients for this step</p>';
+            } else {
+                ingredientsList.innerHTML = matchedIngredients.map(ingName => {
+                    const ingData = allIngredients[ingName];
+                    return `
+                        <div class="cook-ingredient-item">
+                            <div class="cook-ingredient-check-icon">
+                                <i class="fa-solid fa-check text-success"></i>
+                            </div>
+                            <div class="cook-ingredient-content">
+                                ${ingData.amount ? `<strong>${ingData.amount}</strong> ` : ''}${ingData.name}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function toggleCookDarkMode() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme-preference', newTheme);
+        }
     </script>
+
+    <style>
+        /* Cook Mode Styles */
+        .cook-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bs-body-bg, white);
+            color: var(--bs-body-color, #000);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .cook-header {
+            background: var(--bs-secondary-bg, #f8f9fa);
+            color: var(--bs-body-color, #000);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--bs-border-color, #dee2e6);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .cook-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .cook-header-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .cook-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        .cook-footer {
+            background: var(--bs-secondary-bg, #f8f9fa);
+            border-top: 2px solid var(--bs-border-color, #dee2e6);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .cook-footer .btn {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .cook-ingredients-panel,
+        .cook-steps-panel {
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cook-ingredients-panel {
+            flex: 0 0 35%;
+            border-right: 2px solid var(--bs-border-color, #dee2e6);
+            background: var(--bs-secondary-bg, #f8f9fa);
+        }
+
+        .cook-steps-panel {
+            flex: 1;
+            background: var(--bs-body-bg, white);
+        }
+
+        .cook-panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+
+        .cook-ingredients-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .cook-ingredient-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: default;
+            line-height: 1.5;
+        }
+
+        .cook-ingredient-item:hover {
+            background: var(--bs-tertiary-bg, rgba(0, 0, 0, 0.05));
+        }
+
+        .cook-ingredient-check-icon {
+            flex-shrink: 0;
+            width: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.1rem;
+        }
+
+        .cook-ingredient-content {
+            flex: 1;
+            font-size: 1.05rem;
+        }
+
+        .cook-ingredient-content strong {
+            font-weight: 600;
+        }
+
+        .cook-steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .cook-step-item {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: var(--bs-secondary-bg, #f8f9fa);
+            margin-bottom: 0.75rem;
+            scroll-margin-top: 1rem;
+        }
+
+        .cook-step-item:hover {
+            background: var(--bs-tertiary-bg, #e9ecef);
+        }
+
+        .cook-step-item.cook-step-active {
+            background: var(--bs-primary-bg-subtle, rgba(13, 110, 253, 0.1));
+            border-left-color: var(--bs-primary, #0d6efd);
+        }
+
+        [data-bs-theme="dark"] .cook-step-item.cook-step-active {
+            background: rgba(13, 110, 253, 0.15);
+            border-left-color: #0d6efd;
+        }
+
+        .cook-step-number {
+            display: inline-block;
+            font-weight: 600;
+            color: var(--bs-secondary-color, #999);
+            margin-right: 0.5rem;
+            min-width: 2.5rem;
+        }
+
+        .cook-step-item.cook-step-active .cook-step-number {
+            color: var(--bs-primary, #0d6efd);
+        }
+
+        /* Responsive: Mobile bottom sheet */
+        @media (max-width: 768px) {
+            .cook-body {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .cook-ingredients-panel {
+                flex: 0 0 auto;
+                border-right: none;
+                border-bottom: 2px solid var(--bs-border-color, #dee2e6);
+                max-height: 30vh;
+                order: -1;
+                overflow-y: auto;
+                padding: 0.5rem 1rem;
+            }
+
+            .cook-panel-title {
+                display: none;
+            }
+
+            .cook-steps-panel {
+                flex: 1;
+                overflow-y: auto;
+            }
+
+            .cook-header {
+                padding: 0.75rem 1rem;
+                gap: 0.5rem;
+            }
+
+            .cook-header h3 {
+                font-size: 1.1rem;
+                line-height: 1.3;
+            }
+
+            .cook-header-buttons .btn {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.9rem;
+            }
+
+            .cook-footer {
+                padding: 0.75rem 1rem;
+                gap: 0.5rem;
+            }
+
+            .cook-footer .btn {
+                flex: 1;
+                max-width: none;
+                font-size: 0.9rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .cook-ingredient-item {
+                padding: 0.35rem 0.25rem;
+                font-size: 0.95rem;
+            }
+
+            .cook-ingredient-check-icon {
+                width: 1rem;
+            }
+
+            .cook-ingredient-check-icon i {
+                font-size: 0.85rem;
+            }
+
+            .cook-step-item {
+                padding: 0.85rem;
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .cook-step-number {
+                font-size: 0.9rem;
+                min-width: 2rem;
+            }
+
+            .cook-steps-list {
+                gap: 1rem;
+            }
+        }
+    </style>
 
     @if($recipe->source_url)
         <div class="container py-3">
@@ -607,5 +1022,58 @@
             </div>
         </div>
     @endif
+
+    <!-- Cook Mode Modal -->
+    <div id="cook-mode-modal" class="cook-modal" style="display: none;">
+        <div class="cook-header">
+            <h3 class="mb-0">{{ $recipe->title }}</h3>
+            <div class="cook-header-buttons">
+                <button onclick="toggleCookDarkMode()" class="btn btn-sm btn-outline-secondary" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button onclick="exitCookMode()" class="btn btn-sm btn-outline-danger">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="cook-body">
+            <!-- Ingredients Panel -->
+            <div class="cook-ingredients-panel">
+                <h5 class="cook-panel-title">Ingredients for This Step</h5>
+                <div class="cook-ingredients-list" id="cook-current-ingredients">
+                    <p class="text-muted small">Select a step to see required ingredients</p>
+                </div>
+            </div>
+            
+            <!-- Steps Panel -->
+            <div class="cook-steps-panel">
+                <h5 class="cook-panel-title">Method</h5>
+                <div class="cook-steps-list" id="cook-steps-list">
+                    @forelse($recipe->directions as $idx => $dir)
+                        <div class="cook-step-item" data-step-index="{{ $idx }}" data-step-text="{{ strtolower($dir->body) }}" onclick="selectCookStep({{ $idx }})">
+                            <div class="cook-step-number">{{ $idx + 1 }}</div>
+                            <div class="cook-step-content">
+                                <label class="cook-step-label">
+                                    {!! nl2br(e($dir->body)) !!}
+                                </label>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted">No steps</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        
+        <div class="cook-footer">
+            <button onclick="previousStep()" id="cook-prev-btn" class="btn btn-primary" title="Previous Step">
+                <i class="fa-solid fa-chevron-left me-1"></i>Previous
+            </button>
+            <button onclick="nextStep()" id="cook-next-btn" class="btn btn-primary" title="Next Step">
+                Next<i class="fa-solid fa-chevron-right ms-1"></i>
+            </button>
+        </div>
+    </div>
 
 </x-app-layout>

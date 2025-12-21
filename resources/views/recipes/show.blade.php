@@ -68,14 +68,6 @@
                             @endforeach
                         @endif
 
-                        @if($recipe->source_url)
-                            <span class="text-muted">
-                                <i class="fa-solid fa-link"></i>
-                                <a href="{{ $recipe->source_url }}" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none">
-                                    Source{{ $sourceHost ? ': ' . $sourceHost : '' }}
-                                </a>
-                            </span>
-                        @endif
                         
                         @if($displayTime)
                             <span class="text-muted">
@@ -605,5 +597,15 @@
             }
         }
     </script>
+
+    @if($recipe->source_url)
+        <div class="container py-3">
+            <div class="border-top pt-3 text-muted" style="font-size: 0.95rem;">
+                <i class="fa-solid fa-link me-2"></i>
+                <span>Source:</span>
+                <a href="{{ $recipe->source_url }}" target="_blank" rel="noopener noreferrer" class="text-muted text-decoration-none">{{ parse_url($recipe->source_url, PHP_URL_HOST) ?: $recipe->source_url }}</a>
+            </div>
+        </div>
+    @endif
 
 </x-app-layout>

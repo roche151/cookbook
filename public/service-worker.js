@@ -1,22 +1,17 @@
 const CACHE_NAME = 'cookbook-v1';
-const urlsToCache = [
-  '/',
-  '/offline.html',
-  '/css/app.css',
-  '/js/app.js',
-  '/manifest.json',
-  '/favicon.ico'
-];
 
-// Install event - cache essential files
+// Install event - cache only essential files
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(urlsToCache);
+        // Try to cache the manifest, but don't fail if it doesn't exist
+        return cache.add('/manifest.json').catch(() => {
+          console.log('Could not cache manifest.json');
+        });
       })
       .catch((error) => {
-        console.log('Cache installation failed:', error);
+        console.log('Cache installation completed with notice:', error);
       })
   );
   self.skipWaiting();
@@ -65,13 +60,15 @@ self.addEventListener('fetch', (event) => {
             const responseToCache = response.clone();
             caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(event.request, responseToCache);
+                cache.put(event.request, responseToCache).catch(() => {
+                  // Silently fail if caching doesn't work
+                });
               });
 
             return response;
           })
           .catch(() => {
-            // Return offline page or cached response on network error
+            // Return offline page on network error
             return caches.match('/offline.html')
               .then((response) => response || new Response('Offline'));
           });

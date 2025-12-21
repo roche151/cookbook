@@ -21,7 +21,7 @@ return [
         ['label' => 'Create Recipe',  'href' => '/recipes/create', 'auth' => null, 'icon_class' => 'fa-solid fa-plus'],
         ['label' => 'All Recipes', 'href' => '/recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-book-open'],
         ['label' => 'My Recipes',  'href' => '/my-recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-user'],
-        ['label' => 'My Favorites',  'href' => '/my-favorites', 'auth' => null, 'icon_class' => 'fa-solid fa-heart'],
+        ['label' => 'My Collections',  'href' => '/my-collections', 'auth' => null, 'icon_class' => 'fa-solid fa-layer-group'],
         ['label' => 'Shopping List', 'href' => '/shopping-list', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-cart-shopping'],
         // ['label' => 'About',       'href' => '/about',   'auth' => null, 'icon_class' => 'fa-solid fa-circle-info'],
         // Named route example (only for authenticated users)

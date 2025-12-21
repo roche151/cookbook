@@ -28,10 +28,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Recipe::class);
     }
 
-    public function favoriteRecipes()
+    public function collections()
     {
-        return $this->belongsToMany(Recipe::class, 'favorite_recipe')
-                    ->withTimestamps();
+        return $this->hasMany(Collection::class);
     }
 
     public function recipeRatings()

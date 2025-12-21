@@ -73,40 +73,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Handle favorite button clicks with AJAX
-    document.addEventListener('submit', function(e) {
-        // Edit form confirmation
-        const editForm = e.target.closest('.js-edit-confirm-form');
-        if (editForm && !editForm.dataset.confirmed) {
-            e.preventDefault();
-            bootbox.confirm({
-                message: 'Save changes to this recipe?',
-                buttons: {
-                    confirm: { label: 'Save', className: 'btn-primary' },
-                    cancel: { label: 'Cancel', className: 'btn-secondary' }
-                },
-                callback: function(result) {
-                    if (result) {
-                        editForm.dataset.confirmed = 'true';
-                        editForm.submit();
-                    }
-                }
-            });
-            return; // Do not proceed to other handlers
-        }
+    // Handle collection modal and related actions
+    let currentCollectionModal = null;
+    let currentRecipeId = null;
 
-        const form = e.target.closest('.js-favorite-form');
-        if (!form) return;
-        e.preventDefault();
-
-        const button = form.querySelector('button[type="submit"]');
-        const url = form.action;
+    // Open collection modal
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('.js-open-collection-modal');
         if (!button) return;
+        e.preventDefault();
+        
+        currentRecipeId = button.dataset.recipeId;
+        const recipeSlug = button.dataset.recipeSlug;
+        
+        // Find or create modal
+        let modal = document.getElementById(`addToCollectionModal-${currentRecipeId}`);
+        if (!modal) {
+            modal = document.getElementById('addToCollectionModal-0');
+        }
+        if (!modal) return;
+        
+        currentCollectionModal = new bootstrap.Modal(modal);
+        currentCollectionModal.show();
+        
+        // Load collections
+        loadCollectionsForRecipe(recipeSlug);
+    });
 
-        button.disabled = true;
-
-        fetch(url, {
-            method: 'POST',
+    function loadCollectionsForRecipe(recipeSlug) {
+        const collectionList = document.querySelector('.collection-list[data-recipe-id="' + currentRecipeId + '"]');
+        if (!collectionList && currentRecipeId !== '0') {
+            // Try with recipe id 0 (generic modal)
+            const genericList = document.querySelector('.collection-list[data-recipe-id="0"]');
+            if (genericList) {
+                genericList.dataset.recipeId = currentRecipeId;
+            }
+        }
+        const list = document.querySelector('.collection-list[data-recipe-id="' + currentRecipeId + '"]');
+        if (!list) return;
+        
+        list.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+        
+        fetch(`/recipes/${recipeSlug}/collections`, {
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json',
@@ -115,30 +123,304 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(r => r.json())
         .then(data => {
-            if (data && data.success) {
-                const favorited = !!data.favorited;
-                const iconOnly = button.hasAttribute('data-icon-only');
-                button.classList.toggle('btn-danger', favorited);
-                button.classList.toggle('btn-outline-danger', !favorited);
-                button.title = favorited ? 'Remove from favorites' : 'Add to favorites';
-                if (iconOnly) {
-                    // Card variant: icon only
-                    button.innerHTML = `<i class=\"fa-${favorited ? 'solid' : 'regular'} fa-heart\"></i>`;
+            if (data && data.success && data.collections) {
+                if (data.collections.length === 0) {
+                    list.innerHTML = '<p class="text-muted text-center py-3">No collections yet. Create one below!</p>';
+                    // Pre-fill "Favourites" for first collection
+                    const nameInput = document.querySelector('.js-create-collection-inline input[name="name"]');
+                    if (nameInput && !nameInput.value) {
+                        nameInput.value = 'Favourites';
+                        nameInput.focus();
+                    }
                 } else {
-                    // Show page variant: icon + text
-                    button.innerHTML = `<i class=\"fa-${favorited ? 'solid' : 'regular'} fa-heart me-1\"></i>${favorited ? 'Unfavorite' : 'Favorite'}`;
+                    list.innerHTML = data.collections.map(c => `
+                        <div class="form-check mb-2">
+                            <input class="form-check-input js-collection-checkbox" type="checkbox" value="${c.id}" id="collection-${c.id}" ${c.has_recipe ? 'checked' : ''} data-recipe-slug="${recipeSlug}">
+                            <label class="form-check-label" for="collection-${c.id}">
+                                <i class="fa-solid fa-folder me-2"></i>${c.name}
+                            </label>
+                        </div>
+                    `).join('');
                 }
-                showToast(data.message || (favorited ? 'Added to favorites' : 'Removed from favorites'), 'success');
             } else {
-                showToast('Unexpected response.', 'danger');
+                list.innerHTML = '<p class="text-danger text-center py-3">Failed to load collections</p>';
             }
         })
         .catch(err => {
-            console.error('Favorite toggle error:', err);
-            showToast('An error occurred. Please try again.', 'danger');
+            console.error('Load collections error:', err);
+            list.innerHTML = '<p class="text-danger text-center py-3">Error loading collections</p>';
+        });
+    }
+
+    // Handle collection checkbox toggle
+    document.addEventListener('change', function(e) {
+        const checkbox = e.target.closest('.js-collection-checkbox');
+        if (!checkbox) return;
+        
+        const collectionId = checkbox.value;
+        const recipeSlug = checkbox.dataset.recipeSlug;
+        const isChecked = checkbox.checked;
+        
+        checkbox.disabled = true;
+        
+        if (isChecked) {
+            // Add to collection
+            fetch(`/recipes/${recipeSlug}/add-to-collection`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ collection_id: collectionId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.success) {
+                    showToast(data.message, 'success');
+                } else {
+                    checkbox.checked = false;
+                    showToast(data.message || 'Failed to add recipe', 'danger');
+                }
+            })
+            .catch(err => {
+                console.error('Add to collection error:', err);
+                checkbox.checked = false;
+                showToast('An error occurred', 'danger');
+            })
+            .finally(() => {
+                checkbox.disabled = false;
+            });
+        } else {
+            // Remove from collection
+            const label = checkbox.parentElement.querySelector('label');
+            const collectionName = label ? label.textContent.trim() : 'collection';
+            
+            bootbox.confirm({
+                message: `Remove this recipe from ${collectionName}?`,
+                buttons: {
+                    confirm: { label: 'Remove', className: 'btn-danger' },
+                    cancel: { label: 'Cancel', className: 'btn-secondary' }
+                },
+                callback: function(result) {
+                    if (result) {
+                        // Get collection slug - need to find it
+                        fetch(`/recipes/${recipeSlug}/collections`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            const collection = data.collections.find(c => c.id == collectionId);
+                            if (collection) {
+                                return fetch(`/collections/${collection.slug}/recipes/${recipeSlug}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                });
+                            }
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data && data.success) {
+                                showToast(data.message, 'success');
+                            } else {
+                                checkbox.checked = true;
+                                showToast('Failed to remove recipe', 'danger');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Remove from collection error:', err);
+                            checkbox.checked = true;
+                            showToast('An error occurred', 'danger');
+                        })
+                        .finally(() => {
+                            checkbox.disabled = false;
+                        });
+                    } else {
+                        checkbox.checked = true;
+                        checkbox.disabled = false;
+                    }
+                }
+            });
+        }
+    });
+
+    // Handle inline collection creation
+    document.addEventListener('submit', function(e) {
+        const form = e.target.closest('.js-create-collection-inline');
+        if (!form) return;
+        e.preventDefault();
+        
+        const nameInput = form.querySelector('input[name="name"]');
+        const descInput = form.querySelector('textarea[name="description"]');
+        const recipeId = form.dataset.recipeId;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        submitBtn.disabled = true;
+        
+        fetch('/collections', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                name: nameInput.value,
+                description: descInput.value
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.success && data.collection) {
+                // Add recipe to new collection
+                const recipeSlug = document.querySelector('.js-collection-checkbox')?.dataset.recipeSlug;
+                if (recipeSlug) {
+                    return fetch(`/recipes/${recipeSlug}/add-to-collection`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ collection_id: data.collection.id })
+                    }).then(r => r.json());
+                }
+                return { success: true, message: 'Collection created' };
+            } else {
+                throw new Error('Failed to create collection');
+            }
+        })
+        .then(data => {
+            showToast('Collection created and recipe added!', 'success');
+            nameInput.value = '';
+            descInput.value = '';
+            // Reload collection list
+            const recipeSlug = document.querySelector('.js-collection-checkbox')?.dataset.recipeSlug;
+            if (recipeSlug) {
+                loadCollectionsForRecipe(recipeSlug);
+            }
+        })
+        .catch(err => {
+            console.error('Create collection error:', err);
+            showToast('Failed to create collection', 'danger');
         })
         .finally(() => {
-            button.disabled = false;
+            submitBtn.disabled = false;
+        });
+    });
+
+    // Handle remove from collection on collection show page
+    document.addEventListener('submit', function(e) {
+        const form = e.target.closest('.js-remove-from-collection-form');
+        if (!form) return;
+        e.preventDefault();
+        
+        bootbox.confirm({
+            message: 'Remove this recipe from the collection?',
+            buttons: {
+                confirm: { label: 'Remove', className: 'btn-danger' },
+                cancel: { label: 'Cancel', className: 'btn-secondary' }
+            },
+            callback: function(result) {
+                if (result) {
+                    form.submit();
+                }
+            }
+        });
+    });
+
+    // Edit form confirmation (existing)
+    document.addEventListener('submit', function(e) {
+        const editForm = e.target.closest('.js-edit-confirm-form');
+        if (!editForm || editForm.dataset.confirmed) return;
+        e.preventDefault();
+        bootbox.confirm({
+            message: 'Save changes to this recipe?',
+            buttons: {
+                confirm: { label: 'Save', className: 'btn-primary' },
+                cancel: { label: 'Cancel', className: 'btn-secondary' }
+            },
+            callback: function(result) {
+                if (result) {
+                    editForm.dataset.confirmed = 'true';
+                    editForm.submit();
+                }
+            }
         });
     });
 });
+
+// Collection management functions (global scope for inline onclick handlers)
+window.editCollection = function(collectionId, name, description, slug = null) {
+    const modal = document.getElementById('editCollectionModal');
+    const form = document.getElementById('editCollectionForm');
+    const nameInput = document.getElementById('edit-collection-name');
+    const descInput = document.getElementById('edit-collection-description');
+    
+    if (!form || !nameInput || !descInput) return;
+    
+    // Determine the action URL
+    let actionUrl;
+    if (slug) {
+        actionUrl = `/collections/${slug}`;
+    } else {
+        // We're on the index page, need to find the slug from the DOM
+        const collectionCard = document.querySelector(`[onclick*="editCollection('${collectionId}'"]`)?.closest('.collection-card');
+        const viewLink = collectionCard?.querySelector('a[href*="/my-collections/"]');
+        if (viewLink) {
+            const urlSlug = viewLink.href.split('/my-collections/')[1];
+            actionUrl = `/collections/${urlSlug}`;
+        } else {
+            console.error('Could not determine collection slug');
+            return;
+        }
+    }
+    
+    form.action = actionUrl;
+    nameInput.value = name;
+    descInput.value = description;
+    
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+};
+
+window.deleteCollection = function(slug, name, redirect = false) {
+    bootbox.confirm({
+        message: `Delete collection "${name}"? This will not delete the recipes, only the collection.`,
+        buttons: {
+            confirm: { label: 'Delete', className: 'btn-danger' },
+            cancel: { label: 'Cancel', className: 'btn-secondary' }
+        },
+        callback: function(result) {
+            if (result) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/collections/${slug}`;
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = document.querySelector('meta[name="csrf-token"]').content;
+                
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                
+                form.appendChild(csrfInput);
+                form.appendChild(methodInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    });
+};

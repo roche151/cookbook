@@ -273,4 +273,7 @@
         });
     </script>
 
+    <!-- Collection Modal -->
+    <x-collection-modal :recipe="(object)['id' => 0]" />
+
 </x-app-layout>

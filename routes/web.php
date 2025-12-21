@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipesController;
+use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\ShoppingListController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Tag;
@@ -38,8 +39,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
     
     Route::get('/my-recipes', [RecipesController::class, 'myRecipes'])->name('recipes.my');
-    Route::get('/my-favorites', [RecipesController::class, 'myFavorites'])->name('recipes.favorites');
-    Route::post('/recipes/{recipe}/favorite', [RecipesController::class, 'toggleFavorite'])->name('recipes.favorite');
+    
+    // Collections
+    Route::get('/my-collections', [CollectionsController::class, 'index'])->name('collections.index');
+    Route::post('/collections', [CollectionsController::class, 'store'])->name('collections.store');
+    Route::get('/my-collections/{collection}', [CollectionsController::class, 'show'])->name('collections.show');
+    Route::patch('/collections/{collection}', [CollectionsController::class, 'update'])->name('collections.update');
+    Route::delete('/collections/{collection}', [CollectionsController::class, 'destroy'])->name('collections.destroy');
+    Route::post('/recipes/{recipe}/add-to-collection', [CollectionsController::class, 'addRecipe'])->name('recipes.add-to-collection');
+    Route::delete('/collections/{collection}/recipes/{recipe}', [CollectionsController::class, 'removeRecipe'])->name('collections.remove-recipe');
+    Route::get('/recipes/{recipe}/collections', [CollectionsController::class, 'forRecipe'])->name('recipes.collections');
+    
     Route::post('/recipes/{recipe}/rate', [RecipesController::class, 'storeRating'])->name('recipes.rate');
     Route::get('/recipes/create', [RecipesController::class, 'create'])->name('recipes.create');
     Route::post('/recipes/import', [RecipesController::class, 'importFromUrl'])->name('recipes.import');

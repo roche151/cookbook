@@ -197,15 +197,29 @@
                     <div class="card mb-4 shadow-sm border-0 no-print">
                         <div class="card-body p-4">
                             <div class="d-grid gap-2">
+                                {{-- Collections --}}
+                                <button type="button" class="btn btn-primary w-100 js-open-collection-modal" data-recipe-id="{{ $recipe->id }}" data-recipe-slug="{{ $recipe->slug }}">
+                                    <i class="fa-solid fa-folder-plus me-2"></i>Add to Collection
+                                </button>
+                                
+                                {{-- Show collections this recipe is in --}}
                                 @php
-                                    $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', $recipe->id)->exists();
+                                    $userCollections = auth()->user()->collections()->whereHas('recipes', function($q) use ($recipe) {
+                                        $q->where('recipe_id', $recipe->id);
+                                    })->get();
                                 @endphp
-                                <form action="{{ route('recipes.favorite', $recipe->slug) }}" method="POST" class="js-favorite-form" data-recipe-id="{{ $recipe->id }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-{{ $isFavorited ? 'danger' : 'outline-secondary' }} w-100">
-                                        <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart me-2"></i>{{ $isFavorited ? 'Unfavorite' : 'Favorite' }}
-                                    </button>
-                                </form>
+                                @if($userCollections->isNotEmpty())
+                                    <div class="mt-2">
+                                        <small class="text-muted d-block mb-2">In collections:</small>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @foreach($userCollections as $collection)
+                                                <a href="{{ route('collections.show', $collection->slug) }}" class="badge bg-primary bg-opacity-10 text-primary text-decoration-none border border-primary border-opacity-25 py-2 px-3">
+                                                    <i class="fa-solid fa-folder me-1"></i>{{ $collection->name }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                                 
                                 @if($recipe->user_id === auth()->id())
                                     <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">
@@ -1091,5 +1105,8 @@
             </button>
         </div>
     </div>
+
+    <!-- Collection Modal -->
+    <x-collection-modal :recipe="$recipe" />
 
 </x-app-layout>

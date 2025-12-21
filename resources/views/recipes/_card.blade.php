@@ -2,6 +2,8 @@
     @php
         $image = data_get($recipe, 'image');
         $isOwnedByUser = auth()->check() && data_get($recipe, 'user_id') === auth()->id();
+        $showCollectionRemove = $showCollectionRemove ?? false;
+        $collectionSlug = $collectionSlug ?? null;
     @endphp
     <div style="position: relative; overflow: hidden; border-radius: calc(0.375rem - 1px) calc(0.375rem - 1px) 0 0;">
         @if($image)
@@ -31,15 +33,21 @@
     
     <div class="card-body d-flex flex-column position-relative">
         @auth
-            @php
-                $isFavorited = auth()->user()->favoriteRecipes()->where('recipe_id', data_get($recipe, 'id'))->exists();
-            @endphp
-            <form action="{{ route('recipes.favorite', data_get($recipe, 'slug')) }}" method="POST" class="position-absolute top-0 end-0 m-2 js-favorite-form" data-recipe-id="{{ data_get($recipe, 'id') }}">
-                @csrf
-                <button type="submit" data-icon-only="true" class="btn btn-sm {{ $isFavorited ? 'btn-danger' : 'btn-outline-danger' }}" data-bs-toggle="tooltip" data-bs-title="{{ $isFavorited ? 'Remove from favorites' : 'Add to favorites' }}">
-                    <i class="fa-{{ $isFavorited ? 'solid' : 'regular' }} fa-heart"></i>
+            @if(isset($showCollectionRemove) && $showCollectionRemove && isset($collectionSlug))
+                {{-- Show remove button when in collection view --}}
+                <form action="{{ route('collections.remove-recipe', [$collectionSlug, data_get($recipe, 'slug')]) }}" method="POST" class="position-absolute top-0 end-0 m-2 js-remove-from-collection-form">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" data-icon-only="true" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Remove from collection">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </form>
+            @else
+                {{-- Show add to collection button --}}
+                <button type="button" data-icon-only="true" class="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2 js-open-collection-modal" data-recipe-id="{{ data_get($recipe, 'id') }}" data-recipe-slug="{{ data_get($recipe, 'slug') }}" data-bs-toggle="tooltip" data-bs-title="Add to collection">
+                    <i class="fa-solid fa-folder-plus"></i>
                 </button>
-            </form>
+            @endif
         @endauth
         <h5 class="card-title mb-2 fw-semibold" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 2.5rem; line-height: 1.4;">{{ data_get($recipe, 'title') }}</h5>
         

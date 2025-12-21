@@ -84,18 +84,18 @@
         <!-- Quick Actions -->
         <div class="row g-4">
             <div class="col-md-4">
-                <a href="/my-favorites" class="card border-0 bg-primary bg-opacity-10 h-100 text-decoration-none quick-card">
+                <a href="/my-collections" class="card border-0 bg-primary bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
                             <div class="flex-shrink-0 me-3">
                                 <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
                                     style="width: 48px; height: 48px;">
-                                    <i class="fa-solid fa-heart text-white"></i>
+                                    <i class="fa-solid fa-layer-group text-white"></i>
                                 </div>
                             </div>
                             <div>
-                                <h5 class="card-title mb-2 text-body">My Favorites</h5>
-                                <p class="card-text text-muted mb-0">Keep track of recipes you love</p>
+                                <h5 class="card-title mb-2 text-body">My Collections</h5>
+                                <p class="card-text text-muted mb-0">Organize recipes into collections</p>
                             </div>
                         </div>
                     </div>

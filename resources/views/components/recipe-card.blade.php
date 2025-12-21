@@ -1,10 +1,39 @@
-@props(['title', 'image' => null, 'description' => null, 'href' => null, 'meta' => null, 'rating' => null])
+@props(['title' => null, 'image' => null, 'description' => null, 'href' => null, 'meta' => null, 'rating' => null, 'recipe' => null, 'showCollectionRemove' => false, 'collectionSlug' => null])
+
+@php
+    // If recipe object is provided, extract properties from it
+    if ($recipe) {
+        $title = $title ?? data_get($recipe, 'title');
+        $image = $image ?? data_get($recipe, 'image');
+        $description = $description ?? data_get($recipe, 'description');
+        $href = $href ?? url('/recipes/' . data_get($recipe, 'slug'));
+        $rating = $rating ?? ($recipe->averageRating() ?? null);
+    }
+@endphp
 
 <div class="card h-100 shadow-sm">
     {{-- Image area with fixed height to keep all cards equal height --}}
     @if($image)
-        <div style="height:180px; overflow:hidden;">
+        <div style="height:180px; overflow:hidden; position: relative;">
             <img src="{{ $image }}" alt="{{ $title }}" class="w-100 h-100" style="object-fit:cover; display:block;">
+            
+            @auth
+                @if($showCollectionRemove && $collectionSlug && $recipe)
+                    {{-- Show remove button when in collection view --}}
+                    <form action="{{ route('collections.remove-recipe', [$collectionSlug, data_get($recipe, 'slug')]) }}" method="POST" class="position-absolute top-0 end-0 m-2 js-remove-from-collection-form">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" data-icon-only="true" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-title="Remove from collection">
+                            <i class="fa-solid fa-times"></i>
+                        </button>
+                    </form>
+                @elseif($recipe)
+                    {{-- Show add to collection button --}}
+                    <button type="button" data-icon-only="true" class="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2 js-open-collection-modal" data-recipe-id="{{ data_get($recipe, 'id') }}" data-recipe-slug="{{ data_get($recipe, 'slug') }}" data-bs-toggle="tooltip" data-bs-title="Add to collection">
+                        <i class="fa-solid fa-folder-plus"></i>
+                    </button>
+                @endif
+            @endauth
         </div>
     @else
         <div class="bg-body d-flex align-items-center justify-content-center" style="height:180px;">

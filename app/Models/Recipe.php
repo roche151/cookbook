@@ -55,9 +55,9 @@ class Recipe extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function favoritedBy()
+    public function collections()
     {
-        return $this->belongsToMany(User::class, 'favorite_recipe')
+        return $this->belongsToMany(Collection::class, 'collection_recipe')
                     ->withTimestamps();
     }
 

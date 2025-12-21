@@ -30,11 +30,6 @@ class RecipesController extends Controller
         return $this->listRecipes($request, 'my');
     }
 
-    public function myFavorites(Request $request)
-    {
-        return $this->listRecipes($request, 'favorites');
-    }
-
     private function listRecipes(Request $request, string $context = 'all')
     {
         $q = $request->query('q');
@@ -66,16 +61,6 @@ class RecipesController extends Controller
             $title = 'My Recipes';
             $subtitle = 'View and manage all your created recipes';
             $emptyMessage = 'You haven\'t created any recipes yet.';
-        } elseif ($context === 'favorites') {
-            /** @var \App\Models\User|null $user */
-            $user = Auth::user();
-            if (!$user) {
-                abort(403, 'Unauthorized action.');
-            }
-            $query = $user->favoriteRecipes();
-            $title = 'My Favorite Recipes';
-            $subtitle = 'Your collection of saved and loved recipes';
-            $emptyMessage = 'You haven\'t favorited any recipes yet.';
         } else {
             $query = Recipe::query();
             // Only show public recipes or recipes owned by the authenticated user
@@ -166,37 +151,6 @@ class RecipesController extends Controller
             'subtitle' => $subtitle ?? 'Discover and explore delicious recipes',
             'emptyMessage' => $emptyMessage,
         ]);
-    }
-
-    public function toggleFavorite(Recipe $recipe)
-    {
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-        if (! $user) {
-            abort(403, 'Unauthorized action.');
-        }
-        $favorites = $user->favoriteRecipes();
-        $isFavorited = $favorites->where('recipe_id', $recipe->id)->exists();
-        
-        if ($isFavorited) {
-            $favorites->detach($recipe->id);
-            $message = 'Recipe removed from favorites';
-            $favorited = false;
-        } else {
-            $favorites->attach($recipe->id);
-            $message = 'Recipe added to favorites';
-            $favorited = true;
-        }
-
-        if (request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'favorited' => $favorited
-            ]);
-        }
-
-        return back()->with('success', $message);
     }
 
     public function storeRating(Request $request, Recipe $recipe)

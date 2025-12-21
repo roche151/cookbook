@@ -73,8 +73,6 @@
                 });
                 
                 const data = await response.json();
-                console.log('Response status:', response.status);
-                console.log('Response data:', data);
                 
                 if (response.ok) {
                     try {
@@ -97,8 +95,6 @@
         }
         
         function populateForm(data) {
-            console.log('populateForm called with:', data);
-            
             // Helper function to find input by name or id
             const getInput = (id, name) => {
                 return document.getElementById(id) || document.querySelector(`[name="${name}"]`);
@@ -107,14 +103,12 @@
             // Populate title
             if (data.title) {
                 const titleEl = getInput('title', 'title');
-                console.log('Title element:', titleEl);
                 if (titleEl) titleEl.value = data.title;
             }
             
             // Populate description
             if (data.description) {
                 const descEl = getInput('description', 'description');
-                console.log('Description element:', descEl);
                 if (descEl) descEl.value = data.description;
             }
             
@@ -125,7 +119,6 @@
                 const minutes = totalMinutes % 60;
                 const hoursEl = getInput('time_hours', 'time_hours');
                 const minsEl = getInput('time_minutes', 'time_minutes');
-                console.log('Time elements - hours:', hoursEl, 'minutes:', minsEl);
                 if (hoursEl) hoursEl.value = hours;
                 if (minsEl) minsEl.value = minutes;
             }
@@ -138,7 +131,6 @@
             
             // Populate image if URL provided
             if (data.imageUrl) {
-                console.log('Image URL provided:', data.imageUrl);
                 const imagePreview = document.querySelector('.image-preview');
                 const uploadPlaceholder = document.querySelector('.upload-placeholder');
                 const removeBtn = document.querySelector('.remove-image-btn');
@@ -148,18 +140,13 @@
                     imagePreview.style.display = 'block';
                     uploadPlaceholder.style.display = 'none';
                     removeBtn.style.display = 'block';
-                    console.log('Image preview updated');
-                } else {
-                    console.warn('Image elements not found');
                 }
             }
             
             // Populate ingredients
             if (data.ingredients && data.ingredients.length > 0) {
                 const ingredientsContainer = document.getElementById('ingredients-container');
-                console.log('Ingredients container:', ingredientsContainer);
                 if (ingredientsContainer) {
-                    // Clear existing
                     ingredientsContainer.innerHTML = '';
                     ingredientsContainer.setAttribute('data-next-index', '0');
                     
@@ -168,17 +155,13 @@
                     });
                     
                     ingredientsContainer.setAttribute('data-next-index', data.ingredients.length);
-                } else {
-                    console.warn('ingredients-container not found');
                 }
             }
             
             // Populate directions
             if (data.directions && data.directions.length > 0) {
                 const directionsContainer = document.getElementById('directions-container');
-                console.log('Directions container:', directionsContainer);
                 if (directionsContainer) {
-                    // Clear existing
                     directionsContainer.innerHTML = '';
                     directionsContainer.setAttribute('data-next-index', '0');
                     
@@ -187,8 +170,6 @@
                     });
                     
                     directionsContainer.setAttribute('data-next-index', data.directions.length);
-                } else {
-                    console.warn('directions-container not found');
                 }
             }
             
@@ -197,8 +178,6 @@
             if (formCard) {
                 formCard.scrollIntoView({ behavior: 'smooth' });
             }
-            
-            console.log('Form population complete');
         }
         
         function addIngredientToForm(index, amount, name) {

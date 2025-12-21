@@ -248,12 +248,30 @@ class RecipesController extends Controller
             $recipe = $this->parseJsonLD($html);
             
             if (!$recipe) {
+                // Log failed import to database
+                \App\Models\FailedRecipeImport::create([
+                    'user_id' => auth()->id(),
+                    'url' => $url,
+                    'error_message' => 'Could not find recipe data on this page',
+                    'http_status' => $response->status(),
+                    'details' => null,
+                ]);
+                
                 return response()->json(['message' => 'Could not find recipe data on this page'], 422);
             }
             
             return response()->json($recipe);
             
         } catch (\Exception $e) {
+            // Log failed import to database
+            \App\Models\FailedRecipeImport::create([
+                'user_id' => auth()->id(),
+                'url' => $request->input('url'),
+                'error_message' => $e->getMessage(),
+                'http_status' => null,
+                'details' => $e->getTraceAsString(),
+            ]);
+            
             return response()->json(['message' => 'Failed to fetch recipe: ' . $e->getMessage()], 500);
         }
     }

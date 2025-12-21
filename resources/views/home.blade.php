@@ -57,7 +57,7 @@
 			@if(isset($tags) && $tags->count())
 				<div class="row g-3">
 					@foreach($tags as $tag)
-						<div class="col-sm-6 col-md-4 col-lg-3">
+						<div class="col-6 col-md-4 col-lg-3">
 							<a href="/recipes?tag={{ urlencode($tag->name) }}" 
 							   class="card h-100 text-decoration-none border category-card">
 								<div class="card-body text-center p-4">

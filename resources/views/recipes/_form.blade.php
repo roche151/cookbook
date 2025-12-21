@@ -76,6 +76,7 @@
     <div class="col-12">
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-tags me-1 text-primary"></i>Tags
+            <span class="text-muted fw-normal">(optional)</span>
         </label>
         <div class="d-flex flex-wrap gap-2">
             @foreach($tags as $tag)

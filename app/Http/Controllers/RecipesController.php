@@ -542,7 +542,7 @@ class RecipesController extends Controller
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
             'time_minutes' => 'nullable|integer|min:0|max:59',
-            'tags' => 'required|array|min:1',
+            'tags' => 'nullable|array',
             'directions' => 'required|array|min:1',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.name' => ['required','string', new NoLinks],
@@ -558,7 +558,6 @@ class RecipesController extends Controller
         // Custom messages and attribute names
         $messages = [
             'required' => ':attribute is required',
-            'tags.required' => 'At least one Tag is required',
             'directions.required' => 'At least one Direction is required',
             'directions.*.body.required' => 'Direction cannot be empty',
             'ingredients.*.name.required' => 'Ingredient cannot be empty',
@@ -646,6 +645,12 @@ class RecipesController extends Controller
         if ($this->containsProfanity($data)) {
             return back()->withErrors(['profanity' => 'Please remove profanity from your recipe.'])->withInput();
         }
+
+        // Normalize optional tags to an array for downstream sync
+        $data['tags'] = $data['tags'] ?? [];
+
+        // Normalize optional tags to an array for downstream sync
+        $data['tags'] = $data['tags'] ?? [];
 
         // Save total minutes into the existing `time` column (as integer)
         $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
@@ -761,7 +766,7 @@ class RecipesController extends Controller
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
             'time_minutes' => 'nullable|integer|min:0|max:59',
-            'tags' => 'required|array|min:1',
+            'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'directions' => 'required|array|min:1',
             'ingredients' => 'required|array|min:1',
@@ -779,7 +784,6 @@ class RecipesController extends Controller
 
         $messages = [
             'required' => ':attribute is required.',
-            'tags.required' => 'At least 1 Tag is required.',
             'directions.required' => 'At least 1 Direction is required.',
             'directions.*.body.required' => 'Direction cannot be empty.',
             'ingredients.required' => 'At least 1 Ingredient is required.',

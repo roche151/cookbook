@@ -136,7 +136,7 @@
                             <div>
                                 <h5 class="card-title mb-2">Top Rated</h5>
                                 <p class="card-text text-muted mb-3">Explore community favorites</p>
-                                <a href="/recipes" class="btn btn-sm btn-warning">Discover</a>
+                                <a href="/recipes?rating_min=4&sort=rating_desc" class="btn btn-sm btn-warning">Discover</a>
                             </div>
                         </div>
                     </div>

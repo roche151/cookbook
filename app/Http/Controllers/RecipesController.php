@@ -38,6 +38,7 @@ class RecipesController extends Controller
         $q = $request->query('q');
         $tags = $request->query('tags', []);
         $sort = $request->query('sort', 'date_desc');
+        $ratingMin = (int) $request->query('rating_min', 0);
 
         // Support legacy ?tag=name parameter - convert to tags[] array
         if ($request->filled('tag')) {
@@ -98,6 +99,14 @@ class RecipesController extends Controller
             }
         }
 
+        // Filter by minimum average rating (4+ style)
+        if ($ratingMin > 0) {
+            $query->select('recipes.*')
+                ->withAvg('ratings', 'rating')
+                ->groupBy('recipes.id')
+                ->having('ratings_avg_rating', '>=', $ratingMin);
+        }
+
         // Search across multiple fields
         if ($q) {
             $query->where(function ($qbuilder) use ($q) {
@@ -112,6 +121,10 @@ class RecipesController extends Controller
 
         // Apply sorting
         switch ($sort) {
+            case 'rating_desc':
+                // Ensure rating avg is available when sorting by rating
+                $query->withAvg('ratings', 'rating')->orderByDesc('ratings_avg_rating');
+                break;
             case 'date_asc':
                 $query->orderBy('created_at', 'asc');
                 break;
@@ -144,6 +157,7 @@ class RecipesController extends Controller
             'selectedTags' => $tags,
             'allTags' => $allTags,
             'sort' => $sort,
+            'ratingMin' => $ratingMin,
             'title' => $title,
             'subtitle' => $subtitle ?? 'Discover and explore delicious recipes',
             'emptyMessage' => $emptyMessage,

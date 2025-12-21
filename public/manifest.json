@@ -1,0 +1,12 @@
+{
+  "name": "Cookbook",
+  "short_name": "Cookbook",
+  "description": "Your personal recipe collection and cooking companion",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0d6efd",
+  "background_color": "#ffffff",
+  "categories": ["food", "lifestyle"]
+}

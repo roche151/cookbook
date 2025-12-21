@@ -78,9 +78,9 @@
                         $checked = true;
                     }
                 @endphp
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="tags[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}" {{ $checked ? 'checked' : '' }}>
-                    <label class="form-check-label badge bg-secondary bg-opacity-25 border border-secondary py-2 px-3" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
+                <div class="form-check ps-0">
+                    <input hidden class="form-check-input" type="checkbox" name="tags[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}" {{ $checked ? 'checked' : '' }}>
+                    <label class="form-check-label badge bg-opacity-25 border border-secondary py-2 px-3 {{ $checked ? 'bg-primary text-white' : 'bg-secondary border-secondary-subtle' }}" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
                         <i class="{{ $tag->icon }} me-1"></i>{{ $tag->name }}
                     </label>
                 </div>
@@ -480,6 +480,21 @@
                     firstErrorField.focus();
                 }, 300);
             }
+            
+            // Handle tag checkbox styling
+            const tagCheckboxes = document.querySelectorAll('input[name="tags[]"]');
+            tagCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const label = this.nextElementSibling;
+                    if (this.checked) {
+                        label.classList.remove('bg-secondary', 'border-secondary-subtle');
+                        label.classList.add('bg-primary', 'text-white');
+                    } else {
+                        label.classList.remove('bg-primary', 'text-white');
+                        label.classList.add('bg-secondary', 'border-secondary-subtle');
+                    }
+                });
+            });
         });
     </script>
 @endif

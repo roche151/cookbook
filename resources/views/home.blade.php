@@ -84,7 +84,7 @@
         <!-- Quick Actions -->
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card border-0 bg-primary bg-opacity-10 h-100">
+                <a href="/my-favorites" class="card border-0 bg-primary bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
                             <div class="flex-shrink-0 me-3">
@@ -94,17 +94,16 @@
                                 </div>
                             </div>
                             <div>
-                                <h5 class="card-title mb-2">My Favorites</h5>
-                                <p class="card-text text-muted mb-3">Keep track of recipes you love</p>
-                                <a href="/my-favorites" class="btn btn-sm btn-primary">View Recipes</a>
+                                <h5 class="card-title mb-2 text-body">My Favorites</h5>
+                                <p class="card-text text-muted mb-0">Keep track of recipes you love</p>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-4">
-                <div class="card border-0 bg-success bg-opacity-10 h-100">
+                <a href="/my-recipes" class="card border-0 bg-success bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
                             <div class="flex-shrink-0 me-3">
@@ -114,17 +113,16 @@
                                 </div>
                             </div>
                             <div>
-                                <h5 class="card-title mb-2">My Recipes</h5>
-                                <p class="card-text text-muted mb-3">Manage your personal collection</p>
-                                <a href="/my-recipes" class="btn btn-sm btn-success">My Collection</a>
+                                <h5 class="card-title mb-2 text-body">My Recipes</h5>
+                                <p class="card-text text-muted mb-0">Manage your personal collection</p>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-4">
-                <div class="card border-0 bg-warning bg-opacity-10 h-100">
+                <a href="/recipes?rating_min=4&sort=rating_desc" class="card border-0 bg-warning bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
                             <div class="flex-shrink-0 me-3">
@@ -134,13 +132,12 @@
                                 </div>
                             </div>
                             <div>
-                                <h5 class="card-title mb-2">Top Rated</h5>
-                                <p class="card-text text-muted mb-3">Explore community favorites</p>
-                                <a href="/recipes?rating_min=4&sort=rating_desc" class="btn btn-sm btn-warning">Discover</a>
+                                <h5 class="card-title mb-2 text-body">Top Rated</h5>
+                                <p class="card-text text-muted mb-0">Explore community favorites</p>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </div>
@@ -162,6 +159,15 @@
 
         .category-card:hover .category-icon {
             transform: scale(1.15);
+        }
+
+        .quick-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .quick-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
         }
     </style>
 

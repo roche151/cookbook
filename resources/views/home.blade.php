@@ -37,7 +37,7 @@
                         <img src="{{ asset('images/culina-hero.png') }}" alt="Culina hero illustration"
                             class="img-fluid rounded-4 shadow-lg"
                             style="max-height: 450px; width: 100%; object-fit: cover;">
-                        <div class="position-absolute bottom-0 start-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2">
+                        <div hidden class="position-absolute bottom-0 start-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2">
                             <i class="fa-solid fa-fire me-1"></i> Trending Now
                         </div>
                     </div>

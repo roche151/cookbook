@@ -60,6 +60,7 @@ class RecipesController extends Controller
             $subtitle = 'View and manage all your created recipes';
             $emptyMessage = 'You haven\'t created any recipes yet.';
         } elseif ($context === 'favorites') {
+            /** @var \App\Models\User|null $user */
             $user = Auth::user();
             if (!$user) {
                 abort(403, 'Unauthorized action.');
@@ -178,7 +179,8 @@ class RecipesController extends Controller
 
     public function storeRating(Request $request, Recipe $recipe)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
 
         // Prevent owner from rating their own recipe
         if ($recipe->user_id === $user->id) {
@@ -251,7 +253,7 @@ class RecipesController extends Controller
             if (!$recipe) {
                 // Log failed import to database
                 \App\Models\FailedRecipeImport::create([
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'url' => $url,
                     'error_message' => 'Could not find recipe data on this page',
                     'http_status' => $response->status(),
@@ -269,7 +271,7 @@ class RecipesController extends Controller
         } catch (\Exception $e) {
             // Log failed import to database
             \App\Models\FailedRecipeImport::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'url' => $request->input('url'),
                 'error_message' => $e->getMessage(),
                 'http_status' => null,

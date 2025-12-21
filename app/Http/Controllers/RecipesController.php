@@ -40,14 +40,18 @@ class RecipesController extends Controller
         $sort = $request->query('sort', 'date_desc');
 
         // Support legacy ?tag=name parameter - convert to tags[] array
-        if ($request->has('tag') && !empty($request->query('tag'))) {
+        if ($request->filled('tag')) {
             $legacyTag = $request->query('tag');
             $normalized = mb_strtolower($legacyTag);
+
             $foundTag = Tag::whereRaw('LOWER(name) = ?', [$normalized])
-                ->orWhere('slug', $legacyTag)
-                ->orWhere('id', $legacyTag)
+                ->orWhereRaw('LOWER(slug) = ?', [$normalized])
+                ->when(ctype_digit((string) $legacyTag), function ($q) use ($legacyTag) {
+                    // Only compare against id when the value is numeric to avoid PG invalid input syntax
+                    $q->orWhere('id', (int) $legacyTag);
+                })
                 ->first();
-            
+
             if ($foundTag && !in_array($foundTag->id, $tags)) {
                 $tags[] = $foundTag->id;
             }

@@ -82,8 +82,8 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="row g-4">
-            <div class="col-md-4">
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-4">
                 <a href="/my-collections" class="card border-0 bg-primary bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
@@ -102,7 +102,7 @@
                 </a>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-4">
                 <a href="/my-recipes" class="card border-0 bg-success bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
@@ -121,7 +121,7 @@
                 </a>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-4">
                 <a href="/recipes?rating_min=4&sort=rating_desc" class="card border-0 bg-warning bg-opacity-10 h-100 text-decoration-none quick-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">

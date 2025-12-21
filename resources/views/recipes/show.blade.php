@@ -894,6 +894,9 @@
         }
 
         .cook-step-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
             padding: 1rem;
             border-radius: 0.5rem;
             border-left: 4px solid transparent;
@@ -919,15 +922,14 @@
         }
 
         .cook-step-number {
-            display: inline-block;
+            display: block;
             font-weight: 600;
-            color: var(--bs-secondary-color, #999);
-            margin-right: 0.5rem;
-            min-width: 2.5rem;
+            font-size: 1.1rem;
+            color: var(--bs-primary, #0d6efd);
         }
 
-        .cook-step-item.cook-step-active .cook-step-number {
-            color: var(--bs-primary, #0d6efd);
+        .cook-step-content {
+            display: block;
         }
 
         /* Responsive: Mobile bottom sheet */

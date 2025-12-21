@@ -98,6 +98,9 @@
         @php
             $tempImage = session('temp_image');
             $hasTemp = $tempImage && Storage::disk('public')->exists($tempImage);
+            $importedImageUrl = old('imported_image_url');
+            $showImage = $hasTemp || $importedImageUrl;
+            $imageSource = $hasTemp ? Storage::url($tempImage) : $importedImageUrl;
         @endphp
         
         @if($hasTemp)
@@ -106,7 +109,7 @@
         
         <div class="image-drop-zone border rounded-3 p-4 text-center" tabindex="0" style="position: relative; min-height: 200px; background: var(--bs-body-secondary); border: 2px dashed var(--bs-border-color) !important; outline: none; transition: all 0.2s;">
             <input type="file" name="image" accept="image/*" class="d-none" id="recipe-image">
-            <div class="upload-placeholder" style="display: {{ $hasTemp ? 'none' : 'flex' }}; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; gap: 1rem;">
+            <div class="upload-placeholder" style="display: {{ $showImage ? 'none' : 'flex' }}; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; gap: 1rem;">
                 <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary opacity-75"></i>
                 <div>
                     <p class="mb-1 fw-semibold">Choose a file or drag & drop it here</p>
@@ -116,8 +119,8 @@
                     <i class="fa-solid fa-folder-open me-2"></i>Browse Files
                 </button>
             </div>
-            <img class="image-preview rounded-3" src="{{ $hasTemp ? Storage::url($tempImage) : '' }}" style="display: {{ $hasTemp ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
-            <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: {{ $hasTemp ? 'block' : 'none' }};">
+            <img class="image-preview rounded-3" src="{{ $showImage ? $imageSource : '' }}" style="display: {{ $showImage ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
+            <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: {{ $showImage ? 'block' : 'none' }};">
                 <i class="fa-solid fa-times"></i>
             </button>
         </div>

@@ -380,8 +380,8 @@ class RecipesController extends Controller
         if (isset($json['recipeIngredient'])) {
             foreach ((array)$json['recipeIngredient'] as $ing) {
                 $ing = trim($ing);
-                // Try to separate amount from name using regex
-                if (preg_match('/^([\d\/\.\s]+(?:g|kg|ml|l|cup|cups|tbsp|tsp|oz|lb|lbs|handful|pinch|clove|cloves)?)\s+(.+)$/i', $ing, $parts)) {
+                // Try to separate amount from name (supports mixed units, x-multipliers, unicode fractions, slash combos like 15g/½oz)
+                if (preg_match('/^((?:[\d\.,]+|[¼½¾⅓⅔⅛⅜⅝⅞])(?:\s*[xX]\s*[\d\.,]+)?(?:\s*(?:g|kg|ml|l|oz|lb|lbs|tsp|tbsp|cup|cups|clove|cloves|handful|pinch|bunch|tin|tins|can|cans|pack|packs))?(?:\s*[\/\-]\s*(?:[\d\.,]+|[¼½¾⅓⅔⅛⅜⅝⅞])(?:\s*(?:g|kg|ml|l|oz|lb|lbs|tsp|tbsp|cup|cups))?)*)\s+(.+)$/iu', $ing, $parts)) {
                     $ingredients[] = [
                         'amount' => trim($parts[1]),
                         'name' => trim($parts[2])

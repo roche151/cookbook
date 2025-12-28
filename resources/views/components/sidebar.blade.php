@@ -122,7 +122,7 @@
             @else
                 <button id="themeToggleMobile" class="mobile-action-btn" type="button">
                     <i class="fa-regular fa-sun"></i>
-                    <span>Toggle Theme</span>
+                    <span>Theme</span>
                 </button>
                 <form action="{{ route('logout') }}" method="POST" class="mt-2">
                     @csrf
@@ -159,17 +159,25 @@
                     $unreadCount = auth()->user()->unreadNotifications()->count();
                 } catch (\Exception $e) {}
             @endphp
-            <button class="action-btn position-relative" 
-                    type="button" 
-                    data-bs-toggle="offcanvas" 
-                    data-bs-target="#notificationsOffcanvas"
-                    title="Notifications">
-                <i class="fa-solid fa-bell"></i>
-                @if($unreadCount > 0)
-                    <span class="notification-badge">{{ $unreadCount }}</span>
-                @endif
-                <span class="action-text">Alerts</span>
-            </button>
+                <button class="action-btn position-relative" 
+                        type="button" 
+                        data-bs-toggle="offcanvas" 
+                        data-bs-target="#notificationsOffcanvas"
+                        title="Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    @if($unreadCount > 0)
+                        <span class="notification-badge">{{ $unreadCount }}</span>
+                    @endif
+                    <span class="action-text">Alerts</span>
+                </button>
+            @else
+                <a class="action-btn position-relative text-decoration-none" 
+                        type="button"
+                        title="Notifications"
+                        href="{{ route('login') }}">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="action-text">Alerts</span>
+                </a>
         @endauth
     </div>
 

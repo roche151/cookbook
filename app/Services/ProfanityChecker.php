@@ -11,7 +11,7 @@ class ProfanityChecker
     private const BLOCKLIST = [
         // English / common internet
         'ass','bastard','bitch','bollock','clit','cock','cuck','cunt','damn','dick','dyke','fag','fuck','jizz','kunt',
-        'motherfucker','penis','piss','poop','prick','pussy','shit','slut','spic','twat','whore','wank','wanker','faggot',
+        'motherfucker','penis','piss','poop','pussy','shit','slut','spic','twat','whore','wank','wanker','faggot',
         // Spanish / Portuguese / Italian / French / German and common transliterations
         'puta','puto','putain','puttana','pendejo','pendeja','cabron','cabrona','cojon','cojones','verga','mierda',
         'merda','porra','caralho','chingar','chingada','chingado','chingon','gilipollas','gilipolla','cazz0','cazzo',

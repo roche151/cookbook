@@ -207,6 +207,10 @@
 </head>
 <body>
     <x-sidebar />
+    
+    @auth
+        <x-notifications-offcanvas />
+    @endauth
 
     <main class="app-content container mt-4">
         @if(session('status'))

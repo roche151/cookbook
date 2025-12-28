@@ -74,6 +74,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/shopping-list/mark-all-checked', [ShoppingListController::class, 'markAllChecked'])->name('shopping-list.items.mark-all-checked');
     Route::post('/shopping-list/add-recipe/{recipe}', [ShoppingListController::class, 'addFromRecipe'])->name('shopping-list.add-from-recipe');
 
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\NotificationsController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationsController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationsController::class, 'destroy'])->name('notifications.destroy');
+
     // Admin-only area
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');

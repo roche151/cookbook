@@ -62,8 +62,10 @@
                 @if(isset($link['auth']) && $link['auth'] === 'admin' && (!auth()->check() || !auth()->user()->is_admin))
                     @continue
                 @endif
-                @php($href = $resolveHref($link))
-                @php($active = $isActiveLink($link, $href))
+                @php
+                    $href = $resolveHref($link);
+                    $active = $isActiveLink($link, $href);
+                @endphp
                 <a class="nav-link{{ $active ? ' active text-white bg-primary rounded' : '' }}" href="{{ $href }}" aria-current="{{ $active ? 'page' : '' }}">
                     @if(!empty($link['icon']))
                         {!! $link['icon'] !!}
@@ -109,7 +111,7 @@
             @endguest
         </nav>
     </div>
-    </div>
+</div>
 
 <!-- Sidebar for md+ screens -->
 <aside class="app-sidebar bg-body d-none d-md-flex flex-column p-0" style="border-right: 1px solid var(--bs-border-color);">
@@ -123,11 +125,34 @@
         </a>
     </div>
     
-    <!-- Theme Toggle (separate row when expanded) -->
-    <div class="sidebar-theme-row px-3 pt-3 pb-2">
-        <button id="themeToggle" class="btn btn-sm btn-outline-secondary w-100 d-flex align-items-center justify-content-center" type="button" aria-label="Toggle theme" title="Toggle dark/light">
+    <!-- Theme Toggle and Notifications -->
+    <div class="sidebar-theme-row px-3 pt-3 pb-2 d-flex gap-2">
+        <button id="themeToggle" class="btn btn-sm btn-outline-secondary flex-grow-1 d-flex align-items-center justify-content-center" type="button" aria-label="Toggle theme" title="Toggle dark/light">
             <i class="fa-regular fa-sun"></i><span class="sidebar-text ms-2">Toggle Theme</span>
         </button>
+        @auth
+            @php
+                $unreadCount = 0;
+                try {
+                    $unreadCount = auth()->user()->unreadNotifications()->count();
+                } catch (\Exception $e) {
+                    // Notifications table doesn't exist yet
+                }
+            @endphp
+            <button class="btn btn-sm btn-outline-secondary position-relative d-flex align-items-center justify-content-center" 
+                    type="button" 
+                    data-bs-toggle="offcanvas" 
+                    data-bs-target="#notificationsOffcanvas" 
+                    aria-controls="notificationsOffcanvas"
+                    style="min-width: 44px;">
+                <i class="fa-solid fa-bell"></i>
+                @if($unreadCount > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                        {{ $unreadCount }}
+                    </span>
+                @endif
+            </button>
+        @endauth
     </div>
 
     <!-- Navigation Links -->
@@ -143,8 +168,10 @@
                 @if(isset($link['auth']) && $link['auth'] === 'admin' && (!auth()->check() || !auth()->user()->is_admin))
                     @continue
                 @endif
-                @php($href = $resolveHref($link))
-                @php($active = $isActiveLink($link, $href))
+                @php
+                    $href = $resolveHref($link);
+                    $active = $isActiveLink($link, $href);
+                @endphp
                 <a class="nav-link rounded d-flex align-items-center{{ $active ? ' active bg-primary text-white' : ' text-body' }}" 
                    href="{{ $href }}" 
                    aria-current="{{ $active ? 'page' : '' }}"

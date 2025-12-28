@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Direction;
 use App\Models\Ingredient;
 use App\Models\RecipeRevision;
+use App\Notifications\RecipeModerationNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -111,6 +112,22 @@ class RecipeModerationController extends Controller
                 ->delete();
         });
 
+        // Send notification to recipe owner
+        if ($revision->user) {
+            $isNewSubmission = $revision->recipe->approved_at === null || 
+                               $revision->recipe->approved_at->eq($revision->reviewed_at);
+            
+            $revision->user->notify(new RecipeModerationNotification(
+                recipeId: $revision->recipe->slug,
+                recipeTitle: $revision->recipe->title,
+                revisionId: $revision->id,
+                status: 'approved',
+                notes: null,
+                reviewedAt: $revision->reviewed_at?->toDateTimeString(),
+                isNewSubmission: $isNewSubmission
+            ));
+        }
+
         return redirect()->route('admin.moderation.recipes.index')->with('status', 'Revision approved and applied.');
     }
 
@@ -150,6 +167,21 @@ class RecipeModerationController extends Controller
                 }
             }
         });
+
+        // Send notification to recipe owner
+        if ($revision->user) {
+            $isNewSubmission = $revision->recipe->approved_at === null;
+            
+            $revision->user->notify(new RecipeModerationNotification(
+                recipeId: $revision->recipe->slug,
+                recipeTitle: $revision->recipe->title,
+                revisionId: $revision->id,
+                status: 'rejected',
+                notes: $revision->notes,
+                reviewedAt: $revision->reviewed_at?->toDateTimeString(),
+                isNewSubmission: $isNewSubmission
+            ));
+        }
 
         return redirect()->route('admin.moderation.recipes.index')->with('status', 'Revision rejected.');
     }

@@ -111,16 +111,13 @@
 <!-- Sidebar for md+ screens -->
 <aside class="app-sidebar bg-body d-none d-md-flex flex-column p-0" style="border-right: 1px solid var(--bs-border-color);">
     <!-- Brand/Logo Section -->
-    <div class="sidebar-header p-3 border-bottom d-flex align-items-center justify-content-between">
+    <div class="sidebar-header p-3 border-bottom d-flex align-items-center">
         <a class="sidebar-brand d-flex align-items-center text-decoration-none" href="{{ url('/') }}">
             <div class="d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                 <img src="{{ asset('favicon.svg') }}" alt="Culina" width="28" height="28" style="display:block; border-radius:50%; box-shadow: 0 2px 6px rgba(0,0,0,0.25);" />
             </div>
             <span class="sidebar-text fs-5 fw-bold ms-3">{{ config('app.name', 'Laravel') }}</span>
         </a>
-        <button id="sidebarToggle" class="btn btn-sm btn-link text-body p-1" type="button" aria-label="Toggle sidebar" data-bs-toggle="tooltip" data-bs-placement="right" title="Minimize sidebar" style="line-height: 1;">
-            <i class="fa-solid fa-angles-left"></i>
-        </button>
     </div>
     
     <!-- Theme Toggle (separate row when expanded) -->
@@ -204,165 +201,10 @@
         font-weight: 500;
     }
     
-    /* Minimized sidebar styles */
-    .app-sidebar {
-        transition: width 0.3s ease;
-    }
-    
-    .app-sidebar.minimized {
-        width: 80px !important;
-    }
-    
-    .app-sidebar.minimized .sidebar-text {
-        display: none;
-    }
-    
-    .app-sidebar.minimized .sidebar-theme-row {
-        display: none;
-    }
-    
-    .app-sidebar.minimized .sidebar-header {
-        justify-content: center !important;
-        padding: 1rem !important;
-    }
-    
-    .app-sidebar.minimized .sidebar-header .sidebar-brand {
-        margin: 0;
-        flex-grow: 0;
-    }
-    
-    .app-sidebar.minimized #sidebarToggle {
-        display: none;
-    }
-    
-    .app-sidebar.minimized .nav-link {
-        justify-content: center;
-        padding: 0.75rem !important;
-    }
-    
-    .app-sidebar.minimized .sidebar-icon {
-        margin: 0 !important;
-    }
-    
-    .app-sidebar.minimized .sidebar-user-info {
-        justify-content: center;
-        margin-bottom: 0 !important;
-    }
-    
-    .app-sidebar.minimized .sidebar-user-actions {
-        display: none;
-    }
-    
-    .app-sidebar.minimized .sidebar-footer {
-        position: relative;
-    }
-    
-    /* Expand button when minimized */
-    .app-sidebar.minimized::after {
-        content: '\f101';
-        font-family: 'Font Awesome 6 Free';
-        font-weight: 900;
-        position: absolute;
-        top: 3rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bs-body-color);
-        background: transparent;
-        border-radius: 0.375rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 0.75rem;
-        z-index: 10;
-    }
-    
-    .app-sidebar.minimized::after:hover {
-        background-color: var(--bs-secondary-bg);
-    }
-    
-    .app-sidebar:not(.minimized) .sidebar-text {
-        transition: opacity 0.3s ease 0.1s;
-    }
-    
-    #sidebarToggle {
-        transition: all 0.2s ease;
-    }
-    
-    #sidebarToggle:hover {
-        background-color: var(--bs-secondary-bg);
-    }
     
     .sidebar-user-info:hover {
         background-color: var(--bs-secondary-bg) !important;
     }
 </style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.querySelector('.app-sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        
-        // Check for saved state
-        const isMinimized = localStorage.getItem('sidebarMinimized') === 'true';
-        if (isMinimized && sidebar) {
-            sidebar.classList.add('minimized');
-        }
-        
-        // Initialize tooltips
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        let tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-        
-        // Toggle sidebar function
-        const toggleSidebar = function() {
-            sidebar.classList.toggle('minimized');
-            const isNowMinimized = sidebar.classList.contains('minimized');
-            localStorage.setItem('sidebarMinimized', isNowMinimized);
-            
-            // Dispose and reinitialize tooltips after toggle
-            setTimeout(() => {
-                tooltipList.forEach(tooltip => tooltip.dispose());
-                const newTooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-                tooltipList = [...newTooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-            }, 300);
-        };
-        
-        // Regular toggle button
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', toggleSidebar);
-        }
-        
-        // Click on the pseudo-element (expand button when minimized)
-        if (sidebar) {
-            sidebar.addEventListener('click', function(e) {
-                if (sidebar.classList.contains('minimized')) {
-                    const rect = sidebar.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    const clickY = e.clientY - rect.top;
-                    
-                    // Check if click is on the expand button (centered below header)
-                    if (clickY > 40 && clickY < 76 && clickX > 28 && clickX < 52) {
-                        toggleSidebar();
-                    }
-                }
-            });
-            
-            // Add tooltip for expand button
-            sidebar.addEventListener('mouseenter', function(e) {
-                if (sidebar.classList.contains('minimized')) {
-                    const rect = sidebar.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left;
-                    const mouseY = e.clientY - rect.top;
-                    
-                    if (mouseY > 40 && mouseY < 76 && mouseX > 28 && mouseX < 52) {
-                        sidebar.setAttribute('title', 'Expand sidebar');
-                    }
-                }
-            });
-        }
-    });
-</script>
 </style>

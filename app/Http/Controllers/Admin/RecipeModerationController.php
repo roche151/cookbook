@@ -9,6 +9,7 @@ use App\Models\RecipeRevision;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class RecipeModerationController extends Controller
 {
@@ -97,8 +98,17 @@ class RecipeModerationController extends Controller
                 'notes' => $request->input('notes'),
             ]);
 
-            // Remove any other pending revisions for this recipe
-            $recipe->revisions()->where('status', 'pending')->where('id', '!=', $revision->id)->delete();
+            // Clean up and remove any other pending revisions for this recipe
+            $recipe->revisions()
+                ->where('status', 'pending')
+                ->where('id', '!=', $revision->id)
+                ->get()
+                ->each(fn($rev) => $this->cleanupRevisionImages($rev));
+            
+            $recipe->revisions()
+                ->where('status', 'pending')
+                ->where('id', '!=', $revision->id)
+                ->delete();
         });
 
         return redirect()->route('admin.moderation.recipes.index')->with('status', 'Revision approved and applied.');
@@ -115,6 +125,9 @@ class RecipeModerationController extends Controller
         ]);
 
         DB::transaction(function () use ($revision, $data) {
+            // Clean up images from the revision before marking it rejected
+            $this->cleanupRevisionImages($revision);
+
             $revision->update([
                 'status' => 'rejected',
                 'reviewed_by' => Auth::id(),
@@ -139,5 +152,26 @@ class RecipeModerationController extends Controller
         });
 
         return redirect()->route('admin.moderation.recipes.index')->with('status', 'Revision rejected.');
+    }
+
+    /**
+     * Clean up image files stored in a revision's data.
+     * Removes both the revision image and the actual file from storage.
+     */
+    private function cleanupRevisionImages(RecipeRevision $revision): void
+    {
+        if (!$revision->data) {
+            return;
+        }
+
+        $imagePath = $revision->data['image'] ?? null;
+        if ($imagePath && is_string($imagePath) && Storage::disk('public')->exists($imagePath)) {
+            try {
+                Storage::disk('public')->delete($imagePath);
+            } catch (\Exception $e) {
+                // Log but don't fail if cleanup has issues
+                \Illuminate\Support\Facades\Log::warning("Failed to delete image from revision {$revision->id}: " . $e->getMessage());
+            }
+        }
     }
 }

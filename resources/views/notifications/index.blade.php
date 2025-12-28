@@ -82,13 +82,13 @@
 
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <a href="{{ route('recipes.show', $data['recipe_id']) }}" class="btn btn-primary">
-                            <i class="fa-solid fa-arrow-right me-1"></i>View Recipe
+                            <i class="fa-solid fa-eye me-1"></i>View Recipe
                         </a>
                         <div class="btn-group">
                             @if($isUnread)
                                 <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-outline-secondary" title="Mark as read">
+                                    <button type="submit" class="btn btn-outline-secondary me-1" title="Mark as read">
                                         <i class="fa-solid fa-check me-1"></i>Mark as Read
                                     </button>
                                 </form>

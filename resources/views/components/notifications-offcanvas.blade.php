@@ -72,13 +72,13 @@
                             {{ $notification->created_at->diffForHumans() }}
                         </small>
                         <div class="btn-group btn-group-sm">
-                            <a href="{{ route('recipes.show', $data['recipe_id']) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="fa-solid fa-arrow-right me-1"></i>View Recipe
+                            <a href="{{ route('recipes.show', $data['recipe_id']) }}" class="btn btn-sm btn-outline-primary" style="border-radius: var(--bs-btn-border-radius)">
+                                <i class="fa-solid fa-eye"></i>
                             </a>
                             @if($isUnread)
                                 <form action="{{ route('notifications.read', $notification->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Mark as read">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary ms-1" title="Mark as read">
                                         <i class="fa-solid fa-check"></i>
                                     </button>
                                 </form>
@@ -86,7 +86,7 @@
                             <form action="{{ route('notifications.destroy', $notification->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <button type="submit" class="btn btn-sm btn-outline-danger ms-1" title="Delete">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>

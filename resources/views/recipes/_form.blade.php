@@ -150,7 +150,7 @@
 
     <div class="col-md-6">
         <label class="form-label fw-semibold">
-            <i class="fa-solid fa-clock me-1 text-primary"></i>Prep Time
+            <i class="fa-solid fa-clock me-1 text-primary"></i>Time
         </label>
         @php
             $timeHoursOld = old('time_hours');

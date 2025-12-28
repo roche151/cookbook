@@ -67,7 +67,7 @@
     <div class="offcanvas-body p-0 d-flex flex-column">
         @auth
             <div class="mobile-user-section">
-                <a href="{{ route('profile.edit') }}" class="mobile-user-info" data-bs-dismiss="offcanvas">
+                <a href="{{ route('profile.edit') }}" class="mobile-user-info">
                     <div class="avatar-circle bg-primary">
                         <span class="text-white fw-bold fs-5">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                     </div>
@@ -112,10 +112,10 @@
         <div class="mobile-footer">
             @guest
                 <div class="d-grid gap-2">
-                    <a href="{{ route('login') }}" class="btn btn-primary" data-bs-dismiss="offcanvas">
+                    <a href="{{ route('login') }}" class="btn btn-primary">
                         <i class="fa-solid fa-right-to-bracket me-2"></i>Login
                     </a>
-                    <a href="{{ route('register') }}" class="btn btn-outline-primary" data-bs-dismiss="offcanvas">
+                    <a href="{{ route('register') }}" class="btn btn-outline-primary">
                         <i class="fa-solid fa-user-plus me-2"></i>Register
                     </a>
                 </div>

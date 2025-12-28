@@ -23,6 +23,7 @@ return [
         ['label' => 'My Recipes',  'href' => '/my-recipes', 'auth' => null, 'icon_class' => 'fa-solid fa-user'],
         ['label' => 'My Collections',  'href' => '/my-collections', 'auth' => null, 'icon_class' => 'fa-solid fa-layer-group'],
         ['label' => 'Shopping List', 'href' => '/shopping-list', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-cart-shopping'],
+        ['label' => 'Admin', 'route' => 'admin.index', 'auth' => 'admin', 'icon_class' => 'fa-solid fa-user-gear'],
         // ['label' => 'About',       'href' => '/about',   'auth' => null, 'icon_class' => 'fa-solid fa-circle-info'],
         // Named route example (only for authenticated users)
         // ['label' => 'Dashboard', 'route' => 'dashboard', 'auth' => 'auth', 'icon_class' => 'fa-solid fa-gauge'],

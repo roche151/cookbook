@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             Illuminate\Http\Request::HEADER_X_FORWARDED_HOST | 
             Illuminate\Http\Request::HEADER_X_FORWARDED_PORT | 
             Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO);
+
+        // Route middleware aliases
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

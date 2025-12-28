@@ -40,6 +40,47 @@
             </ol>
         </nav>
 
+        @auth
+            @if($recipe->user_id === auth()->id() && $recipe->status === 'pending')
+                @php 
+                    $revisionCount = $recipe->revisions()->count();
+                    $hasMultipleRevisions = $revisionCount > 1;
+                @endphp
+                <div class="alert alert-warning d-flex align-items-center gap-2" role="status">
+                    <i class="fa-solid fa-clock"></i>
+                    <div>
+                        @if($hasMultipleRevisions)
+                            Your recipe changes are awaiting moderation. Others will see the last approved version until approval.
+                        @else
+                            Your recipe is awaiting moderation. It won’t be visible to others until it’s approved.
+                        @endif
+                    </div>
+                </div>
+            @elseif($recipe->user_id === auth()->id() && $recipe->status === 'rejected')
+                @php $revisionCount = $recipe->revisions()->count(); @endphp
+                <div class="alert alert-danger" role="status">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-circle-xmark mt-1"></i>
+                        <div class="flex-grow-1">
+                            <div class="mb-2">
+                                @if($revisionCount > 1)
+                                    Your recent changes were rejected. Update the recipe and resubmit for review.
+                                @else
+                                    Your recipe submission was rejected. Review the feedback, update it, and resubmit for review.
+                                @endif
+                            </div>
+                            @if($rejectionNotes ?? null)
+                                <div class="mt-2 p-2 bg-white bg-opacity-25 rounded">
+                                    <strong>Moderator feedback:</strong>
+                                    <div class="mt-1">{{ $rejectionNotes }}</div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endauth
+
         <div class="row">
             <div class="col-lg-8">
                 <!-- Header Section -->
@@ -99,7 +140,14 @@
                         @endif
                         
                         @if($recipe->is_public !== null)
-                            <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print" data-bs-toggle="tooltip" data-bs-title="{{ $recipe->is_public ? 'Public recipe - visible to everyone' : 'Private recipe - only visible to you' }}">
+                            @php
+                                $visibilityLabel = $recipe->is_public
+                                    ? ($recipe->status === 'pending'
+                                        ? 'Awaiting approval — not visible yet'
+                                        : 'Public recipe - visible to everyone')
+                                    : 'Private recipe - only visible to you';
+                            @endphp
+                            <span class="badge {{ $recipe->is_public ? 'bg-success' : 'bg-secondary' }} no-print" data-bs-toggle="tooltip" data-bs-title="{{ $visibilityLabel }}">
                                 <i class="fa-solid fa-{{ $recipe->is_public ? 'globe' : 'lock' }}"></i>
                             </span>
                         @endif

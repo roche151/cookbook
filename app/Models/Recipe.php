@@ -18,6 +18,8 @@ class Recipe extends Model
         'time',
         'user_id',
         'is_public',
+        'status',
+        'approved_at',
         'difficulty',
         'source_url',
     ];
@@ -25,6 +27,7 @@ class Recipe extends Model
     protected $casts = [
         'time' => 'integer',
         'is_public' => 'boolean',
+        'approved_at' => 'datetime',
     ];
 
     /**
@@ -59,6 +62,11 @@ class Recipe extends Model
     {
         return $this->belongsToMany(Collection::class, 'collection_recipe')
                     ->withTimestamps();
+    }
+
+    public function revisions()
+    {
+        return $this->hasMany(RecipeRevision::class);
     }
 
     public function ratings()

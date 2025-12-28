@@ -235,11 +235,7 @@
             } catch (e) {}
         })();
 
-        // Initialize Bootstrap tooltips
         document.addEventListener('DOMContentLoaded', function() {
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-
             // Theme toggle logic
             const toggleBtn = document.getElementById('themeToggle');
             const toggleBtnMobile = document.getElementById('themeToggleMobile');

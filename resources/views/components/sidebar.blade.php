@@ -59,6 +59,9 @@
                 @if(isset($link['auth']) && $link['auth'] === 'guest' && auth()->check())
                     @continue
                 @endif
+                @if(isset($link['auth']) && $link['auth'] === 'admin' && (!auth()->check() || !auth()->user()->is_admin))
+                    @continue
+                @endif
                 @php($href = $resolveHref($link))
                 @php($active = $isActiveLink($link, $href))
                 <a class="nav-link{{ $active ? ' active text-white bg-primary rounded' : '' }}" href="{{ $href }}" aria-current="{{ $active ? 'page' : '' }}">
@@ -135,6 +138,9 @@
                     @continue
                 @endif
                 @if(isset($link['auth']) && $link['auth'] === 'guest' && auth()->check())
+                    @continue
+                @endif
+                @if(isset($link['auth']) && $link['auth'] === 'admin' && (!auth()->check() || !auth()->user()->is_admin))
                     @continue
                 @endif
                 @php($href = $resolveHref($link))

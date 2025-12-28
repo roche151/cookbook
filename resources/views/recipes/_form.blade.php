@@ -55,7 +55,7 @@
                         <input class="form-check-input" type="radio" name="is_public" id="visibility_public" value="1" {{ old('is_public', optional($recipe)->is_public) ? 'checked' : '' }}>
                         <label class="form-check-label" for="visibility_public">
                             <i class="fa-solid fa-globe me-1"></i>Public
-                            <small class="d-block text-muted">Visible to everyone</small>
+                            <small class="d-block text-muted">Requires moderation before everyone can see it</small>
                         </label>
                     </div>
                 </div>

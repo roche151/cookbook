@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipesController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\ShoppingListController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\RecipeModerationController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -71,6 +73,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/shopping-list/clear-checked', [ShoppingListController::class, 'clearChecked'])->name('shopping-list.items.clear-checked');
     Route::patch('/shopping-list/mark-all-checked', [ShoppingListController::class, 'markAllChecked'])->name('shopping-list.items.mark-all-checked');
     Route::post('/shopping-list/add-recipe/{recipe}', [ShoppingListController::class, 'addFromRecipe'])->name('shopping-list.add-from-recipe');
+
+    // Admin-only area
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('index');
+        Route::get('/moderation/recipes', [RecipeModerationController::class, 'index'])->name('moderation.recipes.index');
+        Route::get('/moderation/recipes/{revision}', [RecipeModerationController::class, 'show'])->name('moderation.recipes.show');
+        Route::post('/moderation/recipes/{revision}/approve', [RecipeModerationController::class, 'approve'])->name('moderation.recipes.approve');
+        Route::post('/moderation/recipes/{revision}/reject', [RecipeModerationController::class, 'reject'])->name('moderation.recipes.reject');
+    });
 });
 
 // Public recipe show route - define AFTER /create to avoid conflicts

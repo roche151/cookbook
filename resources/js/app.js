@@ -43,6 +43,12 @@ function createToastContainer() {
 
 // Handle delete button confirmations
 document.addEventListener('DOMContentLoaded', function() {
+    if (window.bootstrap && window.bootstrap.Tooltip) {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
+            new window.bootstrap.Tooltip(el);
+        });
+    }
+
     document.addEventListener('click', function(e) {
         const deleteBtn = e.target.closest('.js-delete-btn');
         if (deleteBtn) {

@@ -14,7 +14,13 @@
             </div>
         @endif
         
-        @if($isOwnedByUser && !request()->routeIs('recipes.my'))
+        @if($isOwnedByUser && data_get($recipe, 'status') === 'pending')
+            <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
+                <span class="badge bg-warning text-dark shadow-sm" data-bs-toggle="tooltip" data-bs-title="Awaiting moderation" style="backdrop-filter: blur(8px);">
+                    <i class="fa-solid fa-clock me-1"></i> Pending
+                </span>
+            </div>
+        @elseif($isOwnedByUser && !request()->routeIs('recipes.my'))
             <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
                 <span class="badge bg-primary shadow-sm" data-bs-toggle="tooltip" data-bs-title="Your recipe" style="backdrop-filter: blur(8px); background: rgba(13, 110, 253, 0.9) !important;">
                     <i class="fa-solid fa-user"></i>
@@ -24,7 +30,16 @@
         
         @if(data_get($recipe, 'is_public') !== null)
             <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
-                <span class="badge {{ data_get($recipe, 'is_public') ? 'bg-success' : 'bg-secondary' }} shadow-sm" data-bs-toggle="tooltip" data-bs-title="{{ data_get($recipe, 'is_public') ? 'Public recipe - visible to everyone' : 'Private recipe - only visible to you' }}" style="backdrop-filter: blur(8px); {{ data_get($recipe, 'is_public') ? 'background: rgba(25, 135, 84, 0.9) !important;' : 'background: rgba(108, 117, 125, 0.9) !important;' }}">
+                @php
+                    $isPublic = (bool) data_get($recipe, 'is_public');
+                    $status = data_get($recipe, 'status');
+                    $visibilityLabel = $isPublic
+                        ? ($status === 'pending'
+                            ? 'Awaiting approval — not visible yet'
+                            : 'Public recipe - visible to everyone')
+                        : 'Private recipe - only visible to you';
+                @endphp
+                <span class="badge {{ $isPublic ? 'bg-success' : 'bg-secondary' }} shadow-sm" data-bs-toggle="tooltip" data-bs-title="{{ $visibilityLabel }}" style="backdrop-filter: blur(8px); {{ $isPublic ? 'background: rgba(25, 135, 84, 0.9) !important;' : 'background: rgba(108, 117, 125, 0.9) !important;' }}">
                     <i class="fa-solid fa-{{ data_get($recipe, 'is_public') ? 'globe' : 'lock' }}"></i>
                 </span>
             </div>

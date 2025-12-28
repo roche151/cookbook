@@ -9,6 +9,7 @@ use App\Models\Tag;
 use App\Models\Direction;
 use App\Models\Ingredient;
 use App\Models\RecipeRating;
+use App\Models\RecipeRevision;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -64,14 +65,17 @@ class RecipesController extends Controller
             $emptyMessage = 'You haven\'t created any recipes yet.';
         } else {
             $query = Recipe::query();
-            // Only show public recipes or recipes owned by the authenticated user
+            // Only show approved public recipes to everyone; include owner's recipes for the logged-in user
             if (Auth::check()) {
                 $query->where(function ($qb) {
-                    $qb->where('is_public', true)
-                        ->orWhere('user_id', Auth::id());
+                    $qb->where(function ($pub) {
+                        $pub->where('status', 'approved')
+                            ->where('is_public', true);
+                    })
+                    ->orWhere('user_id', Auth::id());
                 });
             } else {
-                $query->where('is_public', true);
+                $query->where('status', 'approved')->where('is_public', true);
             }
             $title = 'All Recipes';
             $subtitle = 'Discover and explore delicious recipes';
@@ -184,9 +188,61 @@ class RecipesController extends Controller
 
     public function show(Request $request, Recipe $recipe)
     {
-        // Check if the recipe is private and user is not the owner
-        if (!$recipe->is_public && (!Auth::check() || $recipe->user_id !== Auth::id())) {
-            abort(403, 'This recipe is private.');
+        $isOwner = Auth::check() && $recipe->user_id === Auth::id();
+
+        // Block viewing if not owner and recipe is not approved public
+        if (!$isOwner && (!$recipe->is_public || $recipe->status !== 'approved')) {
+            abort(403, 'This recipe is not available.');
+        }
+
+        // If owner has a pending revision, load that version instead
+        if ($isOwner && $recipe->status === 'pending') {
+            $pendingRevision = $recipe->revisions()->where('status', 'pending')->latest()->first();
+            if ($pendingRevision) {
+                // Temporarily override recipe data with pending revision
+                $proposedData = $pendingRevision->data ?? [];
+                $recipe->title = $proposedData['title'] ?? $recipe->title;
+                $recipe->description = $proposedData['description'] ?? $recipe->description;
+                $recipe->time = $proposedData['time'] ?? $recipe->time;
+                $recipe->difficulty = $proposedData['difficulty'] ?? $recipe->difficulty;
+                $recipe->is_public = $proposedData['is_public'] ?? $recipe->is_public;
+                $recipe->source_url = $proposedData['source_url'] ?? $recipe->source_url;
+                $recipe->image = $proposedData['image'] ?? $recipe->image;
+                
+                // Load tags from proposal
+                if (isset($proposedData['tags'])) {
+                    $tagObjects = collect($proposedData['tags'])->map(function ($tag) {
+                        $tagModel = new \App\Models\Tag();
+                        $tagModel->id = $tag['id'] ?? null;
+                        $tagModel->name = $tag['name'] ?? null;
+                        return $tagModel;
+                    });
+                    $recipe->setRelation('tags', $tagObjects);
+                }
+                
+                // Load ingredients from proposal
+                if (isset($proposedData['ingredients'])) {
+                    $ingredients = collect($proposedData['ingredients'])->map(function ($ing) {
+                        $ingModel = new \App\Models\Ingredient();
+                        $ingModel->name = $ing['name'] ?? null;
+                        $ingModel->amount = $ing['amount'] ?? null;
+                        $ingModel->sort_order = $ing['sort_order'] ?? 0;
+                        return $ingModel;
+                    })->sortBy('sort_order');
+                    $recipe->setRelation('ingredients', $ingredients);
+                }
+                
+                // Load directions from proposal
+                if (isset($proposedData['directions'])) {
+                    $directions = collect($proposedData['directions'])->map(function ($dir) {
+                        $dirModel = new \App\Models\Direction();
+                        $dirModel->body = $dir['body'] ?? null;
+                        $dirModel->sort_order = $dir['sort_order'] ?? 0;
+                        return $dirModel;
+                    })->sortBy('sort_order');
+                    $recipe->setRelation('directions', $directions);
+                }
+            }
         }
 
         // Load collection context if coming from a collection
@@ -197,17 +253,29 @@ class RecipesController extends Controller
                 ->first();
         }
 
+        // Load rejection notes if recipe is rejected
+        $rejectionNotes = null;
+        if ($isOwner && $recipe->status === 'rejected') {
+            $rejectedRevision = $recipe->revisions()
+                ->where('status', 'rejected')
+                ->latest('reviewed_at')
+                ->first();
+            $rejectionNotes = $rejectedRevision?->notes;
+        }
+
         return view('recipes.show', [
             'recipe' => $recipe,
             'fromCollection' => $fromCollection,
+            'rejectionNotes' => $rejectionNotes,
         ]);
     }
 
     public function downloadPdf(Recipe $recipe)
     {
-        // Check if the recipe is private and user is not the owner
-        if (!$recipe->is_public && (!Auth::check() || $recipe->user_id !== Auth::id())) {
-            abort(403, 'This recipe is private.');
+        $isOwner = Auth::check() && $recipe->user_id === Auth::id();
+
+        if (!$isOwner && (!$recipe->is_public || $recipe->status !== 'approved')) {
+            abort(403, 'This recipe is not available.');
         }
 
         $pdf = Pdf::loadView('recipes.pdf', ['recipe' => $recipe])
@@ -496,6 +564,54 @@ class RecipesController extends Controller
         }
 
         $recipe->load('tags');
+        
+        // If there's a pending revision, load its data into the form
+        if ($recipe->status === 'pending') {
+            $pendingRevision = $recipe->revisions()->where('status', 'pending')->latest()->first();
+            if ($pendingRevision) {
+                $proposedData = $pendingRevision->data ?? [];
+                $recipe->title = $proposedData['title'] ?? $recipe->title;
+                $recipe->description = $proposedData['description'] ?? $recipe->description;
+                $recipe->time = $proposedData['time'] ?? $recipe->time;
+                $recipe->difficulty = $proposedData['difficulty'] ?? $recipe->difficulty;
+                $recipe->is_public = $proposedData['is_public'] ?? $recipe->is_public;
+                $recipe->source_url = $proposedData['source_url'] ?? $recipe->source_url;
+                $recipe->image = $proposedData['image'] ?? $recipe->image;
+                
+                // Load tags from proposal - fetch real Tag models from database
+                if (isset($proposedData['tags'])) {
+                    $tagIds = collect($proposedData['tags'])->pluck('id')->filter()->all();
+                    if (!empty($tagIds)) {
+                        $loadedTags = \App\Models\Tag::whereIn('id', $tagIds)->get();
+                        $recipe->setRelation('tags', $loadedTags);
+                    }
+                }
+                
+                // Load ingredients from proposal
+                if (isset($proposedData['ingredients'])) {
+                    $recipe->ingredients = collect($proposedData['ingredients'])->map(function ($ing) {
+                        $ingModel = new \App\Models\Ingredient();
+                        $ingModel->id = null;
+                        $ingModel->name = $ing['name'] ?? null;
+                        $ingModel->amount = $ing['amount'] ?? null;
+                        $ingModel->sort_order = $ing['sort_order'] ?? 0;
+                        return $ingModel;
+                    })->sortBy('sort_order')->values();
+                }
+                
+                // Load directions from proposal
+                if (isset($proposedData['directions'])) {
+                    $recipe->directions = collect($proposedData['directions'])->map(function ($dir) {
+                        $dirModel = new \App\Models\Direction();
+                        $dirModel->id = null;
+                        $dirModel->body = $dir['body'] ?? null;
+                        $dirModel->sort_order = $dir['sort_order'] ?? 0;
+                        return $dirModel;
+                    })->sortBy('sort_order')->values();
+                }
+            }
+        }
+
         $tags = \App\Models\Tag::orderBy('sort_order')->orderBy('name')->get();
         return view('recipes.edit', compact('recipe', 'tags'));
     }
@@ -670,6 +786,10 @@ class RecipesController extends Controller
         $recipe = null;
 
         DB::transaction(function () use ($data, &$recipe) {
+            $isPublic = (bool) ($data['is_public'] ?? false);
+            $status = $isPublic ? 'pending' : 'approved';
+            $approvedAt = $isPublic ? null : now();
+
             $recipe = Recipe::create([
                 'title' => $data['title'],
                 'slug' => \Illuminate\Support\Str::slug($data['title']) . '-' . \Illuminate\Support\Str::random(5),
@@ -678,7 +798,9 @@ class RecipesController extends Controller
                 'difficulty' => $data['difficulty'],
                 'image' => $data['image'] ?? null,
                 'user_id' => Auth::id(),
-                'is_public' => $data['is_public'] ?? false,
+                'is_public' => $isPublic,
+                'status' => $status,
+                'approved_at' => $approvedAt,
                 'source_url' => $data['source_url'] ?? null,
             ]);
             // Attach selected tags
@@ -717,8 +839,16 @@ class RecipesController extends Controller
             }
         });
 
+        // Capture snapshot for moderation when requested public visibility
+        assert($recipe instanceof Recipe);
+        if ($recipe->is_public) {
+            $recipe->load(['tags', 'ingredients', 'directions']);
+            $this->replacePendingRevision($recipe, $this->snapshotRecipe($recipe));
+        }
+
         /** @var \App\Models\Recipe $recipe */
-        return redirect()->route('recipes.show', $recipe)->with('status', 'Recipe created.');
+        $message = $recipe->is_public ? 'Recipe submitted for review. It will go live once approved.' : 'Recipe created.';
+        return redirect()->route('recipes.show', $recipe)->with('status', $message);
     }
 
     public function update(Request $request, Recipe $recipe)
@@ -840,141 +970,176 @@ class RecipesController extends Controller
             return back()->withErrors(['profanity' => 'Please remove profanity from your recipe.'])->withInput();
         }
 
+        $data['tags'] = $data['tags'] ?? [];
+        $isPublic = (bool) ($data['is_public'] ?? false);
+        // If requesting public visibility, always go through moderation (don't update live recipe)
+        // If requesting private, apply changes immediately
+        $applyToLive = !$isPublic;
+
         // Save total minutes into the existing `time` column (as integer)
         $hours = isset($data['time_hours']) ? (int)$data['time_hours'] : 0;
         $minutes = isset($data['time_minutes']) ? (int)$data['time_minutes'] : 0;
         $totalMinutes = ($hours * 60) + $minutes;
         $data['time'] = $totalMinutes > 0 ? $totalMinutes : null;
 
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
-                Storage::disk('public')->delete($recipe->image);
-            }
-            $data['image'] = $request->file('image')->store('recipes', 'public');
-        } elseif ($request->input('existing_temp_image')) {
-            // Move temp image from validation failure to recipes folder
-            $tempPath = $request->input('existing_temp_image');
-            if (Storage::disk('public')->exists($tempPath)) {
-                $newPath = str_replace('temp/', 'recipes/', $tempPath);
-                Storage::disk('public')->move($tempPath, $newPath);
-                // Delete old image if exists
+        $pendingImagePath = null;
+
+        // Handle image upload differently depending on whether we apply to the live record
+        if ($applyToLive) {
+            if ($request->hasFile('image')) {
                 if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
                     Storage::disk('public')->delete($recipe->image);
                 }
-                $data['image'] = $newPath;
+                $data['image'] = $request->file('image')->store('recipes', 'public');
+            } elseif ($request->input('existing_temp_image')) {
+                $tempPath = $request->input('existing_temp_image');
+                if (Storage::disk('public')->exists($tempPath)) {
+                    $newPath = str_replace('temp/', 'recipes/', $tempPath);
+                    Storage::disk('public')->move($tempPath, $newPath);
+                    if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
+                        Storage::disk('public')->delete($recipe->image);
+                    }
+                    $data['image'] = $newPath;
+                }
+            } elseif ($request->boolean('remove_image')) {
+                if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
+                    Storage::disk('public')->delete($recipe->image);
+                }
+                $data['image'] = null;
+            } else {
+                unset($data['image']);
             }
-        } elseif ($request->boolean('remove_image')) {
-            // Explicit remove
-            if ($recipe->image && Storage::disk('public')->exists($recipe->image)) {
-                Storage::disk('public')->delete($recipe->image);
-            }
-            $data['image'] = null;
         } else {
-            // Keep existing image if no new upload or removal
-            unset($data['image']);
+            // Pending-only path: keep current public image intact, but store the proposed image path in the revision snapshot
+            if ($request->hasFile('image')) {
+                $pendingImagePath = $request->file('image')->store('recipes', 'public');
+            } elseif ($request->input('existing_temp_image')) {
+                $tempPath = $request->input('existing_temp_image');
+                if (Storage::disk('public')->exists($tempPath)) {
+                    $newPath = str_replace('temp/', 'recipes/', $tempPath);
+                    Storage::disk('public')->move($tempPath, $newPath);
+                    $pendingImagePath = $newPath;
+                }
+            } elseif ($request->boolean('remove_image')) {
+                $pendingImagePath = null;
+            } else {
+                $pendingImagePath = $recipe->image;
+            }
         }
 
-        DB::transaction(function () use ($data, $recipe) {
-            $updatePayload = [
-                'title' => $data['title'],
-                'description' => $data['description'] ?? null,
-                'time' => $data['time'] ?? null,
-                'difficulty' => $data['difficulty'],
-                'rating' => isset($data['rating']) ? number_format((float)$data['rating'], 1) : null,
-                'is_public' => $data['is_public'] ?? false,
-            ];
+        if ($applyToLive) {
+            DB::transaction(function () use ($data, $recipe, $isPublic) {
+                $updatePayload = [
+                    'title' => $data['title'],
+                    'description' => $data['description'] ?? null,
+                    'time' => $data['time'] ?? null,
+                    'difficulty' => $data['difficulty'],
+                    // Don't change is_public to true on live recipe when requesting moderation
+                    // It should stay private until approved
+                    'status' => $isPublic ? 'pending' : 'approved',
+                    'approved_at' => $isPublic ? null : ($recipe->approved_at ?? now()),
+                ];
 
-            // Only update image if explicitly provided (new upload)
-            if (array_key_exists('image', $data)) {
-                $updatePayload['image'] = $data['image'];
-            }
+                if (array_key_exists('image', $data)) {
+                    $updatePayload['image'] = $data['image'];
+                }
 
-            // Update source_url if provided
-            if (array_key_exists('source_url', $data)) {
-                $updatePayload['source_url'] = $data['source_url'];
-            }
+                if (array_key_exists('source_url', $data)) {
+                    $updatePayload['source_url'] = $data['source_url'];
+                }
 
-            $recipe->update($updatePayload);
+                $recipe->update($updatePayload);
 
-            // Sync tags via pivot
-            $recipe->tags()->sync($data['tags']);
+                // Sync tags via pivot
+                $recipe->tags()->sync($data['tags']);
 
-            // Process directions: create, update, reorder, and delete missing ones.
-            $incoming = collect($data['directions'] ?? []);
-            $incomingIds = $incoming->pluck('id')->filter()->all();
+                // Directions
+                $incoming = collect($data['directions'] ?? []);
+                $incomingIds = $incoming->pluck('id')->filter()->all();
 
-            // Delete directions not present in incoming payload
-            if (!empty($incomingIds)) {
-                $recipe->directions()->whereNotIn('id', $incomingIds)->delete();
-            } else {
-                // If no incoming directions, remove all
-                $recipe->directions()->delete();
-            }
+                if (!empty($incomingIds)) {
+                    $recipe->directions()->whereNotIn('id', $incomingIds)->delete();
+                } else {
+                    $recipe->directions()->delete();
+                }
 
-            $ts = $recipe->updated_at;
+                $ts = now();
 
-            foreach ($incoming as $d) {
-                if (!empty($d['id'])) {
-                    $dir = Direction::where('id', $d['id'])->where('recipe_id', $recipe->id)->first();
-                    if ($dir) {
-                        $dir->body = $d['body'];
-                        $dir->sort_order = isset($d['sort_order']) ? (int)$d['sort_order'] : 0;
+                foreach ($incoming as $d) {
+                    if (!empty($d['id'])) {
+                        $dir = Direction::where('id', $d['id'])->where('recipe_id', $recipe->id)->first();
+                        if ($dir) {
+                            $dir->body = $d['body'];
+                            $dir->sort_order = isset($d['sort_order']) ? (int)$d['sort_order'] : 0;
+                            $dir->timestamps = false;
+                            $dir->created_at = $ts;
+                            $dir->updated_at = $ts;
+                            $dir->save();
+                        }
+                    } else {
+                        $dir = $recipe->directions()->create([
+                            'body' => $d['body'],
+                            'sort_order' => isset($d['sort_order']) ? (int)$d['sort_order'] : 0,
+                        ]);
                         $dir->timestamps = false;
                         $dir->created_at = $ts;
                         $dir->updated_at = $ts;
                         $dir->save();
                     }
-                } else {
-                    $dir = $recipe->directions()->create([
-                        'body' => $d['body'],
-                        'sort_order' => isset($d['sort_order']) ? (int)$d['sort_order'] : 0,
-                    ]);
-                    $dir->timestamps = false;
-                    $dir->created_at = $ts;
-                    $dir->updated_at = $ts;
-                    $dir->save();
                 }
-            }
 
-            // Process ingredients: create, update, reorder, and delete missing ones.
-            $incomingIng = collect($data['ingredients'] ?? []);
-            $incomingIngIds = $incomingIng->pluck('id')->filter()->all();
+                // Ingredients
+                $incomingIng = collect($data['ingredients'] ?? []);
+                $incomingIngIds = $incomingIng->pluck('id')->filter()->all();
 
-            if (!empty($incomingIngIds)) {
-                $recipe->ingredients()->whereNotIn('id', $incomingIngIds)->delete();
-            } else {
-                $recipe->ingredients()->delete();
-            }
+                if (!empty($incomingIngIds)) {
+                    $recipe->ingredients()->whereNotIn('id', $incomingIngIds)->delete();
+                } else {
+                    $recipe->ingredients()->delete();
+                }
 
-            foreach ($incomingIng as $ing) {
-                if (!empty($ing['id'])) {
-                    $it = Ingredient::where('id', $ing['id'])->where('recipe_id', $recipe->id)->first();
-                    if ($it) {
-                        $it->name = $ing['name'];
-                        $it->amount = $ing['amount'] ?? null;
-                        $it->sort_order = isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0;
+                foreach ($incomingIng as $ing) {
+                    if (!empty($ing['id'])) {
+                        $it = Ingredient::where('id', $ing['id'])->where('recipe_id', $recipe->id)->first();
+                        if ($it) {
+                            $it->name = $ing['name'];
+                            $it->amount = $ing['amount'] ?? null;
+                            $it->sort_order = isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0;
+                            $it->timestamps = false;
+                            $it->created_at = $ts;
+                            $it->updated_at = $ts;
+                            $it->save();
+                        }
+                    } else {
+                        $it = $recipe->ingredients()->create([
+                            'name' => $ing['name'],
+                            'amount' => $ing['amount'] ?? null,
+                            'sort_order' => isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0,
+                        ]);
                         $it->timestamps = false;
                         $it->created_at = $ts;
                         $it->updated_at = $ts;
                         $it->save();
                     }
-                } else {
-                    $it = $recipe->ingredients()->create([
-                        'name' => $ing['name'],
-                        'amount' => $ing['amount'] ?? null,
-                        'sort_order' => isset($ing['sort_order']) ? (int)$ing['sort_order'] : 0,
-                    ]);
-                    $it->timestamps = false;
-                    $it->created_at = $ts;
-                    $it->updated_at = $ts;
-                    $it->save();
                 }
-            }
-        });
+            });
 
-        return redirect()->route('recipes.show', $recipe)->with('status', 'Recipe updated.');
+            // When applying to live (private recipes), clear any stale pending revisions
+            $recipe->revisions()->where('status', 'pending')->delete();
+
+            return redirect()->route('recipes.show', $recipe)->with('status', 'Recipe updated.');
+        }
+
+        // Moderation-only path: keep live recipe untouched, store proposed changes in a revision
+        $snapshot = $this->snapshotFromRequest($data, $recipe, $pendingImagePath);
+        $this->replacePendingRevision($recipe, $snapshot);
+        // Don't update is_public on the recipe - it stays at its current value until approved
+        $recipe->update([
+            'status' => 'pending',
+            'approved_at' => null,
+        ]);
+
+        return redirect()->route('recipes.show', $recipe)->with('status', 'Changes submitted for review. Showing last approved version until approval.');
     }
 
     public function destroy(Recipe $recipe)
@@ -994,5 +1159,74 @@ class RecipesController extends Controller
         $recipe->delete();
 
         return redirect()->route('recipes.index')->with('status', 'Recipe deleted.');
+    }
+
+    private function snapshotRecipe(Recipe $recipe): array
+    {
+        $recipe->loadMissing(['tags', 'ingredients', 'directions']);
+
+        return [
+            'title' => $recipe->title,
+            'description' => $recipe->description,
+            'time' => $recipe->time,
+            'difficulty' => $recipe->difficulty,
+            'is_public' => (bool) $recipe->is_public,
+            'source_url' => $recipe->source_url,
+            'image' => $recipe->image,
+            'tags' => $recipe->tags->map(fn ($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+            ])->values()->all(),
+            'ingredients' => $recipe->ingredients->sortBy('sort_order')->values()->map(fn ($ing) => [
+                'name' => $ing->name,
+                'amount' => $ing->amount,
+                'sort_order' => $ing->sort_order,
+            ])->all(),
+            'directions' => $recipe->directions->sortBy('sort_order')->values()->map(fn ($dir) => [
+                'body' => $dir->body,
+                'sort_order' => $dir->sort_order,
+            ])->all(),
+        ];
+    }
+
+    private function snapshotFromRequest(array $data, Recipe $recipe, ?string $imagePath): array
+    {
+        $tags = collect($data['tags'] ?? []);
+        $tagModels = $tags->isNotEmpty() ? Tag::whereIn('id', $tags)->get(['id', 'name']) : collect();
+
+        return [
+            'title' => $data['title'] ?? $recipe->title,
+            'description' => $data['description'] ?? $recipe->description,
+            'time' => $data['time'] ?? $recipe->time,
+            'difficulty' => $data['difficulty'] ?? $recipe->difficulty,
+            'is_public' => (bool) ($data['is_public'] ?? $recipe->is_public),
+            'source_url' => $data['source_url'] ?? $recipe->source_url,
+            'image' => $imagePath,
+            'tags' => $tagModels->map(fn ($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+            ])->values()->all(),
+            'ingredients' => collect($data['ingredients'] ?? [])->sortBy('sort_order')->values()->map(fn ($ing) => [
+                'name' => $ing['name'] ?? null,
+                'amount' => $ing['amount'] ?? null,
+                'sort_order' => isset($ing['sort_order']) ? (int) $ing['sort_order'] : 0,
+            ])->all(),
+            'directions' => collect($data['directions'] ?? [])->sortBy('sort_order')->values()->map(fn ($dir) => [
+                'body' => $dir['body'] ?? null,
+                'sort_order' => isset($dir['sort_order']) ? (int) $dir['sort_order'] : 0,
+            ])->all(),
+        ];
+    }
+
+    private function replacePendingRevision(Recipe $recipe, array $payload): void
+    {
+        $recipe->revisions()->where('status', 'pending')->delete();
+
+        RecipeRevision::create([
+            'recipe_id' => $recipe->id,
+            'user_id' => Auth::id(),
+            'data' => $payload,
+            'status' => 'pending',
+        ]);
     }
 }

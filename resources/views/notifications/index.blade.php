@@ -74,7 +74,7 @@
                     </p>
 
                     @if(!empty($data['notes']))
-                        <div class="alert alert-warning mb-3">
+                        <div class="alert alert-warning mb-3" hidden>
                             <strong><i class="fa-solid fa-comment-dots me-1"></i>Moderator feedback:</strong>
                             <div class="mt-2">{{ $data['notes'] }}</div>
                         </div>
@@ -93,13 +93,6 @@
                                     </button>
                                 </form>
                             @endif
-                            <form action="{{ route('notifications.destroy', $notification->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger" title="Delete notification">
-                                    <i class="fa-solid fa-trash me-1"></i>Delete
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>

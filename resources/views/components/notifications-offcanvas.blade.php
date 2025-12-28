@@ -60,7 +60,7 @@
                     </p>
 
                     @if(!empty($data['notes']))
-                        <div class="alert alert-warning py-2 px-3 mb-2 small">
+                        <div class="alert alert-warning py-2 px-3 mb-2 small" hidden>
                             <strong>Moderator feedback:</strong><br>
                             {{ Str::limit($data['notes'], 150) }}
                         </div>
@@ -83,13 +83,6 @@
                                     </button>
                                 </form>
                             @endif
-                            <form action="{{ route('notifications.destroy', $notification->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger ms-1" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>

@@ -47,21 +47,23 @@
 
     @if(config('app.env') !== 'production')
     <div class="mt-4 pt-3 border-top">
-        <p class="text-muted small mb-2">Quick Login (Testing):</p>
         @php
             $quickUsers = \App\Models\User::orderBy('name')->orderBy('email')->get(['id', 'name', 'email']);
         @endphp
-        @forelse($quickUsers as $user)
-        <form method="POST" action="{{ route('dev.quick-login') }}" class="mb-2">
+        @if($quickUsers->isNotEmpty())
+        <form method="POST" action="{{ route('dev.quick-login') }}" class="d-flex flex-wrap gap-2 align-items-center">
             @csrf
-            <input type="hidden" name="user_id" value="{{ $user->id }}">
-            <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
-                Login as {{ $user->name ?? 'User #'.$user->id }} ({{ $user->email }})
-            </button>
+            <label for="quick-login-user" class="form-label mb-0 text-muted">Login as:</label>
+            <select id="quick-login-user" name="user_id" class="form-select form-select-sm" style="min-width: 240px;">
+                @foreach($quickUsers as $user)
+                    <option value="{{ $user->id }}">{{ $user->name ?? 'User #'.$user->id }} ({{ $user->email }})</option>
+                @endforeach
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Login</button>
         </form>
-        @empty
-            <p class="text-muted small">No users available.</p>
-        @endforelse
+        @else
+            <p class="text-muted small mb-0">No users available.</p>
+        @endif
     </div>
     @endif
 </x-guest-layout>

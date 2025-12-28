@@ -26,7 +26,7 @@
 <body>
     <div class="min-vh-100 d-flex flex-column justify-content-center align-items-center py-5">
         <div class="mb-4">
-            <a href="/" class="text-decoration-none">
+            <a href="/" class="text-decoration-none" style="color: #dee2e6">
                 <h2>{{ config('app.name', 'Laravel') }}</h2>
             </a>
         </div>

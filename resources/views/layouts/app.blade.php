@@ -36,7 +36,7 @@
         @media (max-width: 767.98px) {
             body {
                 flex-direction: column;
-                padding-top: 60px;
+                padding-top: 0;
             }
         }
         

@@ -23,8 +23,8 @@
 @endphp
 
 <!-- Mobile Header -->
-<header class="mobile-header d-md-none bg-body border-bottom sticky-top">
-    <div class="container-fluid px-3 py-2 d-flex align-items-center justify-content-between">
+<header class="mobile-header d-md-none bg-body border-bottom">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
         <a href="{{ url('/') }}" class="d-flex align-items-center text-decoration-none">
             <img src="{{ asset('favicon.svg') }}" alt="Culina" width="32" height="32" class="me-2" style="border-radius: 50%;" />
             <span class="fs-5 fw-bold">{{ config('app.name') }}</span>
@@ -235,6 +235,12 @@
 /* Mobile Header */
 .mobile-header {
     z-index: 1020;
+    position: sticky;
+    top: 0;
+}
+
+.mobile-header .container-fluid {
+    padding: 0.75rem 1rem;
 }
 
 .btn-ghost {

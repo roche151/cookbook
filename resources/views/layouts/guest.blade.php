@@ -12,6 +12,16 @@
     @else
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     @endif
+
+    <style>
+        @media (max-width: 575.98px) {
+            .card[style*="max-width: 450px"] {
+                border: none !important;
+                box-shadow: none !important;
+                background: transparent !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="min-vh-100 d-flex flex-column justify-content-center align-items-center py-5">

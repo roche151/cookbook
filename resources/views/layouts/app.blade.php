@@ -22,28 +22,28 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
     @endif
     <style>
-        /* Sidebar styles */
-        .app-sidebar { width: 250px; }
+        /* Layout structure */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: row;
+        }
+        
+        @media (max-width: 767.98px) {
+            body {
+                flex-direction: column;
+                padding-top: 60px;
+            }
+        }
+        
         .btn-danger {
             background-color: var(--bs-danger) !important;
             border-color: var(--bs-danger) !important;
             color: #fff !important;
-        }
-        @media (min-width: 768px) {
-            body { padding-left: 250px; }
-            .app-sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                overflow-y: auto;
-                z-index: 1030;
-                box-shadow: 2px 0 6px rgba(0,0,0,0.04);
-                background: var(--bs-body-bg, #000);
-            }
-        }
-        @media (max-width: 767.98px) {
-            .app-sidebar { display: none; }
         }
 
         /* Typography improvements */
@@ -212,19 +212,23 @@
         <x-notifications-offcanvas />
     @endauth
 
-    <main class="app-content container mt-4">
-        @if(session('status'))
-            <div class="alert alert-success">{{ session('status') }}</div>
-        @endif
+    <div class="app-content-wrapper flex-grow-1 d-flex flex-column">
+        <main class="app-content flex-grow-1">
+            <div class="container py-4">
+            @if(session('status'))
+                <div class="alert alert-success">{{ session('status') }}</div>
+            @endif
 
-        {{ $slot }}
-    </main>
+                {{ $slot }}
+            </div>
+        </main>
 
-    <footer class="bg-body text-center py-4 mt-5">
-        <div class="container">
-            <small>&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</small>
-        </div>
-    </footer>
+        <footer class="bg-body text-center py-3 border-top mt-auto">
+            <div class="container">
+                <small class="text-muted">&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</small>
+            </div>
+        </footer>
+    </div>
 
     @if (!(file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'))))
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

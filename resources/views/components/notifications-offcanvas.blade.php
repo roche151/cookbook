@@ -94,10 +94,10 @@
             @endforelse
         </div>
 
-        @if($notifications->count() >= 10)
+        @if($notifications->count() > 0)
             <div class="p-3 border-top text-center">
                 <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-outline-primary">
-                    <i class="fa-solid fa-list me-1"></i>View All Notifications
+                    View All
                 </a>
             </div>
         @endif

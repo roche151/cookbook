@@ -17,15 +17,31 @@
             <p class="text-muted mb-0">{{ $subtitle ?? 'Discover and explore delicious recipes' }}</p>
         </div>
 
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-header bg-body-secondary border-0">
-                <button class="btn btn-link text-decoration-none w-100 text-start p-0 d-flex align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="{{ ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc' || ($ratingMin ?? 0) > 0) ? 'true' : 'false' }}" aria-controls="filterCollapse">
-                    <span class="fw-semibold fs-6">Filters</span>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div id="filterCollapse" class="collapse {{ ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc' || ($ratingMin ?? 0) > 0) ? 'show' : '' }}">
-                <div class="card-body p-4">
+        <!-- Filters Modal Trigger Button -->
+        <div class="mb-4">
+            @php
+                $filtersActive = ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc' || ($ratingMin ?? 0) > 0);
+            @endphp
+            <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2 position-relative" data-bs-toggle="modal" data-bs-target="#filtersModal">
+                <i class="fa-solid fa-filter"></i>
+                Filters
+                @if($filtersActive)
+                    <span class="filter-indicator-dot position-absolute top-0 start-100 translate-middle" style="width:14px;height:14px;">
+                        <span class="visually-hidden">Filters applied</span>
+                    </span>
+                @endif
+            </button>
+        </div>
+
+        <!-- Filters Modal -->
+        <div class="modal fade" id="filtersModal" tabindex="-1" aria-labelledby="filtersModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filtersModalLabel"><i class="fa-solid fa-filter me-2 text-primary"></i>Filters</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
                         <form method="GET">
                             <div class="row g-3">
                                 <!-- Search Box -->
@@ -119,7 +135,9 @@
                         </form>
                     </div>
                 </div>
-        </div>
+            </div>
+        </div
+        >
 
         @if($recipes->count())
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -141,11 +159,18 @@
     </div>
 
     <style>
+        .filter-indicator-dot {
+            display: inline-block;
+            background: #dc3545;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            box-shadow: 0 0 0 2px #dc3545;
+        }
         /* Prevent horizontal jump when scrollbar appears */
         html {
             overflow-y: scroll;
         }
-        
         .rating-filter-star {
             font-size: 1.35rem;
             color: #f28c38;
@@ -153,16 +178,13 @@
             display: inline-block;
             vertical-align: middle;
         }
-
         .rating-filter-star:hover {
             transform: none;
         }
-
         .rating-filter-stars {
             gap: 0;
             font-size: 0; /* collapse whitespace between inline elements */
         }
-
         .rating-filter-stars label {
             display: inline-flex;
             align-items: center;
@@ -170,51 +192,13 @@
             margin: 0;
             line-height: 1;
         }
-
         .rating-filter-stars label + label {
             margin-left: 0;
-        }
-
-        /* Smooth collapse animation */
-        #filterCollapse {
-            transition: height 0.3s ease;
-        }
-        
-        [data-bs-toggle="collapse"] .fa-chevron-down {
-            transition: transform 0.3s ease;
-        }
-        [data-bs-toggle="collapse"][aria-expanded="true"] .fa-chevron-down {
-            transform: rotate(180deg);
         }
     </style>
 
     <script type="module">
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if Bootstrap is loaded
-            if (typeof window.bootstrap !== 'undefined') {
-                console.log('Bootstrap is loaded');
-            } else {
-                console.error('Bootstrap is NOT loaded');
-            }
-            
-            // Try to manually initialize the collapse
-            const collapseElement = document.getElementById('filterCollapse');
-            if (collapseElement) {
-                // Remove any existing collapse instance
-                const existingInstance = window.bootstrap?.Collapse?.getInstance(collapseElement);
-                if (existingInstance) {
-                    existingInstance.dispose();
-                }
-                
-                // Create new instance
-                if (window.bootstrap?.Collapse) {
-                    new window.bootstrap.Collapse(collapseElement, {
-                        toggle: false
-                    });
-                    console.log('Collapse initialized');
-                }
-            }
-
             // Rating filter interaction (single row of stars + clear)
             const ratingInputs = document.querySelectorAll('.rating-filter-input');
             const clearButton = document.querySelector('.rating-clear');

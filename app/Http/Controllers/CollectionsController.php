@@ -18,7 +18,8 @@ class CollectionsController extends Controller
      */
     public function index()
     {
-        $collections = Auth::user()->collections()
+
+        $collections = Collection::where('user_id', Auth::id())
             ->with(['recipes' => function ($query) {
                 $query->limit(4);
             }])
@@ -277,7 +278,7 @@ class CollectionsController extends Controller
      */
     public function forRecipe(Recipe $recipe)
     {
-        $collections = Auth::user()->collections()
+        $collections = Collection::where('user_id', Auth::id())
             ->orderBy('name')
             ->get()
             ->map(function ($collection) use ($recipe) {

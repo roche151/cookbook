@@ -35,7 +35,10 @@ Route::get('/recipes', [RecipesController::class, 'index'])->name('recipes.index
 Route::get('/recipes/{recipe}/pdf', [RecipesController::class, 'downloadPdf'])->name('recipes.pdf');
 
 // Protected recipe routes (must be logged in and verified email) - define /create BEFORE /{recipe}
+use App\Http\Controllers\FeedbackController;
 Route::middleware(['auth', 'verified'])->group(function () {
+        // Feedback creation route
+        Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::get('/dashboard', function () {
         return redirect()->route('recipes.my');
     })->name('dashboard');
@@ -82,6 +85,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin-only area
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Admin view all feedback
+        Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
         Route::get('/', [AdminController::class, 'index'])->name('index');
         // Recipe moderation
         Route::get('/moderation/recipes', [RecipeModerationController::class, 'index'])->name('moderation.recipes.index');

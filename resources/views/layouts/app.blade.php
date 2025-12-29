@@ -218,9 +218,46 @@
             @if(session('status'))
                 <div class="alert alert-success">{{ session('status') }}</div>
             @endif
-
                 {{ $slot }}
             </div>
+            @auth
+                {{-- feedback button fixed in bottom right corner --}}
+                <button class="btn btn-primary position-fixed bottom-0 end-0 m-4" data-toggle="tooltip" data-bs-toggle="modal" data-bs-target="#feedbackModal" title="Feedback" style="z-index: 1050;">
+                    <i class="fas fa-comments"></i>
+                </button>
+                {{-- feedback modal --}}
+                <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="feedbackModalLabel"><i class="fa-solid fa-comments me-2 text-primary"></i>Feedback</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('feedback.store') }}">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="feedbackType" class="form-label">Type</label>
+                                        <select name="type" id="feedbackType" class="form-select" required>
+                                            <option value="" disabled selected>Please select</option>
+                                            <option value="bug">Bug Report</option>
+                                            <option value="feature">Feature Request</option>
+                                            <option value="general">General Feedback</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="feedbackMessage" class="form-label">Your Feedback</label>
+                                        <textarea class="form-control" id="feedbackMessage" name="message" rows="5" required></textarea>
+                                    </div>
+                                    <div class="mb-3 text-end">
+                                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endauth
         </main>
 
         <footer class="bg-body text-center py-3 border-top mt-auto">
@@ -318,6 +355,60 @@
                     });
             });
         }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const feedbackForm = document.querySelector('#feedbackModal form');
+        if (!feedbackForm) return;
+
+        feedbackForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(feedbackForm);
+            fetch(feedbackForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': formData.get('_token'),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('feedbackModal'));
+                if (modal) modal.hide();
+
+                // Show toast
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification';
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: var(--bs-success);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    animation: slideInUp 0.3s ease;
+                    z-index: 1050;
+                `;
+                toast.innerHTML = '<i class="fa-solid fa-check-circle me-2"></i>' + (data.message || 'Feedback submitted!');
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'slideInUp 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+
+                feedbackForm.reset();
+            })
+            .catch(() => {
+                alert('There was an error submitting your feedback.');
+            });
+        });
+    });
     </script>
     @stack('scripts')
 </body>

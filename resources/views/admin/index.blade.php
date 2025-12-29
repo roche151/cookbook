@@ -52,7 +52,11 @@
                         <div class="d-flex align-items-center mb-2">
                             <i class="fa-solid fa-comments text-primary me-2"></i>
                             <h5 class="mb-0">Feedback</h5>
-                            <span class="badge bg-danger ms-2">{{ $feedbackCount }}</span>
+                            @if($feedbackCount > 0)
+                                <span class="badge bg-danger text-dark ms-2">{{ $feedbackCount }}</span>
+                            @else
+                                <span class="badge bg-success ms-2">0</span>
+                            @endif
                         </div>
                         <p class="text-muted mb-3">View user feedback and suggestions.</p>
                         <a href="{{ route('admin.feedback.index') }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye me-1"></i>View</a>

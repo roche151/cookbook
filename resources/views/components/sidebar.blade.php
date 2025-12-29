@@ -120,17 +120,19 @@
                     </a>
                 </div>
             @else
-                <button id="themeToggleMobile" class="mobile-action-btn" type="button">
-                    <i class="fa-regular fa-sun"></i>
-                    <span>Theme</span>
-                </button>
-                <form action="{{ route('logout') }}" method="POST" class="mt-2">
-                    @csrf
-                    <button type="submit" class="mobile-action-btn logout-btn w-100">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
+                <div class="d-flex gap-2">
+                    <button id="themeToggleMobile" class="mobile-action-btn w-50" type="button">
+                        <i class="fa-regular fa-sun"></i>
+                        <span>Theme</span>
                     </button>
-                </form>
+                    <form action="{{ route('logout') }}" method="POST" class="m-0 p-0 w-50">
+                        @csrf
+                        <button type="submit" class="mobile-action-btn logout-btn w-100">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
             @endguest
         </div>
     </div>

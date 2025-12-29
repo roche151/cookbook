@@ -74,7 +74,7 @@
                                         <i class="fa-solid fa-star me-1 text-primary"></i>Minimum Rating
                                     </label>
                                     @php $ratingMinValue = (int) ($ratingMin ?? 0); @endphp
-                                    <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="rating-filter-stars d-flex align-items-center" role="radiogroup" aria-label="Minimum rating">
                                             <input type="radio" name="rating_min" value="0" class="d-none rating-filter-input rating-reset" {{ $ratingMinValue === 0 ? 'checked' : '' }}>
                                             @for($i = 1; $i <= 5; $i++)
@@ -84,7 +84,7 @@
                                                 </label>
                                             @endfor
                                         </div>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary rating-clear" {{ $ratingMinValue === 0 ? 'disabled' : '' }}>Any rating</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary rating-clear" {{ $ratingMinValue === 0 ? 'disabled' : '' }}>Clear</button>
                                     </div>
                                 </div>
 

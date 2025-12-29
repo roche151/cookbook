@@ -62,7 +62,7 @@ class RecipesController extends Controller
             $query = Recipe::where('user_id', Auth::id());
             $title = 'My Recipes';
             $subtitle = 'View and manage all your created recipes';
-            $emptyMessage = 'You haven\'t created any recipes yet.';
+            $emptyMessage = 'No recipes found.';
         } else {
             $query = Recipe::query();
             // Only show approved public recipes to everyone; include owner's recipes for the logged-in user

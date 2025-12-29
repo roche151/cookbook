@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="title">Shopping List</x-slot>
 
-    <div class="container py-5">
+    <div class="container py-md-5">
         <div class="mb-4">
             <h1 class="h3 mb-2"><i class="fa-solid fa-cart-shopping me-2 text-primary"></i>Shopping List</h1>
             <p class="text-muted mb-0">Add items, mark them done, and manage your list.</p>

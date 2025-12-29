@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="title">Create Recipe</x-slot>
 
-    <div class="container py-5">
+    <div class="container py-md-5">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>

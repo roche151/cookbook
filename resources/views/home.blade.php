@@ -3,7 +3,7 @@
 
     <!-- Hero Section -->
     <div class="bg-dark bg-opacity-10 border-bottom">
-        <div class="container py-5">
+        <div class="container py-md-5">
             <div class="row align-items-center g-5">
                 <div class="col-lg-6">
                     <h1 class="display-4 fw-bold mb-3">{{ config('app.name', 'Cookbook') }}</h1>

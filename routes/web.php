@@ -83,10 +83,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin-only area
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('index');
+        // Recipe moderation
         Route::get('/moderation/recipes', [RecipeModerationController::class, 'index'])->name('moderation.recipes.index');
         Route::get('/moderation/recipes/{revision}', [RecipeModerationController::class, 'show'])->name('moderation.recipes.show');
         Route::post('/moderation/recipes/{revision}/approve', [RecipeModerationController::class, 'approve'])->name('moderation.recipes.approve');
         Route::post('/moderation/recipes/{revision}/reject', [RecipeModerationController::class, 'reject'])->name('moderation.recipes.reject');
+        // User management
+        Route::get('/users', [AdminController::class, 'listUsers'])->name('users.index');
+        Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
+        Route::patch('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+        Route::patch('/users/{user}/toggle-verified', [AdminController::class, 'toggleVerified'])->name('users.toggle-verified');
     });
 });
 

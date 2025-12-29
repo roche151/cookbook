@@ -13,6 +13,7 @@
         <p class="text-muted mb-4">Quick links to admin tools.</p>
 
         <div class="row g-3">
+            {{-- Moderation --}}
             <div class="col-md-6">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
@@ -27,6 +28,20 @@
                         </div>
                         <p class="text-muted mb-3">Review public recipe submissions before they go live.</p>
                         <a href="{{ route('admin.moderation.recipes.index') }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye me-1"></i>View</a>
+                    </div>
+                </div>
+            </div>
+            {{-- Users Management --}}
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-users-cog text-primary me-2"></i>
+                            <h5 class="mb-0">Users</h5>
+                            <span class="badge bg-success ms-2"> {{ $usersCount }}</span>
+                        </div>
+                        <p class="text-muted mb-3">Manage user accounts and permissions.</p>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye me-1"></i>View</a>
                     </div>
                 </div>
             </div>

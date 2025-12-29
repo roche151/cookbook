@@ -82,19 +82,19 @@
                                         </h5>
                                     </div>
                                     <div class="dropdown flex-shrink-0">
-                                        <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-sm btn-secondary-outline text-muted" type="button" data-bs-toggle="dropdown">
                                             <i class="fa-solid fa-ellipsis-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
                                                 <button class="dropdown-item" type="button" onclick="editCollection('{{ $collection->id }}', '{{ addslashes($collection->name) }}', '{{ addslashes($collection->description ?? '') }}')">
-                                                    <i class="fa-solid fa-edit me-2"></i>Edit
+                                                    <i class="fa-solid fa-edit me-2"></i>Edit Collection
                                                 </button>
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
                                                 <button class="dropdown-item text-danger" type="button" onclick="deleteCollection('{{ $collection->slug }}', '{{ addslashes($collection->name) }}')">
-                                                    <i class="fa-solid fa-trash me-2"></i>Delete
+                                                    <i class="fa-solid fa-trash me-2"></i>Delete Collection
                                                 </button>
                                             </li>
                                         </ul>

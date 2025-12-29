@@ -10,7 +10,7 @@
             </ol>
         </nav>
 
-        <div class="d-flex justify-content-between align-items-start mb-4">
+        <div class="d-flex align-items-start gap-2 mb-4">
             <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <i class="fa-solid fa-layer-group text-primary"></i>

@@ -45,6 +45,20 @@
                     </div>
                 </div>
             </div>
+            {{-- Feedback --}}
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-comments text-primary me-2"></i>
+                            <h5 class="mb-0">Feedback</h5>
+                            <span class="badge bg-danger ms-2">{{ $feedbackCount }}</span>
+                        </div>
+                        <p class="text-muted mb-3">View user feedback and suggestions.</p>
+                        <a href="{{ route('admin.feedback.index') }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-eye me-1"></i>View</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

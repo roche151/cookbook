@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\RecipeRevision;
 use App\Models\User;
+use App\Models\Feedback;
 
 class AdminController extends Controller
 {
@@ -12,8 +13,9 @@ class AdminController extends Controller
     {
         $pendingCount = RecipeRevision::where('status', 'pending')->count();
         $usersCount = User::count();
-        
-        return view('admin.index', compact('pendingCount', 'usersCount'));
+        $feedbackCount = Feedback::count();
+
+        return view('admin.index', compact('pendingCount', 'usersCount', 'feedbackCount'));
     }
 
     public function listUsers()
@@ -45,5 +47,11 @@ class AdminController extends Controller
         $user->save();
 
         return redirect()->route('admin.users.show', $user)->with('success', 'User email verification status updated.');
+    }
+
+    public function viewFeedback()
+    {
+        $feedback = Feedback::with('user')->orderBy('created_at', 'desc')->paginate(20);
+        return view('admin.feedback.index', compact('feedback'));
     }
 }

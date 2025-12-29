@@ -98,6 +98,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
         Route::patch('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
         Route::patch('/users/{user}/toggle-verified', [AdminController::class, 'toggleVerified'])->name('users.toggle-verified');
+        // Feedback
+        Route::get('/feedback', [AdminController::class, 'viewFeedback'])->name('feedback.index');
     });
 });
 

@@ -150,7 +150,7 @@
 
     <!-- Quick Actions -->
     <div class="sidebar-actions">
-        <button id="themeToggle" class="action-btn" type="button" title="Toggle theme">
+        <button id="themeToggle" class="action-btn" type="button" title="Theme" data-bs-toggle="tooltip">
             <i class="fa-regular fa-sun"></i>
             <span class="action-text">Theme</span>
         </button>
@@ -162,24 +162,25 @@
                 } catch (\Exception $e) {}
             @endphp
                 <button class="action-btn position-relative" 
-                        type="button" 
-                        data-bs-toggle="offcanvas" 
-                        data-bs-target="#notificationsOffcanvas"
-                        title="Notifications">
-                    <i class="fa-solid fa-bell"></i>
-                    @if($unreadCount > 0)
-                        <span class="notification-badge">{{ $unreadCount }}</span>
-                    @endif
-                    <span class="action-text">Alerts</span>
+                    type="button" 
+                    data-bs-toggle="offcanvas" 
+                    data-bs-target="#notificationsOffcanvas">
+                    <span title="Alerts" data-bs-toggle="tooltip">
+                        <i class="fa-solid fa-bell"></i>
+                        @if($unreadCount > 0)
+                            <span class="notification-badge">{{ $unreadCount }}</span>
+                        @endif
+                        <span class="action-text">Alerts</span>
+                    </span>
                 </button>
-            @else
+        @else
                 <a class="action-btn position-relative text-decoration-none" 
-                        type="button"
-                        title="Notifications"
-                        href="{{ route('login') }}">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="action-text">Alerts</span>
-                </a>
+                    type="button"
+                    title="Alerts" data-bs-toggle="tooltip"
+                    href="{{ route('login') }}">
+                <i class="fa-solid fa-bell"></i>
+                <span class="action-text">Alerts</span>
+            </a>
         @endauth
     </div>
 
@@ -199,7 +200,7 @@
                 $href = $resolveHref($link);
                 $active = $isActiveLink($link, $href);
             @endphp
-            <a class="nav-item {{ $active ? 'active' : '' }}" href="{{ $href }}">
+            <a class="nav-item {{ $active ? 'active' : '' }}" href="{{ $href }}" title="{{ $link['label'] }}" data-bs-toggle="tooltip">
                 @if(!empty($link['icon']))
                     <span class="nav-icon">{!! $link['icon'] !!}</span>
                 @elseif(!empty($link['icon_class']))
@@ -214,15 +215,15 @@
     <div class="sidebar-footer">
         @guest
             <div class="d-grid gap-2">
-                <a href="{{ route('login') }}" class="btn btn-primary btn-sm w-100">
+                <a href="{{ route('login') }}" class="btn btn-primary btn-sm w-100" data-bs-toggle="tooltip" title="Login">
                     <i class="fa-solid fa-right-to-bracket me-2"></i>Login
                 </a>
-                <a href="{{ route('register') }}" class="btn btn-outline-primary btn-sm w-100">
+                <a href="{{ route('register') }}" class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="tooltip" title="Register">
                     <i class="fa-solid fa-user-plus me-2"></i>Register
                 </a>
             </div>
         @else
-            <a href="{{ route('profile.edit') }}" class="user-info">
+            <a href="{{ route('profile.edit') }}" class="user-info" data-bs-toggle="tooltip" title="Profile">
                 <div class="avatar-circle bg-primary">
                     <span class="text-white fw-bold">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                 </div>
@@ -233,8 +234,8 @@
             </a>
             <form action="{{ route('logout') }}" method="POST" class="mt-2">
                 @csrf
-                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                    <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                <button type="submit" class="btn btn-outline-danger btn-sm w-100"  title="Logout" data-bs-toggle="tooltip">
+                    <i class="fa-solid fa-right-from-bracket"></i><span class="ms-2 logout-text">Logout</span>
                 </button>
             </form>
         @endguest
@@ -275,6 +276,35 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+/* smaller non-mobile screens reduce sidebar width */
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        width: 100px;
+        min-width: 100px;
+    }
+    .action-text {
+        display: none;
+    }
+    .nav-item {
+        margin: 0 auto;
+    }
+    .nav-text {
+        display: none;
+    }
+    .brand-text {
+        display: none;
+    }
+    .sidebar-header img {
+        margin: 0 auto;
+    }
+    .sidebar-actions {
+        flex-direction: column;
+    }
+    .logout-text {
+        display: none;
+    }
 }
 
 .sidebar-header {

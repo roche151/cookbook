@@ -1039,7 +1039,11 @@ class RecipesController extends Controller
                     'status' => $isPublic ? 'pending' : 'approved',
                     'approved_at' => $isPublic ? null : ($recipe->approved_at ?? now()),
                 ];
-
+                
+                // Allow making public -> private (but not private -> public directly)
+                if ($recipe->is_public && !$isPublic) {
+                    $updatePayload['is_public'] = false;
+                }
                 if (array_key_exists('image', $data)) {
                     $updatePayload['image'] = $data['image'];
                 }

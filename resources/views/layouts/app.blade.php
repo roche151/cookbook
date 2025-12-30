@@ -417,5 +417,6 @@
     });
     </script>
     @stack('scripts')
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1245755810726015" crossorigin="anonymous"></script>
 </body>
 </html>

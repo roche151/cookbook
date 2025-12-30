@@ -9,7 +9,13 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cookbook">
-    <title>{{ $title ?? config('app.name', 'Laravel') }}</title>
+    <title>
+        @if (in_array($title, ['Home']))
+            {{ config('app.name', 'Laravel') }}
+        @else
+            {{ $title }} | {{ config('app.name', 'Laravel') }}
+        @endif
+    </title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     
     {{ $head ?? '' }}

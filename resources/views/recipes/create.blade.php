@@ -136,10 +136,30 @@
                 if (servesEl) servesEl.value = data.serves;
             }
             
-            // Populate difficulty if exists
-            const diffEl = getInput('difficulty', 'difficulty');
-            if (data.difficulty && diffEl) {
-                diffEl.value = data.difficulty;
+            // Populate difficulty if exists, with mapping for synonyms
+            const diffEl = document.getElementById('difficulty');
+            if (diffEl) {
+                console.log('Raw difficulty from API:', data.difficulty);
+                const map = {
+                    'beginner': 'easy',
+                    'simple': 'easy',
+                    'basic': 'easy',
+                    'quick': 'easy',
+                    'moderate': 'medium',
+                    'intermediate': 'medium',
+                    'average': 'medium',
+                    'challenging': 'hard',
+                    'advanced': 'hard',
+                    'expert': 'hard',
+                    'difficult': 'hard',
+                };
+                let difficultyNorm = data.difficulty ? String(data.difficulty).toLowerCase().replace(/[^a-z]/g, '') : '';
+                let mapped = map[difficultyNorm] || (['easy','medium','hard'].includes(difficultyNorm) ? difficultyNorm : '');
+                console.log('Mapped difficulty:', mapped);
+                if (mapped) {
+                    diffEl.value = mapped;
+                    diffEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             }
             
             // Populate image if URL provided

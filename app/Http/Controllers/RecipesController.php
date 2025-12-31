@@ -323,10 +323,65 @@ class RecipesController extends Controller
             $url = $request->input('url');
             $response = Http::timeout(10)->get($url);
             $html = $response->body();
-            
+
+
             // Parse JSON-LD structured data
             $recipe = $this->parseJsonLD($html);
-            
+
+
+            // Try to extract difficulty from JSON-LD first
+            $difficulty = null;
+            if ($recipe && isset($recipe['difficulty'])) {
+                $difficulty = strtolower(trim($recipe['difficulty']));
+            }
+
+            // If not found, try to extract from HTML for BBC Good Food and similar
+            if (!$difficulty) {
+                // BBC Good Food: <section class="recipe-details__item--skill-level"> ... <div>Easy</div> ... </section>
+                $skillMatch = null;
+                if (preg_match('/<section[^>]*class=[\'\"]?[^\'\">]*recipe-details__item--skill-level[^\'\">]*[\'\"]?[^>]*>.*?<div[^>]*>(.*?)<\/div>/is', $html, $skillMatch)) {
+                    \Log::info('BBC Good Food skill-level match', ['match' => $skillMatch[0] ?? '', 'value' => $skillMatch[1] ?? '']);
+                    $difficulty = strtolower(trim(strip_tags($skillMatch[1])));
+                } elseif (preg_match('/<meta[^>]+name=["\']?skill-level["\']?[^>]+content=["\']?([^"\'>]+)["\']?/i', $html, $metaMatch)) {
+                    \Log::info('BBC Good Food meta skill-level match', ['meta' => $metaMatch[0] ?? '', 'value' => $metaMatch[1] ?? '']);
+                    $difficulty = strtolower(trim($metaMatch[1]));
+                } elseif (preg_match('/\b(easy|medium|hard)\b/i', $html, $textMatch)) {
+                    \Log::info('BBC Good Food text skill-level match', ['text' => $textMatch[0] ?? '']);
+                    $difficulty = strtolower(trim($textMatch[1]));
+                } elseif (preg_match('/<span[^>]*>\s*Easy\s*<\/span>/i', $html)) {
+                    $difficulty = 'easy';
+                } elseif (preg_match('/<span[^>]*>\s*Medium\s*<\/span>/i', $html)) {
+                    $difficulty = 'medium';
+                } elseif (preg_match('/<span[^>]*>\s*Hard\s*<\/span>/i', $html)) {
+                    $difficulty = 'hard';
+                } elseif (preg_match('/<span[^>]*class=["\']difficulty["\'][^>]*>(.*?)<\/span>/i', $html, $diffMatch)) {
+                    $difficulty = strtolower(trim($diffMatch[1]));
+                }
+            }
+
+            // Map common synonyms to allowed values
+            if ($difficulty) {
+                $map = [
+                    'beginner' => 'easy',
+                    'simple' => 'easy',
+                    'basic' => 'easy',
+                    'quick' => 'easy',
+                    'moderate' => 'medium',
+                    'intermediate' => 'medium',
+                    'average' => 'medium',
+                    'challenging' => 'hard',
+                    'advanced' => 'hard',
+                    'expert' => 'hard',
+                    'difficult' => 'hard',
+                ];
+                $difficultyNorm = preg_replace('/[^a-z]/', '', strtolower($difficulty));
+                if (isset($map[$difficultyNorm])) {
+                    $difficulty = $map[$difficultyNorm];
+                } elseif (!in_array($difficulty, ['easy', 'medium', 'hard'])) {
+                    $difficulty = null;
+                }
+            }
+
             if (!$recipe) {
                 // Log failed import to database
                 \App\Models\FailedRecipeImport::create([
@@ -336,15 +391,18 @@ class RecipesController extends Controller
                     'http_status' => $response->status(),
                     'details' => null,
                 ]);
-                
                 return response()->json(['message' => 'Could not find recipe data on this page'], 422);
             }
-            
+
             if ($recipe) {
                 $recipe['sourceUrl'] = $url;
+                // Always include difficulty for debugging
+                $recipe['difficulty'] = $difficulty;
             }
+            // Log for debugging
+            \Log::info('Recipe import debug', ['difficulty' => $difficulty, 'url' => $url]);
             return response()->json($recipe);
-            
+
         } catch (\Exception $e) {
             // Log failed import to database
             \App\Models\FailedRecipeImport::create([
@@ -354,7 +412,6 @@ class RecipesController extends Controller
                 'http_status' => null,
                 'details' => $e->getTraceAsString(),
             ]);
-            
             return response()->json(['message' => 'Failed to fetch recipe: ' . $e->getMessage()], 500);
         }
     }

@@ -208,7 +208,7 @@
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-signal me-1 text-primary"></i>Difficulty Level
         </label>
-        <select name="difficulty" class="form-select" required>
+        <select name="difficulty" id="difficulty" class="form-select" required>
             <option value="">Select difficulty</option>
             <option value="easy" {{ old('difficulty', optional($recipe)->difficulty) === 'easy' ? 'selected' : '' }}>● Easy - Perfect for beginners</option>
             <option value="medium" {{ old('difficulty', optional($recipe)->difficulty) === 'medium' ? 'selected' : '' }}>●● Medium - Some experience needed</option>

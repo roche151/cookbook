@@ -106,6 +106,12 @@
             @if($displayTime)
                 <i class="fa-regular fa-clock" style="font-size: 0.75rem;"></i> {{ $displayTime }}
             @endif
+            @if($recipe->serves)
+                <span class="mx-1">·</span>
+                <span data-bs-toggle="tooltip" title="Serves {{ e($recipe->serves) }}">
+                    <i class="fa-solid fa-user-group" style="font-size: 0.75rem;"></i> {{ $recipe->serves }}
+                </span>
+            @endif
             @if($recipe->difficulty)
                 <span class="mx-1">·</span>
                 <span style="letter-spacing: 1px;">

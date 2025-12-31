@@ -626,6 +626,7 @@ class RecipesController extends Controller
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
             'time_minutes' => 'nullable|integer|min:0|max:59',
+            'serves' => 'nullable|integer|min:1',
             'difficulty' => 'required|in:easy,medium,hard',
             'tags' => 'nullable|array',
             'directions' => 'required|array|min:1',
@@ -795,6 +796,7 @@ class RecipesController extends Controller
                 'slug' => \Illuminate\Support\Str::slug($data['title']) . '-' . \Illuminate\Support\Str::random(5),
                 'description' => $data['description'] ?? null,
                 'time' => $data['time'] ?? null,
+                'serves' => $data['serves'] ?? null,
                 'difficulty' => $data['difficulty'],
                 'image' => $data['image'] ?? null,
                 'user_id' => Auth::id(),
@@ -866,6 +868,7 @@ class RecipesController extends Controller
             // individual fields nullable numeric; combined time error added below
             'time_hours' => 'nullable|integer|min:0',
             'time_minutes' => 'nullable|integer|min:0|max:59',
+            'serves' => 'nullable|integer|min:1',
             'difficulty' => 'required|in:easy,medium,hard',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
@@ -1033,6 +1036,7 @@ class RecipesController extends Controller
                     'title' => $data['title'],
                     'description' => $data['description'] ?? null,
                     'time' => $data['time'] ?? null,
+                    'serves' => $data['serves'] ?? null,
                     'difficulty' => $data['difficulty'],
                     // Don't change is_public to true on live recipe when requesting moderation
                     // It should stay private until approved

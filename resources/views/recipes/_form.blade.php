@@ -192,6 +192,20 @@
 
     <div class="col-md-6">
         <label class="form-label fw-semibold">
+            <i class="fa-solid fa-users me-1 text-primary"></i>Serves <span class="text-muted fw-normal">(optional)</span>
+        </label>
+        @php
+            $servesOld = old('serves');
+            $serves = $servesOld !== null ? $servesOld : (optional($recipe)->serves ?? '');
+        @endphp
+        <input name="serves" type="number" min="1" class="form-control" value="{{ $serves }}" placeholder="4" aria-label="Serves">
+        @if($errors->has('serves'))
+            <div class="text-danger small mt-1">{{ $errors->first('serves') }}</div>
+        @endif
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">
             <i class="fa-solid fa-signal me-1 text-primary"></i>Difficulty Level
         </label>
         <select name="difficulty" class="form-select" required>

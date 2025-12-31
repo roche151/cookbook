@@ -16,6 +16,7 @@ class Recipe extends Model
         'description',
         'image',
         'time',
+        'serves',
         'user_id',
         'is_public',
         'status',

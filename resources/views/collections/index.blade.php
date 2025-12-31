@@ -47,7 +47,14 @@
                                         @foreach($recipes as $recipe)
                                             <div class="flex-grow-1 position-relative overflow-hidden thumbnail-item">
                                                 @if($recipe->image)
-                                                    <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="w-100 h-100" style="object-fit: cover;">
+                                                    <img src="{{ Str::startsWith($recipe->image, ['http://', 'https://']) ? $recipe->image : Storage::url($recipe->image) }}"
+                                                        alt="{{ $recipe->title }}" class="w-100 h-100" style="object-fit: cover;"
+                                                        onerror="if(this.parentNode){
+                                                            var fallback = document.createElement('div');
+                                                            fallback.className = 'w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white';
+                                                            fallback.innerHTML = '<i class=\'fa-solid fa-image\' style=\'font-size: 2rem; opacity: 0.5;\'></i>';
+                                                            this.parentNode.replaceChild(fallback, this);
+                                                        }">
                                                 @else
                                                     <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary text-white">
                                                         <i class="fa-solid fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
@@ -189,8 +196,8 @@
     <style>
         .collection-thumbnails {
             display: grid;
-            gap: 1px;
-            background-color: #e9ecef;
+            gap: 2px;
+            background-color: #23272f;
         }
 
         /* 1 image: full size */

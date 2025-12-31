@@ -279,7 +279,7 @@
 }
 
 /* smaller non-mobile screens reduce sidebar width */
-@media (max-width: 991.98px) {
+@media (min-width: 768px) and (max-width: 991.98px) {
     .app-sidebar {
         width: 100px;
         min-width: 100px;

@@ -533,10 +533,30 @@ class RecipesController extends Controller
             }
         }
         
+        // Extract serves/yield
+        $serves = null;
+        if (isset($json['recipeYield'])) {
+            // recipeYield can be a string like "Serves 4" or just a number
+            $yield = is_array($json['recipeYield']) ? reset($json['recipeYield']) : $json['recipeYield'];
+            if (is_numeric($yield)) {
+                $serves = (int)$yield;
+            } elseif (preg_match('/\d+/', $yield, $matches)) {
+                $serves = (int)$matches[0];
+            }
+        } elseif (isset($json['yield'])) {
+            $yield = is_array($json['yield']) ? reset($json['yield']) : $json['yield'];
+            if (is_numeric($yield)) {
+                $serves = (int)$yield;
+            } elseif (preg_match('/\d+/', $yield, $matches)) {
+                $serves = (int)$matches[0];
+            }
+        }
+
         return [
             'title' => $json['name'] ?? '',
             'description' => $json['description'] ?? '',
             'time' => $time,
+            'serves' => $serves,
             'ingredients' => $ingredients,
             'directions' => $directions,
             'imageUrl' => $imageUrl,

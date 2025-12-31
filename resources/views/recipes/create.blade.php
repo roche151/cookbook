@@ -129,6 +129,12 @@
                 if (hoursEl) hoursEl.value = hours;
                 if (minsEl) minsEl.value = minutes;
             }
+
+            // Populate serves
+            if (data.serves != null) {
+                const servesEl = getInput('serves', 'serves');
+                if (servesEl) servesEl.value = data.serves;
+            }
             
             // Populate difficulty if exists
             const diffEl = getInput('difficulty', 'difficulty');

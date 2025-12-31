@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Str; @endphp
 <div class="card h-100 shadow-sm">
     @php
         $image = data_get($recipe, 'image');
@@ -7,7 +8,17 @@
     @endphp
     <div style="position: relative; overflow: hidden; border-radius: calc(0.375rem - 1px) calc(0.375rem - 1px) 0 0;">
         @if($image)
-            <img src="{{ Storage::url($image) }}" class="card-img-top" alt="{{ data_get($recipe, 'title') }}" style="height: 200px; object-fit: cover;">
+              <img src="{{ Str::startsWith($image, ['http://', 'https://']) ? $image : Storage::url($image) }}"
+                  class="card-img-top" alt="{{ data_get($recipe, 'title') }}"
+                  style="height: 200px; object-fit: cover;"
+                  onerror="if(this.parentNode){
+                    var fallback = document.createElement('div');
+                    fallback.className = 'card-img-top d-flex align-items-center justify-content-center bg-secondary bg-opacity-25';
+                    fallback.style.height = '200px';
+                    fallback.style.width = '100%';
+                    fallback.innerHTML = '<i class=\'fa-regular fa-image text-muted\' style=\'font-size: 3rem; opacity: 0.5;\'></i>';
+                    this.parentNode.replaceChild(fallback, this);
+                  }">
         @else
             <div class="card-img-top d-flex align-items-center justify-content-center bg-secondary bg-opacity-25" style="height: 200px;">
                 <i class="fa-regular fa-image text-muted" style="font-size: 3rem; opacity: 0.5;"></i>

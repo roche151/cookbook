@@ -183,7 +183,14 @@
 
                 @if($recipe->image)
                     <div class="mb-4">
-                        <img src="{{ Storage::url($recipe->image) }}" alt="{{ $recipe->title }}" class="img-fluid rounded-3 shadow" style="max-height: 500px; width: 100%; object-fit: cover;">
+                        @php
+                            $imgSrc = Str::startsWith($recipe->image, ['http://', 'https://']) ? $recipe->image : Storage::url($recipe->image);
+                        @endphp
+                        <img src="{{ $imgSrc }}"
+                             alt="{{ $recipe->title }}"
+                             class="img-fluid rounded-3 shadow"
+                             style="max-height: 500px; width: 100%; object-fit: cover;"
+                             onerror="this.parentNode.removeChild(this);">
                     </div>
                 @endif
 

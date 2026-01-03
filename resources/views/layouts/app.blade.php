@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="Your personal recipe collection and cooking companion">
+    <meta name="description" content="{{ $metaDescription ?? 'Your personal recipe collection and cooking companion' }}">
+    @if (!empty($canonicalUrl))
+        <link rel="canonical" href="{{ $canonicalUrl }}">
+    @endif
     <meta name="theme-color" content="#0d6efd">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,6 +19,7 @@
             {{ $title }} | {{ config('app.name', 'Laravel') }}
         @endif
     </title>
+    @stack('seo')
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     
     {{ $head ?? '' }}

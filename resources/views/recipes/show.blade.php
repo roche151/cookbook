@@ -1,30 +1,29 @@
 <x-app-layout>
     <x-slot name="title">{{ data_get($recipe, 'title') }}</x-slot>
-    
-    <!-- Open Graph Meta Tags for Social Sharing -->
-    <x-slot name="head">
+    @php
+        $metaDescription = Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200);
+        $canonicalUrl = route('recipes.show', $recipe);
+    @endphp
+    @push('seo')
         <meta property="og:type" content="article">
         <meta property="og:title" content="{{ $recipe->title }}">
-        <meta property="og:description" content="{{ Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200) }}">
-        <meta property="og:url" content="{{ route('recipes.show', $recipe) }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
         @if($recipe->image)
             <meta property="og:image" content="{{ url(Storage::url($recipe->image)) }}">
             <meta property="og:image:width" content="1200">
             <meta property="og:image:height" content="630">
         @endif
         <meta property="og:site_name" content="{{ config('app.name') }}">
-        
         <!-- Twitter Card Meta Tags -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ $recipe->title }}">
-        <meta name="twitter:description" content="{{ Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200) }}">
+        <meta name="twitter:description" content="{{ $metaDescription }}">
         @if($recipe->image)
             <meta name="twitter:image" content="{{ url(Storage::url($recipe->image)) }}">
         @endif
-        
-        <!-- WhatsApp/Generic -->
         <meta property="og:image:alt" content="{{ $recipe->title }}">
-    </x-slot>
+    @endpush
 
     <div class="container py-4">
         <nav aria-label="breadcrumb" class="mb-3 no-print">

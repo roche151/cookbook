@@ -23,13 +23,15 @@
                 $filtersActive = ($q || !empty($selectedTags) || ($sort ?? 'date_desc') !== 'date_desc' || ($ratingMin ?? 0) > 0);
             @endphp
             <button type="button" class="btn btn-secondary d-inline-flex align-items-center gap-2 position-relative" data-bs-toggle="modal" data-bs-target="#filtersModal">
-                <i class="fa-solid fa-filter"></i>
-                Filters
-                @if($filtersActive)
-                    <span class="filter-indicator-dot position-absolute top-0 start-100 translate-middle" style="width:14px;height:14px;">
-                        <span class="visually-hidden">Filters applied</span>
-                    </span>
-                @endif
+                <span class="filter-icon-wrapper position-relative d-inline-flex align-items-center">
+                    <i class="fa-solid fa-filter"></i>
+                    @if($filtersActive)
+                        <span class="filter-indicator-dot position-absolute top-0 start-100 translate-middle">
+                            <span class="visually-hidden">Filters applied</span>
+                        </span>
+                    @endif
+                </span>
+                Filter
             </button>
         </div>
 
@@ -158,13 +160,19 @@
     </div>
 
     <style>
+        .filter-icon-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
         .filter-indicator-dot {
             display: inline-block;
             background: #dc3545;
             border-radius: 50%;
-            width: 14px;
-            height: 14px;
+            width: 7px;
+            height: 7px;
             box-shadow: 0 0 0 2px #dc3545;
+            z-index: 2;
         }
         /* Prevent horizontal jump when scrollbar appears */
         html {

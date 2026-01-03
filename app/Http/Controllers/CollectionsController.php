@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Collection;
 use App\Models\Recipe;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +22,7 @@ class CollectionsController extends Controller
 
         $collections = Collection::where('user_id', Auth::id())
             ->with(['recipes' => function ($query) {
-                $query->limit(4);
+                $query->with(['tags', 'user', 'ingredients', 'ratings'])->limit(4);
             }])
             ->withCount('recipes')
             ->orderBy('created_at', 'asc')
@@ -104,8 +105,10 @@ class CollectionsController extends Controller
                 break;
         }
 
-        $recipes = $query->paginate(12)->withQueryString();
-        $allTags = Tag::orderBy('sort_order')->get();
+        $recipes = $query->with(['tags', 'user', 'ingredients', 'ratings'])->paginate(12)->withQueryString();
+        $allTags = \Cache::remember('tags.all', 300, function() {
+            return Tag::orderBy('sort_order')->orderBy('name')->get();
+        });
 
         return view('collections.show', compact('collection', 'recipes', 'allTags', 'q', 'tags', 'sort', 'ratingMin'));
     }

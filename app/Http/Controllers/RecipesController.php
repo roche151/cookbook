@@ -11,6 +11,8 @@ use App\Models\Ingredient;
 use App\Models\RecipeRating;
 use App\Models\RecipeRevision;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -141,10 +143,14 @@ class RecipesController extends Controller
                 break;
         }
 
-        $recipes = $query->with('tags')->paginate(12)->withQueryString();
 
-        // Get all tags for filter
-        $allTags = Tag::orderBy('sort_order')->orderBy('name')->get();
+        // Eager load tags, user, ingredients, and ratings for N+1 prevention
+        $recipes = $query->with(['tags', 'user', 'ingredients', 'ratings'])->paginate(12)->withQueryString();
+
+        // Cache all tags for filter
+        $allTags = Cache::remember('tags.all', 300, function() {
+            return Tag::orderBy('sort_order')->orderBy('name')->get();
+        });
 
         return view('recipes.index', [
             'recipes' => $recipes,
@@ -363,13 +369,13 @@ class RecipesController extends Controller
                 // BBC Good Food: <section class="recipe-details__item--skill-level"> ... <div>Easy</div> ... </section>
                 $skillMatch = null;
                 if (preg_match('/<section[^>]*class=[\'\"]?[^\'\">]*recipe-details__item--skill-level[^\'\">]*[\'\"]?[^>]*>.*?<div[^>]*>(.*?)<\/div>/is', $html, $skillMatch)) {
-                    \Log::info('BBC Good Food skill-level match', ['match' => $skillMatch[0] ?? '', 'value' => $skillMatch[1] ?? '']);
+                    Log::info('BBC Good Food skill-level match', ['match' => $skillMatch[0] ?? '', 'value' => $skillMatch[1] ?? '']);
                     $difficulty = strtolower(trim(strip_tags($skillMatch[1])));
                 } elseif (preg_match('/<meta[^>]+name=["\']?skill-level["\']?[^>]+content=["\']?([^"\'>]+)["\']?/i', $html, $metaMatch)) {
-                    \Log::info('BBC Good Food meta skill-level match', ['meta' => $metaMatch[0] ?? '', 'value' => $metaMatch[1] ?? '']);
+                    Log::info('BBC Good Food meta skill-level match', ['meta' => $metaMatch[0] ?? '', 'value' => $metaMatch[1] ?? '']);
                     $difficulty = strtolower(trim($metaMatch[1]));
                 } elseif (preg_match('/\b(easy|medium|hard)\b/i', $html, $textMatch)) {
-                    \Log::info('BBC Good Food text skill-level match', ['text' => $textMatch[0] ?? '']);
+                    Log::info('BBC Good Food text skill-level match', ['text' => $textMatch[0] ?? '']);
                     $difficulty = strtolower(trim($textMatch[1]));
                 } elseif (preg_match('/<span[^>]*>\s*Easy\s*<\/span>/i', $html)) {
                     $difficulty = 'easy';
@@ -423,7 +429,7 @@ class RecipesController extends Controller
                 $recipe['difficulty'] = $difficulty;
             }
             // Log for debugging
-            \Log::info('Recipe import debug', ['difficulty' => $difficulty, 'url' => $url]);
+            Log::info('Recipe import debug', ['difficulty' => $difficulty, 'url' => $url]);
             return response()->json($recipe);
 
         } catch (\Exception $e) {

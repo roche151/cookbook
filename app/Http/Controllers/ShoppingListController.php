@@ -20,7 +20,9 @@ class ShoppingListController extends Controller
     public function index()
     {
         $list = $this->ensureList();
-        $items = $list->items()->get();
+        // Eager load items to prevent N+1
+        $list->load('items');
+        $items = $list->items;
         return view('shopping_list.index', compact('list', 'items'));
     }
 

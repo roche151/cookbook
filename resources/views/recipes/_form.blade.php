@@ -16,7 +16,7 @@
     @if($errors->has('profanity'))
         <div class="col-12">
             <div class="alert alert-danger d-flex align-items-start">
-                <i class="fa-solid fa-ban me-2 mt-1"></i>
+                <i class="fa-solid fa-ban me-2 mt-1" aria-hidden="true"></i>
                 <div>{{ $errors->first('profanity') }}</div>
             </div>
         </div>
@@ -41,20 +41,20 @@
         <div class="card bg-body-secondary border-0 mb-3">
             <div class="card-body p-3">
                 <h6 class="card-title mb-3">
-                    <i class="fa-solid fa-eye me-2"></i>Visibility
+                    <i class="fa-solid fa-eye me-2" aria-hidden="true"></i>Visibility
                 </h6>
                 <div class="d-flex gap-4">
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="is_public" id="visibility_private" value="0" {{ old('is_public', optional($recipe)->is_public) ? '' : 'checked' }}>
                         <label class="form-check-label" for="visibility_private">
-                            <i class="fa-solid fa-lock me-1"></i>Private
+                            <i class="fa-solid fa-lock me-1" aria-hidden="true"></i>Private
                             <small class="d-block text-muted">Only you can view</small>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="is_public" id="visibility_public" value="1" {{ old('is_public', optional($recipe)->is_public) ? 'checked' : '' }}>
                         <label class="form-check-label" for="visibility_public">
-                            <i class="fa-solid fa-globe me-1"></i>Public
+                            <i class="fa-solid fa-globe me-1" aria-hidden="true"></i>Public
                             <small class="d-block text-muted">Requires moderation before everyone can see it</small>
                         </label>
                     </div>
@@ -91,7 +91,7 @@
                 <div class="form-check ps-0">
                     <input hidden class="form-check-input" type="checkbox" name="tags[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}" {{ $checked ? 'checked' : '' }}>
                     <label class="form-check-label badge bg-opacity-25 border border-secondary py-2 px-3 {{ $checked ? 'bg-primary text-white' : 'bg-secondary border-secondary-subtle' }}" for="tag-{{ $tag->id }}" style="cursor: pointer; font-weight: 400;">
-                        <i class="{{ $tag->icon }} me-1"></i>{{ $tag->name }}
+                        <i class="{{ $tag->icon }} me-1" aria-hidden="true"></i>{{ $tag->name }}
                     </label>
                 </div>
             @endforeach
@@ -120,24 +120,24 @@
         <div class="image-drop-zone border rounded-3 p-4 text-center" tabindex="0" style="position: relative; min-height: 200px; background: var(--bs-body-secondary); border: 2px dashed var(--bs-border-color) !important; outline: none; transition: all 0.2s;">
             <input type="file" name="image" accept="image/*" class="d-none" id="recipe-image">
             <div class="upload-placeholder" style="display: {{ $showImage ? 'none' : 'flex' }}; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; gap: 1rem;">
-                <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary opacity-75"></i>
+                <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary opacity-75" aria-hidden="true"></i>
                 <div>
                     <p class="mb-1 fw-semibold">Choose a file or drag & drop it here</p>
                     <p class="text-muted small mb-3">JPEG, PNG, GIF, and WebP formats, up to 5MB</p>
                 </div>
                 <button type="button" class="btn btn-primary btn-sm browse-file-btn">
-                    <i class="fa-solid fa-folder-open me-2"></i>Browse Files
+                    <i class="fa-solid fa-folder-open me-2" aria-hidden="true"></i>Browse Files
                 </button>
             </div>
-            <img class="image-preview rounded-3" src="{{ $showImage ? $imageSource : '' }}" style="display: {{ $showImage ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Preview">
+            <img class="image-preview rounded-3" src="{{ $showImage ? $imageSource : '' }}" style="display: {{ $showImage ? 'block' : 'none' }}; max-width: 100%; max-height: 300px; object-fit: contain;" alt="Recipe image preview">
             <button type="button" class="remove-image-btn btn btn-sm btn-danger position-absolute top-0 end-0 m-2" style="display: {{ $showImage ? 'block' : 'none' }};">
-                <i class="fa-solid fa-times"></i>
+                <i class="fa-solid fa-times" aria-hidden="true"></i>
             </button>
         </div>
         @if($recipe && $recipe->image)
             <div class="mt-2">
                 <p class="text-muted small mb-1">Current image:</p>
-                <img src="{{ Storage::url($recipe->image) }}" alt="Current image" class="img-thumbnail" style="max-height: 150px;">
+                <img src="{{ Storage::url($recipe->image) }}" alt="Current recipe image" class="img-thumbnail" style="max-height: 150px;">
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" name="remove_image" value="1" id="remove-image-checkbox">
                     <label class="form-check-label" for="remove-image-checkbox">

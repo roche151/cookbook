@@ -7,14 +7,11 @@ use App\Http\Controllers\ShoppingListController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\RecipeModerationController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    $tags = Tag::orderBy('sort_order')->orderBy('name')->get();
-    return view('home', ['tags' => $tags]);
-});
+use App\Http\Controllers\HomeController;
+Route::get('/', [HomeController::class, 'index']);
 
 // Dev-only quick login endpoint to impersonate any user
 if (!app()->environment('production')) {

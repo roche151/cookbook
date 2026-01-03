@@ -91,4 +91,12 @@ class Recipe extends Model
     {
         return $this->ratings()->count();
     }
+
+    /**
+     * Get the views for the recipe.
+     */
+    public function views()
+    {
+        return $this->hasMany(RecipeView::class);
+    }
 }

@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Rules\NoLinks;
 use App\Services\ProfanityChecker;
+use App\Models\RecipeView;
 
 class RecipesController extends Controller
 {
@@ -188,6 +189,28 @@ class RecipesController extends Controller
 
     public function show(Request $request, Recipe $recipe)
     {
+        // Track a view: 1 per user (or IP) per day
+        $userId = Auth::id();
+        $ip = $request->ip();
+        $viewedRecently = RecipeView::where('recipe_id', $recipe->id)
+            ->where(function($q) use ($userId, $ip) {
+                if ($userId) {
+                    $q->where('user_id', $userId);
+                } else {
+                    $q->where('ip_address', $ip);
+                }
+            })
+            ->where('viewed_at', '>=', now()->startOfDay())
+            ->exists();
+
+        if (!$viewedRecently) {
+            RecipeView::create([
+                'recipe_id' => $recipe->id,
+                'user_id' => $userId,
+                'ip_address' => $ip,
+                'viewed_at' => now(),
+            ]);
+        }
         $isOwner = Auth::check() && $recipe->user_id === Auth::id();
 
         // Block viewing if not owner and recipe is not approved public

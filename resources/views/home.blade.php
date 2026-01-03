@@ -52,6 +52,31 @@
     </div>
 
     <div class="container py-5">
+        <!-- Trending Recipes -->
+        <div class="mb-5">
+            <div class="d-flex align-items-center mb-4">
+                <div>
+                    <div class="mb-4">
+                        <h2 class="h4 mb-1">Trending</h2>
+                        <p class="text-muted mb-0">Discover some of our top-rated and most popular recipes</p>
+                    </div>
+                    @if($trendingRecipes->count())
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                            @foreach($trendingRecipes as $recipe)
+                                <div class="col">
+                                    @include('recipes._card', ['recipe' => $recipe])
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="alert alert-info border-0 shadow-sm">
+                            <i class="fa-solid fa-info-circle me-2"></i>No recipes found
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <!-- Browse by Tag -->
         <div class="mb-5">
             <div class="d-flex align-items-center mb-4">

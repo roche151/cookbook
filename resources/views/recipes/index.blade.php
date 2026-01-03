@@ -31,7 +31,7 @@
                         </span>
                     @endif
                 </span>
-                Filter
+                Filters
             </button>
         </div>
 

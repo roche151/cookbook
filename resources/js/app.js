@@ -1,8 +1,22 @@
 import './bootstrap';
 import 'bootstrap';
-import './directions';
-import './ingredients';
-import './image-upload';
+// Dynamically import page-specific modules for code splitting
+document.addEventListener('DOMContentLoaded', async () => {
+    // Only load ingredients.js if the ingredients container exists
+    if (document.querySelector('#ingredients-container')) {
+        const mod = await import('./ingredients');
+        if (mod.initIngredients) mod.initIngredients();
+    }
+    // Only load directions.js if the directions container exists
+    if (document.querySelector('#directions-container')) {
+        const mod = await import('./directions');
+        if (mod.initDirections) mod.initDirections();
+    }
+    // Only load image-upload.js if an image drop zone exists
+    if (document.querySelector('.image-drop-zone')) {
+        await import('./image-upload');
+    }
+});
 import './tag-filter';
 
 // Initialize delete confirmation dialogs

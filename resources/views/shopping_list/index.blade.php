@@ -186,8 +186,11 @@
                 toast.className = 'toast-notification';
                 toast.style.background = type === 'success' ? 'var(--bs-success)' : 'var(--bs-info)';
                 toast.innerHTML = message;
+                toast.setAttribute('role', 'status');
+                toast.setAttribute('aria-live', 'polite');
+                toast.setAttribute('tabindex', '0');
                 document.body.appendChild(toast);
-                
+                toast.focus();
                 setTimeout(() => {
                     toast.style.animation = 'slideInUp 0.3s ease reverse';
                     setTimeout(() => toast.remove(), 300);

@@ -15,7 +15,7 @@
 
     @if($errors->has('profanity'))
         <div class="col-12">
-            <div class="alert alert-danger d-flex align-items-start">
+            <div class="alert alert-danger d-flex align-items-start" role="alert" aria-live="assertive">
                 <i class="fa-solid fa-ban me-2 mt-1" aria-hidden="true"></i>
                 <div>{{ $errors->first('profanity') }}</div>
             </div>
@@ -27,7 +27,7 @@
 
     @if (false && $errors->any())
         <div class="col-12">
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert" aria-live="assertive">
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -38,9 +38,9 @@
     @endif
 
     <div class="col-12">
-        <div class="card bg-body-secondary border-0 mb-3">
+        <div class="card bg-body-secondary border-0 mb-3" aria-labelledby="visibility-label">
             <div class="card-body p-3">
-                <h6 class="card-title mb-3">
+                <h6 class="card-title mb-3" id="visibility-label">
                     <i class="fa-solid fa-eye me-2" aria-hidden="true"></i>Visibility
                 </h6>
                 <div class="d-flex gap-4">
@@ -67,9 +67,9 @@
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-utensils me-1 text-primary"></i>Recipe Title
         </label>
-        <input name="title" class="form-control form-control-lg" placeholder="e.g. Chicken and Mushroom Risotto" value="{{ old('title', optional($recipe)->title) }}">
+        <input name="title" class="form-control form-control-lg" placeholder="e.g. Chicken and Mushroom Risotto" value="{{ old('title', optional($recipe)->title) }}" aria-required="true" @if($errors->has('title')) aria-invalid="true" aria-describedby="error-title" @endif>
         @if($errors->has('title'))
-            <div class="text-danger small mt-1">{{ $errors->first('title') }}</div>
+            <div id="error-title" class="text-danger small mt-1">{{ $errors->first('title') }}</div>
         @endif
     </div>
 
@@ -176,17 +176,17 @@
 
         <div class="d-flex gap-2 align-items-center">
             <div class="input-group flex-grow-1">
-                <input name="time_hours" type="number" min="0" class="form-control" value="{{ $hours }}" placeholder="0" aria-label="Hours">
+                <input name="time_hours" type="number" min="0" class="form-control" value="{{ $hours }}" placeholder="0" aria-label="Hours" aria-required="true" @if($errors->has('time')) aria-invalid="true" aria-describedby="error-time" @endif>
                 <span class="input-group-text">hours</span>
             </div>
 
             <div class="input-group flex-grow-1">
-                <input name="time_minutes" type="number" min="0" max="59" class="form-control" value="{{ $minutes }}" placeholder="0" aria-label="Minutes" oninput="if(this.value==='')return; if(Number(this.value) > 59) this.value = 59; if(Number(this.value) < 0) this.value = 0;">
+                <input name="time_minutes" type="number" min="0" max="59" class="form-control" value="{{ $minutes }}" placeholder="0" aria-label="Minutes" aria-required="true" @if($errors->has('time')) aria-invalid="true" aria-describedby="error-time" @endif oninput="if(this.value==='')return; if(Number(this.value) > 59) this.value = 59; if(Number(this.value) < 0) this.value = 0;">
                 <span class="input-group-text">minutes</span>
             </div>
         </div>
         @if($errors->has('time'))
-            <div class="text-danger small mt-1">{{ $errors->first('time') }}</div>
+            <div id="error-time" class="text-danger small mt-1">{{ $errors->first('time') }}</div>
         @endif
     </div>
 
@@ -198,9 +198,9 @@
             $servesOld = old('serves');
             $serves = $servesOld !== null ? $servesOld : (optional($recipe)->serves ?? '');
         @endphp
-        <input name="serves" type="number" min="1" class="form-control" value="{{ $serves }}" placeholder="4" aria-label="Serves">
+        <input name="serves" type="number" min="1" class="form-control" value="{{ $serves }}" placeholder="4" aria-label="Serves" @if($errors->has('serves')) aria-invalid="true" aria-describedby="error-serves" @endif>
         @if($errors->has('serves'))
-            <div class="text-danger small mt-1">{{ $errors->first('serves') }}</div>
+            <div id="error-serves" class="text-danger small mt-1">{{ $errors->first('serves') }}</div>
         @endif
     </div>
 
@@ -208,14 +208,14 @@
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-signal me-1 text-primary"></i>Difficulty Level
         </label>
-        <select name="difficulty" id="difficulty" class="form-select" required>
+        <select name="difficulty" id="difficulty" class="form-select" required aria-required="true" @if($errors->has('difficulty')) aria-invalid="true" aria-describedby="error-difficulty" @endif>
             <option value="">Select difficulty</option>
             <option value="easy" {{ old('difficulty', optional($recipe)->difficulty) === 'easy' ? 'selected' : '' }}>● Easy - Perfect for beginners</option>
             <option value="medium" {{ old('difficulty', optional($recipe)->difficulty) === 'medium' ? 'selected' : '' }}>●● Medium - Some experience needed</option>
             <option value="hard" {{ old('difficulty', optional($recipe)->difficulty) === 'hard' ? 'selected' : '' }}>●●● Hard - Advanced techniques</option>
         </select>
         @if($errors->has('difficulty'))
-            <div class="text-danger small mt-1">{{ $errors->first('difficulty') }}</div>
+            <div id="error-difficulty" class="text-danger small mt-1">{{ $errors->first('difficulty') }}</div>
         @endif
     </div>
 
@@ -223,9 +223,9 @@
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-align-left me-1 text-primary"></i>Description
         </label>
-        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe your recipe, its origins, or what makes it special...">{{ old('description', optional($recipe)->description) }}</textarea>
+        <textarea id="description" name="description" class="form-control" rows="4" placeholder="Describe your recipe, its origins, or what makes it special..." aria-required="true" @if($errors->has('description')) aria-invalid="true" aria-describedby="error-description" @endif>{{ old('description', optional($recipe)->description) }}</textarea>
         @if($errors->has('description'))
-            <div class="text-danger small mt-1">{{ $errors->first('description') }}</div>
+            <div id="error-description" class="text-danger small mt-1">{{ $errors->first('description') }}</div>
         @endif
     </div>
 

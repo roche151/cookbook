@@ -216,10 +216,10 @@
         @guest
             <div class="d-grid gap-2">
                 <a href="{{ route('login') }}" class="btn btn-primary btn-sm w-100" data-bs-toggle="tooltip" title="Login">
-                    <i class="fa-solid fa-right-to-bracket me-2"></i>Login
+                    <i class="fa-solid fa-right-to-bracket"></i><span class="login-text ms-2">Login</span>
                 </a>
                 <a href="{{ route('register') }}" class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="tooltip" title="Register">
-                    <i class="fa-solid fa-user-plus me-2"></i>Register
+                    <i class="fa-solid fa-user-plus"></i><span class="register-text ms-2">Register</span>
                 </a>
             </div>
         @else
@@ -303,6 +303,12 @@
         flex-direction: column;
     }
     .logout-text {
+        display: none;
+    }
+    .login-text {
+        display: none;
+    }
+    .register-text {
         display: none;
     }
 }

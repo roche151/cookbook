@@ -23,6 +23,10 @@
             <meta name="twitter:image" content="{{ url(Storage::url($recipe->image)) }}">
         @endif
         <meta property="og:image:alt" content="{{ $recipe->title }}">
+        <!-- JSON-LD Structured Data for Recipe -->
+        @if(!empty($jsonLd))
+            <script type="application/ld+json">{!! $jsonLd !!}</script>
+        @endif
     @endpush
 
     <div class="container py-4">

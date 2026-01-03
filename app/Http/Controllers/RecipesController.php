@@ -292,10 +292,48 @@ class RecipesController extends Controller
             $rejectionNotes = $rejectedRevision?->notes;
         }
 
+        // SEO meta description
+        $metaDescription = Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200);
+        $jsonLd = [
+            '@context' => 'https://schema.org/',
+            '@type' => 'Recipe',
+            'name' => $recipe->title,
+            'description' => $metaDescription,
+            'datePublished' => optional($recipe->created_at)->toIso8601String(),
+            'author' => [
+                '@type' => 'Person',
+                'name' => $recipe->user->name ?? 'Unknown',
+            ],
+        ];
+        if ($recipe->image) {
+            $jsonLd['image'] = [url(Storage::url($recipe->image))];
+        }
+        if ($recipe->time) {
+            $jsonLd['totalTime'] = 'PT' . (int) $recipe->time . 'M';
+        }
+        if ($recipe->serves) {
+            $jsonLd['recipeYield'] = $recipe->serves;
+        }
+        if (!empty($recipe->ingredients)) {
+            $jsonLd['recipeIngredient'] = collect($recipe->ingredients)->map(function ($ingredient) {
+                return is_string($ingredient) ? $ingredient : ($ingredient->name ?? '');
+            })->toArray();
+        }
+        if (!empty($recipe->directions)) {
+            $jsonLd['recipeInstructions'] = collect($recipe->directions)->map(function ($step) {
+                return [
+                    '@type' => 'HowToStep',
+                    'text' => is_string($step) ? $step : ($step->body ?? ($step->text ?? '')),
+                ];
+            })->toArray();
+        }
         return view('recipes.show', [
             'recipe' => $recipe,
             'fromCollection' => $fromCollection,
             'rejectionNotes' => $rejectionNotes,
+            'metaDescription' => $metaDescription,
+            'canonicalUrl' => route('recipes.show', $recipe),
+            'jsonLd' => json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
         ]);
     }
 

@@ -26,6 +26,11 @@
                         <a href="/recipes/create" class="btn btn-primary btn-lg">
                             <i class="fa-solid fa-plus me-2"></i>Create Recipe
                         </a>
+                        @auth
+                            <a href="/my-recipes" class="btn btn-outline-secondary btn-lg">
+                                <i class="fa-solid fa-user me-2"></i>My Recipes
+                            </a>
+                        @endauth
                         <a href="/recipes" class="btn btn-outline-secondary btn-lg">
                             <i class="fa-solid fa-book me-2"></i>Browse All
                         </a>

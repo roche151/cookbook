@@ -107,4 +107,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Public recipe show route - define AFTER /create to avoid conflicts
 Route::get('/recipes/{recipe}', [RecipesController::class, 'show'])->name('recipes.show');
 
+
 require __DIR__.'/auth.php';
+
+// Catch-all route for 404s (must be last)
+use Illuminate\Support\Facades\View;
+Route::fallback(function () {
+    return response()->view('errors.404', [
+        'title' => '404 Not Found',
+        'metaDescription' => 'Page not found',
+        'canonicalUrl' => url()->current(),
+    ], 404);
+});

@@ -1,4 +1,21 @@
 <IfModule mod_rewrite.c>
+        # Redirect a single old page to a new page
+        Redirect 301 /old-contact /contact
+
+        # Redirect an entire old section to a new section
+        RewriteRule ^old-blog/(.*)$ /blog/$1 [R=301,L]
+
+        # Redirect a specific file to a new location
+        Redirect 301 /old-faq.html /help/faq
+
+        # Redirect all HTTP to HTTPS (if using SSL)
+        # RewriteCond %{HTTPS} off
+        # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+        # Redirect a list of outdated URLs to a single new page
+        Redirect 301 /old-page-1 /new-landing
+        Redirect 301 /old-page-2 /new-landing
+        Redirect 301 /old-page-3 /new-landing
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
@@ -17,6 +34,13 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
+
+    # Example 301 Redirects (active)
+    # Redirect old recipe URLs to new ones
+    RewriteRule ^old-recipes/(.*)$ /recipes/$1 [R=301,L]
+
+    # Redirect a specific old page
+    Redirect 301 /old-about /about
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d

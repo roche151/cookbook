@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cookbook">
     <title>
+        @php $title = $title ?? config('app.name', 'Laravel'); @endphp
         @if (in_array($title, ['Home']))
             {{ config('app.name', 'Laravel') }}
         @else

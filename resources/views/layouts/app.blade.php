@@ -217,14 +217,15 @@
     @stack('head')
 </head>
 <body>
+    <a href="#main-content" class="visually-hidden-focusable skip-link">Skip to main content</a>
     <x-sidebar />
-    
+
     @auth
         <x-notifications-offcanvas />
     @endauth
 
     <div class="app-content-wrapper flex-grow-1 d-flex flex-column">
-        <main class="app-content flex-grow-1">
+        <main id="main-content" class="app-content flex-grow-1" tabindex="-1" aria-label="Main content">
             <div class="container py-4">
             @if(session('status'))
                 <div class="alert alert-success">{{ session('status') }}</div>
@@ -239,6 +240,27 @@
                 {{-- feedback modal --}}
                 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered">
+                            .visually-hidden-focusable {
+                                position: absolute;
+                                left: -10000px;
+                                top: auto;
+                                width: 1px;
+                                height: 1px;
+                                overflow: hidden;
+                                z-index: 10000;
+                            }
+                            .visually-hidden-focusable:focus {
+                                position: static;
+                                width: auto;
+                                height: auto;
+                                padding: 0.5em 1em;
+                                background: #0d6efd;
+                                color: #fff;
+                                border-radius: 0.25em;
+                                outline: 2px solid #0d6efd;
+                                box-shadow: 0 0 0 2px #fff;
+                                z-index: 10000;
+                            }
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="feedbackModalLabel"><i class="fa-solid fa-comments me-2 text-primary"></i>Feedback</h5>

@@ -3,7 +3,7 @@
 
     <div class="container py-md-5">
         <div class="mb-4">
-            <h1 class="h3 mb-2"><i class="fa-solid fa-cart-shopping me-2 text-primary"></i>Shopping List</h1>
+            <h1 class="h3 mb-2"><i class="fa-solid fa-cart-shopping me-2 text-primary" aria-hidden="true"></i>Shopping List</h1>
             <p class="text-muted mb-0">Add items, mark them done, and manage your list.</p>
         </div>
 
@@ -37,7 +37,7 @@
                                             <form action="{{ route('shopping-list.items.toggle', $item) }}" method="POST" class="toggle-form">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button class="btn btn-sm btn-outline-secondary" title="Mark done" aria-label="Mark done">✓</button>
+                                                <button class="btn btn-sm btn-outline-secondary" title="Mark done" aria-label="Mark done" tabindex="0">✓</button>
                                             </form>
                                             <form action="{{ route('shopping-list.items.update', $item) }}" method="POST" class="flex-grow-1 auto-save-form" data-item-id="{{ $item->id }}">
                                                 @csrf
@@ -47,7 +47,7 @@
                                             <form action="{{ route('shopping-list.items.delete', $item) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="btn btn-sm btn-outline-secondary" title="Delete" aria-label="Delete">✕</button>
+                                                <button class="btn btn-sm btn-outline-secondary" title="Delete" aria-label="Delete" tabindex="0">✕</button>
                                             </form>
                                         </div>
                                     </li>
@@ -55,7 +55,7 @@
                             </ul>
                         @else
                             <div class="alert alert-info small mb-0">
-                                <i class="fa-solid fa-check-circle me-2"></i>All done! Great work.
+                                <i class="fa-solid fa-check-circle me-2" aria-hidden="true"></i>All done! Great work.
                             </div>
                         @endif
                     </div>
@@ -72,13 +72,13 @@
                                             <form action="{{ route('shopping-list.items.toggle', $item) }}" method="POST" class="toggle-form">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button class="btn btn-sm btn-outline-secondary" title="Uncheck" aria-label="Uncheck">↺</button>
+                                                <button class="btn btn-sm btn-outline-secondary" title="Uncheck" aria-label="Uncheck" tabindex="0">↺</button>
                                             </form>
                                             <span class="flex-grow-1">{{ $item->title }}</span>
                                             <form action="{{ route('shopping-list.items.delete', $item) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="btn btn-sm btn-outline-secondary" title="Delete" aria-label="Delete">✕</button>
+                                                <button class="btn btn-sm btn-outline-secondary" title="Delete" aria-label="Delete" tabindex="0">✕</button>
                                             </form>
                                         </div>
                                     </li>
@@ -87,11 +87,11 @@
                             <form action="{{ route('shopping-list.items.clear-checked') }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Clear All</button>
+                                <button class="btn btn-sm btn-outline-secondary w-100" type="submit" aria-label="Clear All Checked Items">Clear All</button>
                             </form>
                         @else
                             <div class="alert alert-info small mb-0">
-                                <i class="fa-solid fa-inbox me-2"></i>No items checked yet.
+                                <i class="fa-solid fa-inbox me-2" aria-hidden="true"></i>No items checked yet.
                             </div>
                         @endif
                     </div>
@@ -106,6 +106,11 @@
 
     <style>
         #uncheckedList li, #checkedList li { background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: .5rem; padding: .5rem; }
+        button:focus, .btn:focus {
+            outline: 2px solid #0d6efd !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 2px #b6d4fe !important;
+        }
         #checkedList .flex-grow-1 { text-decoration: line-through; }
         
         .shopping-item {

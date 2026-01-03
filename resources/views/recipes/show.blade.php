@@ -29,8 +29,8 @@
         @endif
     @endpush
 
-    <div class="container py-4">
-        <nav aria-label="breadcrumb" class="mb-3 no-print">
+    <div class="container py-4" role="main" aria-labelledby="recipe-title">
+        <nav aria-label="Breadcrumb" class="mb-3 no-print">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                 @if(isset($fromCollection) && $fromCollection)
@@ -88,7 +88,7 @@
             <div class="col-lg-8">
                 <!-- Header Section -->
                 <div class="mb-4">
-                    <h1 class="display-6 fw-bold mb-3">{{ data_get($recipe, 'title') }}</h1>
+                    <h1 id="recipe-title" class="display-6 fw-bold mb-3">{{ data_get($recipe, 'title') }}</h1>
                     
                     <!-- Metadata Row -->
                     <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
@@ -189,11 +189,12 @@
                         @php
                             $imgSrc = Str::startsWith($recipe->image, ['http://', 'https://']) ? $recipe->image : Storage::url($recipe->image);
                         @endphp
-                        <img src="{{ $imgSrc }}"
-                             alt="{{ $recipe->title }}"
-                             class="img-fluid rounded-3 shadow"
-                             style="max-height: 500px; width: 100%; object-fit: cover;"
-                             onerror="this.parentNode.removeChild(this);">
+                            <img src="{{ $imgSrc }}"
+                                alt="{{ $recipe->title ? 'Photo of ' . $recipe->title : 'Recipe photo' }}"
+                                class="img-fluid rounded-3 shadow"
+                                style="max-height: 500px; width: 100%; object-fit: cover;"
+                                onerror="this.parentNode.removeChild(this);"
+                                tabindex="0">
                     </div>
                 @endif
 
@@ -267,8 +268,8 @@
                         <div class="card-body p-4">
                             <div class="d-grid gap-2">
                                 {{-- Collections --}}
-                                <button type="button" class="btn btn-primary w-100 js-open-collection-modal" data-recipe-id="{{ $recipe->id }}" data-recipe-slug="{{ $recipe->slug }}">
-                                    <i class="fa-solid fa-folder-plus me-2"></i>Add to Collection
+                                <button type="button" class="btn btn-primary w-100 js-open-collection-modal" data-recipe-id="{{ $recipe->id }}" data-recipe-slug="{{ $recipe->slug }}" aria-label="Add to Collection">
+                                    <i class="fa-solid fa-folder-plus me-2" aria-hidden="true"></i>Add to Collection
                                 </button>
                                 
                                 {{-- Show collections this recipe is in --}}
@@ -291,14 +292,14 @@
                                 @endif
                                 
                                 @if($recipe->user_id === auth()->id())
-                                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary">
-                                        <i class="fa-solid fa-edit me-2"></i>Edit
+                                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary" aria-label="Edit Recipe">
+                                        <i class="fa-solid fa-edit me-2" aria-hidden="true"></i>Edit
                                     </a>
                                     <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-outline-danger w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?">
-                                            <i class="fa-solid fa-trash me-2"></i>Delete
+                                        <button class="btn btn-outline-danger w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?" aria-label="Delete Recipe">
+                                            <i class="fa-solid fa-trash me-2" aria-hidden="true"></i>Delete
                                         </button>
                                     </form>
                                 @endif
@@ -315,23 +316,23 @@
                         </h6>
                         
                         <!-- Export PDF -->
-                        <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-outline-secondary w-100 mb-2" target="_blank">
-                            <i class="fa-solid fa-file-pdf me-2"></i>PDF
+                        <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-outline-secondary w-100 mb-2" target="_blank" aria-label="Export as PDF">
+                            <i class="fa-solid fa-file-pdf me-2" aria-hidden="true"></i>PDF
                         </a>
                         
                         <!-- Print PDF -->
-                        <button onclick="printRecipe()" class="btn btn-outline-secondary w-100 mb-2">
-                            <i class="fa-solid fa-print me-2"></i>Print
+                        <button onclick="printRecipe()" class="btn btn-outline-secondary w-100 mb-2" aria-label="Print Recipe">
+                            <i class="fa-solid fa-print me-2" aria-hidden="true"></i>Print
                         </button>
                         
                         <!-- Share Button -->
-                        <button onclick="shareRecipe()" class="btn btn-outline-secondary w-100 mb-2">
-                            <i class="fa-solid fa-share-nodes me-2"></i>Share
+                        <button onclick="shareRecipe()" class="btn btn-outline-secondary w-100 mb-2" aria-label="Share Recipe">
+                            <i class="fa-solid fa-share-nodes me-2" aria-hidden="true"></i>Share
                         </button>
                         
                         <!-- Cook Mode -->
-                        <button onclick="enterCookMode()" class="btn btn-primary w-100">
-                            <i class="fa-solid fa-utensils me-2"></i>Cook Mode
+                        <button onclick="enterCookMode()" class="btn btn-primary w-100" aria-label="Enter Cook Mode">
+                            <i class="fa-solid fa-utensils me-2" aria-hidden="true"></i>Cook Mode
                         </button>
                     </div>
                 </div>
@@ -352,8 +353,8 @@
                                     <div class="d-flex justify-content-center mb-3 rating-submit-stars">
                                         @for($i = 1; $i <= 5; $i++)
                                             <label class="mb-0" style="cursor: pointer; line-height: 1;">
-                                                <input type="radio" name="rating" value="{{ $i }}" class="d-none rating-input" {{ $userRating && $userRating->rating == $i ? 'checked' : '' }} required>
-                                                <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.75rem;"></i>
+                                                <input type="radio" name="rating" value="{{ $i }}" class="d-none rating-input" {{ $userRating && $userRating->rating == $i ? 'checked' : '' }} required tabindex="0" aria-label="Rate {{ $i }} star{{ $i > 1 ? 's' : '' }}">
+                                                <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.75rem;" aria-hidden="true"></i>
                                             </label>
                                         @endfor
                                     </div>
@@ -1127,11 +1128,11 @@
         <div class="cook-header">
             <h3 class="mb-0">{{ $recipe->title }}</h3>
             <div class="cook-header-buttons">
-                <button onclick="toggleCookDarkMode()" class="btn btn-sm btn-outline-secondary" title="Toggle Dark Mode">
-                    <i class="fa-solid fa-moon"></i>
+                <button onclick="toggleCookDarkMode()" class="btn btn-sm btn-outline-secondary" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon" aria-hidden="true"></i>
                 </button>
-                <button onclick="exitCookMode()" class="btn btn-sm btn-outline-danger">
-                    <i class="fa-solid fa-times"></i>
+                <button onclick="exitCookMode()" class="btn btn-sm btn-outline-danger" aria-label="Exit Cook Mode">
+                    <i class="fa-solid fa-times" aria-hidden="true"></i>
                 </button>
             </div>
         </div>

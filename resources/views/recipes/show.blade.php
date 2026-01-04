@@ -266,7 +266,7 @@
 
                 <!-- Ingredients & Method Responsive Two-Column Layout -->
                 <div class="row g-4">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body p-4">
                                 <h5 class="card-title mb-4 fw-semibold">
@@ -302,7 +302,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body p-4">
                                 <h5 class="card-title mb-4 fw-semibold">

@@ -84,8 +84,74 @@
             @endif
         @endauth
 
-        <div class="row">
-            <div class="col-lg-8">
+        <!-- Modernized Action Bar (icon buttons with tooltips) -->
+        <div class="recipe-action-bar d-flex flex-wrap align-items-center gap-3 mb-4 justify-content-end no-print" style="flex-wrap: wrap;">
+            <!-- First 3 buttons always visible -->
+            @auth
+                <button type="button" class="btn btn-icon btn-outline-primary js-open-collection-modal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add to Collection" data-recipe-id="{{ $recipe->id }}" data-recipe-slug="{{ $recipe->slug }}">
+                    <i class="fa-solid fa-folder-plus"></i>
+                </button>
+                @if($recipe->user_id === auth()->id())
+                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Edit Recipe">
+                        <i class="fa-solid fa-edit"></i>
+                    </a>
+                    <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-icon btn-outline-danger js-delete-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete Recipe" data-confirm="Delete this recipe?">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                @endif
+            @endauth
+
+            <!-- More menu for mobile, rest of actions -->
+            <div class="d-none d-sm-flex gap-3">
+                <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Export as PDF" target="_blank">
+                    <i class="fa-solid fa-file-pdf"></i>
+                </a>
+                <button onclick="printRecipe()" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Print Recipe">
+                    <i class="fa-solid fa-print"></i>
+                </button>
+                <button onclick="shareRecipe()" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Share Recipe">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+                <button onclick="enterCookMode()" class="btn btn-icon btn-primary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Cook Mode">
+                    <i class="fa-solid fa-utensils"></i>
+                </button>
+            </div>
+            <!-- Mobile: More dropdown -->
+            <div class="dropdown d-inline-block d-sm-none">
+                <button class="btn btn-icon btn-outline-secondary" type="button" id="moreActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                    <i class="fa-solid fa-ellipsis-h"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreActionsDropdown">
+                    <li>
+                        <a class="dropdown-item" href="{{ route('recipes.pdf', $recipe) }}" target="_blank">
+                            <i class="fa-solid fa-file-pdf me-2"></i>Export as PDF
+                        </a>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" onclick="printRecipe()">
+                            <i class="fa-solid fa-print me-2"></i>Print Recipe
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" onclick="shareRecipe()">
+                            <i class="fa-solid fa-share-nodes me-2"></i>Share Recipe
+                        </button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" onclick="enterCookMode()">
+                            <i class="fa-solid fa-utensils me-2"></i>Cook Mode
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
                 <!-- Header Section -->
                 <div class="mb-4">
                     <h1 id="recipe-title" class="display-6 fw-bold mb-3">{{ data_get($recipe, 'title') }}</h1>
@@ -184,23 +250,24 @@
                     @endif
                 </div>
 
+
                 @if($recipe->image)
                     <div class="mb-4">
                         @php
                             $imgSrc = Str::startsWith($recipe->image, ['http://', 'https://']) ? $recipe->image : Storage::url($recipe->image);
                         @endphp
-                            <img src="{{ $imgSrc }}"
-                                alt="{{ $recipe->title ? 'Photo of ' . $recipe->title : 'Recipe photo' }}"
-                                class="img-fluid rounded-3 shadow"
-                                style="max-height: 500px; width: 100%; object-fit: cover;"
-                                onerror="this.parentNode.removeChild(this);"
-                                tabindex="0">
+                        <img src="{{ $imgSrc }}"
+                            alt="{{ $recipe->title ? 'Photo of ' . $recipe->title : 'Recipe photo' }}"
+                            class="img-fluid rounded-3 shadow"
+                            style="max-height: 500px; width: 100%; object-fit: cover;"
+                            onerror="this.parentNode.removeChild(this);"
+                            tabindex="0">
                     </div>
                 @endif
 
-                <!-- Ingredients & Method -->
-                <div class="row">
-                    <div class="col-md-6 mb-4">
+                <!-- Ingredients & Method Responsive Two-Column Layout -->
+                <div class="row g-4">
+                    <div class="col-md-6">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body p-4">
                                 <h5 class="card-title mb-4 fw-semibold">
@@ -223,7 +290,6 @@
                                 @else
                                     <p class="text-muted mb-0">No ingredients provided</p>
                                 @endif
-                                
                                 @auth
                                     @if($recipe->ingredients && $recipe->ingredients->count())
                                         <form action="{{ route('shopping-list.add-from-recipe', $recipe->slug) }}" method="POST" class="mt-4 pt-3 border-top">
@@ -237,8 +303,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-6">
                         <div class="card h-100 shadow-sm border-0">
                             <div class="card-body p-4">
                                 <h5 class="card-title mb-4 fw-semibold">
@@ -261,113 +326,7 @@
                 </div>
             </div>
             
-            <div class="col-lg-4">
-                @auth
-                    <!-- Quick Actions -->
-                    <div class="card mb-4 shadow-sm border-0 no-print">
-                        <div class="card-body p-4">
-                            <div class="d-grid gap-2">
-                                {{-- Collections --}}
-                                <button type="button" class="btn btn-primary w-100 js-open-collection-modal" data-recipe-id="{{ $recipe->id }}" data-recipe-slug="{{ $recipe->slug }}" aria-label="Add to Collection">
-                                    <i class="fa-solid fa-folder-plus me-2" aria-hidden="true"></i>Add to Collection
-                                </button>
-                                
-                                {{-- Show collections this recipe is in --}}
-                                @php
-                                    $userCollections = auth()->user()->collections()->whereHas('recipes', function($q) use ($recipe) {
-                                        $q->where('recipe_id', $recipe->id);
-                                    })->get();
-                                @endphp
-                                @if($userCollections->isNotEmpty())
-                                    <div class="mt-2">
-                                        <small class="text-muted d-block mb-2">In collections:</small>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            @foreach($userCollections as $collection)
-                                                <a href="{{ route('collections.show', $collection->slug) }}" class="badge bg-primary bg-opacity-10 text-primary text-decoration-none border border-primary border-opacity-25 py-2 px-3">
-                                                    <i class="fa-solid fa-folder me-1"></i>{{ $collection->name }}
-                                                </a>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-                                
-                                @if($recipe->user_id === auth()->id())
-                                    <a href="{{ route('recipes.edit', $recipe->slug) }}" class="btn btn-outline-secondary" aria-label="Edit Recipe">
-                                        <i class="fa-solid fa-edit me-2" aria-hidden="true"></i>Edit
-                                    </a>
-                                    <form action="{{ route('recipes.destroy', $recipe->slug) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-outline-danger w-100 js-delete-btn" type="button" data-confirm="Delete this recipe?" aria-label="Delete Recipe">
-                                            <i class="fa-solid fa-trash me-2" aria-hidden="true"></i>Delete
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endauth
-                
-                <!-- Share & Export -->
-                <div class="card mb-4 shadow-sm border-0 no-print">
-                    <div class="card-body p-4">
-                        <h6 class="card-title mb-3 fw-semibold" hidden>
-                            <i class="fa-solid fa-share-nodes me-2 text-primary"></i>Share & Export
-                        </h6>
-                        
-                        <!-- Export PDF -->
-                        <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-outline-secondary w-100 mb-2" target="_blank" aria-label="Export as PDF">
-                            <i class="fa-solid fa-file-pdf me-2" aria-hidden="true"></i>PDF
-                        </a>
-                        
-                        <!-- Print PDF -->
-                        <button onclick="printRecipe()" class="btn btn-outline-secondary w-100 mb-2" aria-label="Print Recipe">
-                            <i class="fa-solid fa-print me-2" aria-hidden="true"></i>Print
-                        </button>
-                        
-                        <!-- Share Button -->
-                        <button onclick="shareRecipe()" class="btn btn-outline-secondary w-100 mb-2" aria-label="Share Recipe">
-                            <i class="fa-solid fa-share-nodes me-2" aria-hidden="true"></i>Share
-                        </button>
-                        
-                        <!-- Cook Mode -->
-                        <button onclick="enterCookMode()" class="btn btn-primary w-100" aria-label="Enter Cook Mode">
-                            <i class="fa-solid fa-utensils me-2" aria-hidden="true"></i>Cook Mode
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Rating Form -->
-                @auth
-                    @if($recipe->user_id !== auth()->id())
-                        <div class="card shadow-sm border-0 no-print">
-                            <div class="card-body p-4">
-                                <h6 class="card-title mb-3 fw-semibold">
-                                    <i class="fa-solid fa-star me-2 text-primary"></i>Rate this recipe
-                                </h6>
-                                @php
-                                    $userRating = auth()->user()->recipeRatings()->where('recipe_id', $recipe->id)->first();
-                                @endphp
-                                <form action="{{ route('recipes.rate', $recipe->slug) }}" method="POST">
-                                    @csrf
-                                    <div class="d-flex justify-content-center mb-3 rating-submit-stars">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <label class="mb-0" style="cursor: pointer; line-height: 1;">
-                                                <input type="radio" name="rating" value="{{ $i }}" class="d-none rating-input" {{ $userRating && $userRating->rating == $i ? 'checked' : '' }} required tabindex="0" aria-label="Rate {{ $i }} star{{ $i > 1 ? 's' : '' }}">
-                                                <i class="fa-star rating-star {{ $userRating && $i <= $userRating->rating ? 'fa-solid text-warning' : 'fa-regular text-muted' }}" style="font-size: 1.75rem;" aria-hidden="true"></i>
-                                            </label>
-                                        @endfor
-                                    </div>
-                                    @if($userRating)
-                                        <p class="text-muted small text-center mb-2">Your rating: {{ $userRating->rating }} stars</p>
-                                    @endif
-                                    <button type="submit" class="btn btn-primary w-100">Submit Rating</button>
-                                </form>
-                            </div>
-                        </div>
-                    @endif
-                @endauth
-            </div>
+            <!-- The right sidebar is removed; all actions are now in the top action bar. -->
         </div>
     </div>
 
@@ -416,6 +375,47 @@
     @endauth
 
     <style>
+        /* Responsive action bar for mobile */
+        .recipe-action-bar {
+            flex-wrap: wrap;
+        }
+        @media (max-width: 575.98px) {
+            .recipe-action-bar {
+                gap: 0.5rem;
+            }
+            .recipe-action-bar .btn-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+        }
+        /* Icon button style for action bar */
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            transition: background 0.15s;
+        }
+        .btn-icon i { font-size: 1.25rem; }
+        .btn-icon:focus, .btn-icon:hover {
+            background: rgba(0,0,0,0.04);
+        }
+
+        /* Responsive improvements for the new layout */
+        @media (max-width: 991.98px) {
+            .col-xl-10 { max-width: 100%; flex: 0 0 100%; }
+        }
+        @media (max-width: 767.98px) {
+            .row.g-4 > .col-md-6 { flex: 0 0 100%; max-width: 100%; }
+        }
+        @media (max-width: 575.98px) {
+            .btn-icon { width: 38px; height: 38px; font-size: 1rem; }
+        }
         .rating-submit-stars {
             gap: 0;
         }

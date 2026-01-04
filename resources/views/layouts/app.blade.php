@@ -40,14 +40,32 @@
         }
         
         body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .app-content-wrapper {
+            flex: 1 0 auto;
             display: flex;
             flex-direction: row;
+            min-width: 0;
         }
-        
+        main.app-content {
+            flex: 1 1 0%;
+            min-width: 0;
+        }
+        footer {
+            flex-shrink: 0;
+            width: 100%;
+            clear: both;
+        }
         @media (max-width: 767.98px) {
             body {
                 flex-direction: column;
                 padding-top: 0;
+            }
+            .app-content-wrapper {
+                flex-direction: column;
             }
         }
         
@@ -218,86 +236,86 @@
 </head>
 <body>
     <a href="#main-content" class="visually-hidden-focusable skip-link">Skip to main content</a>
-    <x-sidebar />
 
-    @auth
-        <x-notifications-offcanvas />
-    @endauth
-
-    <div class="app-content-wrapper flex-grow-1 d-flex flex-column">
-        <main id="main-content" class="app-content flex-grow-1" tabindex="-1" aria-label="Main content">
-            <div class="container py-4">
-            @if(session('status'))
-                <div class="alert alert-success">{{ session('status') }}</div>
-            @endif
-                {{ $slot }}
-            </div>
+    <div class="app-content-wrapper">
+        <x-sidebar />
+        <div class="flex-grow-1 d-flex flex-column main-content-with-sidebar">
             @auth
-                {{-- feedback button fixed in bottom right corner --}}
-                <button class="btn btn-primary position-fixed bottom-0 end-0 m-4" data-toggle="tooltip" data-bs-toggle="modal" data-bs-target="#feedbackModal" title="Feedback" style="z-index: 1050;">
-                    <i class="fas fa-comments"></i>
-                </button>
-                {{-- feedback modal --}}
-                <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                            .visually-hidden-focusable {
-                                position: absolute;
-                                left: -10000px;
-                                top: auto;
-                                width: 1px;
-                                height: 1px;
-                                overflow: hidden;
-                                z-index: 10000;
-                            }
-                            .visually-hidden-focusable:focus {
-                                position: static;
-                                width: auto;
-                                height: auto;
-                                padding: 0.5em 1em;
-                                background: #0d6efd;
-                                color: #fff;
-                                border-radius: 0.25em;
-                                outline: 2px solid #0d6efd;
-                                box-shadow: 0 0 0 2px #fff;
-                                z-index: 10000;
-                            }
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="feedbackModalLabel"><i class="fa-solid fa-comments me-2 text-primary"></i>Feedback</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="POST" action="{{ route('feedback.store') }}">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label for="feedbackType" class="form-label">Type</label>
-                                        <select name="type" id="feedbackType" class="form-select" required>
-                                            <option value="" disabled selected>Please select</option>
-                                            <option value="bug">Bug Report</option>
-                                            <option value="feature">Feature Request</option>
-                                            <option value="general">General Feedback</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="feedbackMessage" class="form-label">Your Feedback</label>
-                                        <textarea class="form-control" id="feedbackMessage" name="message" rows="5" required></textarea>
-                                    </div>
-                                    <div class="mb-3 text-end">
-                                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                                    </div>
-                                </form>
+                <x-notifications-offcanvas />
+            @endauth
+            <main id="main-content" class="app-content flex-grow-1" tabindex="-1" aria-label="Main content">
+                <div class="container py-4">
+                @if(session('status'))
+                    <div class="alert alert-success">{{ session('status') }}</div>
+                @endif
+                    {{ $slot }}
+                </div>
+                @auth
+                    {{-- feedback button fixed in bottom right corner --}}
+                    <button class="btn btn-primary position-fixed bottom-0 end-0 m-4" data-toggle="tooltip" data-bs-toggle="modal" data-bs-target="#feedbackModal" title="Feedback" style="z-index: 1050;">
+                        <i class="fas fa-comments"></i>
+                    </button>
+                    {{-- feedback modal --}}
+                    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                .visually-hidden-focusable {
+                                    position: absolute;
+                                    left: -10000px;
+                                    top: auto;
+                                    width: 1px;
+                                    height: 1px;
+                                    overflow: hidden;
+                                    z-index: 10000;
+                                }
+                                .visually-hidden-focusable:focus {
+                                    position: static;
+                                    width: auto;
+                                    height: auto;
+                                    padding: 0.5em 1em;
+                                    background: #0d6efd;
+                                    color: #fff;
+                                    border-radius: 0.25em;
+                                    outline: 2px solid #0d6efd;
+                                    box-shadow: 0 0 0 2px #fff;
+                                    z-index: 10000;
+                                }
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="feedbackModalLabel"><i class="fa-solid fa-comments me-2 text-primary"></i>Feedback</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{{ route('feedback.store') }}">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <label for="feedbackType" class="form-label">Type</label>
+                                            <select name="type" id="feedbackType" class="form-select" required>
+                                                <option value="" disabled selected>Please select</option>
+                                                <option value="bug">Bug Report</option>
+                                                <option value="feature">Feature Request</option>
+                                                <option value="general">General Feedback</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="feedbackMessage" class="form-label">Your Feedback</label>
+                                            <textarea class="form-control" id="feedbackMessage" name="message" rows="5" required></textarea>
+                                        </div>
+                                        <div class="mb-3 text-end">
+                                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
+                @endauth
+            </main>
+            <footer class="bg-body text-center py-3 border-top mt-auto">
+                <div class="container">
+                    <small class="text-muted">&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</small>
                 </div>
-            @endauth
-        </main>
-
-        <footer class="bg-body text-center py-3 border-top mt-auto">
-            <div class="container">
-                <small class="text-muted">&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</small>
-            </div>
-        </footer>
+            </footer>
+        </div>
     </div>
 
     @if (!(file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'))))

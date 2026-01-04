@@ -139,7 +139,7 @@
 </div>
 
 <!-- Desktop Sidebar -->
-<aside class="app-sidebar d-none d-md-flex flex-column">
+<aside class="app-sidebar d-none d-md-flex flex-column fixed-md-sidebar">
     <!-- Header -->
     <div class="sidebar-header">
         <a href="{{ url('/') }}" class="sidebar-brand">
@@ -243,6 +243,24 @@
 </aside>
 
 <style>
+@media (min-width: 768px) {
+    .fixed-md-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1030;
+    }
+    .main-content-with-sidebar {
+        margin-left: 280px;
+    }
+    /* If you use a smaller sidebar on md screens, adjust margin-left accordingly */
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .main-content-with-sidebar {
+            margin-left: 100px;
+        }
+    }
+}
 /* Mobile Header */
 .mobile-header {
     z-index: 1020;

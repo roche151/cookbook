@@ -2,14 +2,11 @@
     <x-slot name="title">Edit Recipe</x-slot>
 
     <div class="container py-md-5">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('recipes.show', $recipe) }}">{{ data_get($recipe, 'title') }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
-            </ol>
-        </nav>
+        <div class="mb-3 no-print">
+            <a href="{{ route('recipes.show', $recipe) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Recipe
+                </a>
+        </div>
 
         <div class="mb-4">
             <h1 class="h3 mb-2">

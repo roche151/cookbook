@@ -1,13 +1,6 @@
 <x-app-layout>
     <x-slot name="title">Notifications</x-slot>
 
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Notifications</li>
-        </ol>
-    </nav>
-
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">
             <i class="fa-solid fa-bell me-2"></i>Notifications

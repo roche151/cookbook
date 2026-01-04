@@ -2,12 +2,6 @@
     <x-slot name="title">Profile</x-slot>
 
     <div class="container py-md-5">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Profile</li>
-            </ol>
-        </nav>
 
         <div class="mb-4">
             <h1 class="h3 mb-2">

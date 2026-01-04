@@ -2,13 +2,11 @@
     <x-slot name="title">{{ $collection->name }}</x-slot>
 
     <div class="container py-md-5">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('collections.index') }}">Collections</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ $collection->name }}</li>
-            </ol>
-        </nav>
+        <div class="mb-3 no-print">
+            <a href="{{ route('collections.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Collections
+            </a>
+        </div>
 
         <div class="d-flex align-items-start gap-2 mb-4">
             <div>

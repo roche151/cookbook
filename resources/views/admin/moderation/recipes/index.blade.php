@@ -2,13 +2,11 @@
     <x-slot name="title">Moderate Recipes</x-slot>
 
     <div class="container py-4">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('admin.index') }}">Admin</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Moderation</li>
-            </ol>
-        </nav>
+        <div class="mb-3 no-print">
+            <a href="{{ route('admin.index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Admin
+                </a>
+        </div>
 
         <div class="d-flex align-items-center justify-content-between mb-3">
             <div>

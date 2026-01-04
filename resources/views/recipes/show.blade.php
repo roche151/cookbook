@@ -30,18 +30,17 @@
     @endpush
 
     <div class="container py-4" role="main" aria-labelledby="recipe-title">
-        <nav aria-label="Breadcrumb" class="mb-3 no-print">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                @if(isset($fromCollection) && $fromCollection)
-                    <li class="breadcrumb-item"><a href="{{ route('collections.index') }}">My Collections</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('collections.show', $fromCollection->slug) }}">{{ $fromCollection->name }}</a></li>
-                @else
-                    <li class="breadcrumb-item"><a href="{{ url('/recipes') }}">Recipes</a></li>
-                @endif
-                <li class="breadcrumb-item active" aria-current="page" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ data_get($recipe, 'title') }}</li>
-            </ol>
-        </nav>
+        <div class="mb-3 no-print">
+            @if(isset($fromCollection) && $fromCollection)
+                <a href="{{ route('collections.show', $fromCollection->slug) }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Collection
+                </a>
+            @else
+                <a href="{{ url('/recipes') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Recipes
+                </a>
+            @endif
+        </div>
 
         @auth
             @if($recipe->user_id === auth()->id() && $recipe->status === 'pending')

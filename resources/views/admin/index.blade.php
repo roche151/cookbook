@@ -2,12 +2,6 @@
     <x-slot name="title">Admin</x-slot>
 
     <div class="container py-4">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Admin</li>
-            </ol>
-        </nav>
 
         <h1 class="h4 mb-3">Admin</h1>
         <p class="text-muted mb-4">Quick links to admin tools.</p>

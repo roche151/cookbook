@@ -2,12 +2,6 @@
     <x-slot name="title">{{ $title ?? 'Recipes' }}</x-slot>
 
     <div class="container py-md-5">
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ $title ?? 'Recipes' }}</li>
-            </ol>
-        </nav>
 
         <div class="mb-4">
             <div class="d-flex align-items-center gap-2 mb-1">

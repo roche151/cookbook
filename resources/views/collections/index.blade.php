@@ -12,7 +12,7 @@
                 <p class="text-muted mb-0">Organize and manage your recipe collections</p>
             </div>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
-                <i class="fa-solid fa-plus me-2"></i>New Collection
+                <i class="fa-solid fa-plus"></i> New
             </button>
         </div>
 

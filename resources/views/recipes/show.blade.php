@@ -84,7 +84,7 @@
         @endauth
 
         <!-- Modernized Action Bar (icon buttons with tooltips) -->
-        <div class="recipe-action-bar d-flex flex-wrap align-items-center gap-3 mb-4 justify-content-end no-print" style="flex-wrap: wrap;">
+        <div class="recipe-action-bar d-flex flex-wrap align-items-center gap-2 mb-4 justify-content-end no-print" style="flex-wrap: wrap;">
             <!-- First 3 buttons always visible -->
             @auth
                 <button type="button" class="btn btn-icon btn-outline-primary js-open-collection-modal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add to Collection" data-recipe-id="{{ $recipe->id }}" data-recipe-slug="{{ $recipe->slug }}">
@@ -105,7 +105,7 @@
             @endauth
 
             <!-- More menu for mobile, rest of actions -->
-            <div class="d-none d-sm-flex gap-3">
+            <div class="d-none d-sm-flex gap-2">
                 <a href="{{ route('recipes.pdf', $recipe) }}" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Export as PDF" target="_blank">
                     <i class="fa-solid fa-file-pdf"></i>
                 </a>

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    // Application Version (read from composer.json)
+    'version' => json_decode(file_get_contents(base_path('composer.json')), true)['version'] ?? 'dev',
 
     /*
     |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@
     @php
         $metaDescription = Str::limit($recipe->description ?? 'Check out this delicious recipe!', 200);
         $canonicalUrl = route('recipes.show', $recipe);
+        $isOwnedByUser = auth()->check() && data_get($recipe, 'user_id') === auth()->id();
     @endphp
     @push('seo')
         <meta property="og:type" content="article">
@@ -213,7 +214,7 @@
                             </span>
                         @endif
                         
-                        @if($recipe->is_public !== null)
+                        @if($isOwnedByUser && $recipe->is_public !== null)
                             @php
                                 $visibilityLabel = $recipe->is_public
                                     ? ($recipe->status === 'pending'

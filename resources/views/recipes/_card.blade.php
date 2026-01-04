@@ -39,7 +39,7 @@
             </div>
         @endif
         
-        @if(data_get($recipe, 'is_public') !== null)
+        @if($isOwnedByUser && data_get($recipe, 'is_public') !== null)
             <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
                 @php
                     $isPublic = (bool) data_get($recipe, 'is_public');

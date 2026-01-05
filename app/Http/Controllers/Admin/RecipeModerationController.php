@@ -34,10 +34,13 @@ class RecipeModerationController extends Controller
 
         $revision->load(['recipe.tags', 'recipe.ingredients', 'recipe.directions', 'user', 'reviewer']);
 
+        $proposed = $revision->data ?? [];
+        $proposedVideoUrl = data_get($proposed, 'video_url');
         return view('admin.moderation.recipes.show', [
             'revision' => $revision,
-            'proposed' => $revision->data ?? [],
+            'proposed' => $proposed,
             'current' => $revision->recipe,
+            'proposedVideoUrl' => $proposedVideoUrl,
         ]);
     }
 

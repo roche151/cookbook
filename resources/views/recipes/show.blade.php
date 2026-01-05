@@ -250,46 +250,33 @@
                     @endif
                 </div>
 
-                @if($recipe->video_url)
-                    <div class="mb-4">
-                        <div id="video-embed" class="ratio ratio-16x9" style="max-width: 700px; margin: 0 auto;">
-                        </div>
-                    </div>
-                    <script>
-                    function getVideoEmbedHtml(url) {
-                        if (!url) return '';
-                        url = url.trim();
+                @php
+                    $videoEmbedHtml = '';
+                    if ($recipe->video_url) {
+                        $url = trim($recipe->video_url);
                         // YouTube
-                        let ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i);
-                        if (ytMatch) {
-                            return `<iframe width="100%" height="400" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+                        if (preg_match('/(?:youtube\\.com\/watch\\?v=|youtu\\.be\/)([\w-]{11})/i', $url, $m)) {
+                            $videoEmbedHtml = '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' . e($m[1]) . '" frameborder="0" allowfullscreen></iframe>';
                         }
                         // Instagram
-                        let igMatch = url.match(/instagram\.com\/(reel|p)\/([\w-]+)/i);
-                        if (igMatch) {
-                            return `<iframe src="https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/embed" width="400" height="480" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
+                        elseif (preg_match('/instagram\\.com\/(reel|p)\/([\w-]+)/i', $url, $m)) {
+                            $videoEmbedHtml = '<iframe src="https://www.instagram.com/' . e($m[1]) . '/' . e($m[2]) . '/embed" width="400" height="480" frameborder="0" scrolling="no" allowtransparency="true"></iframe>';
                         }
                         // TikTok
-                        let ttMatch = url.match(/tiktok\.com\/@([\w.-]+)\/video\/(\d+)/i);
-                        if (ttMatch) {
-                            return `<iframe src="https://www.tiktok.com/embed/v2/${ttMatch[2]}" width="325" height="575" frameborder="0" allowfullscreen></iframe>`;
+                        elseif (preg_match('/tiktok\\.com\/@([\w.-]+)\/video\/(\d+)/i', $url, $m)) {
+                            $videoEmbedHtml = '<iframe src="https://www.tiktok.com/embed/v2/' . e($m[2]) . '" width="325" height="575" frameborder="0" allowfullscreen></iframe>';
                         }
                         // Facebook
-                        let fbMatch = url.match(/facebook\.com\/.+\/videos\/(\d+)/i);
-                        if (fbMatch) {
-                            return `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}" width="500" height="280" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen></iframe>`;
+                        elseif (preg_match('/facebook\\.com\/.+\/videos\/(\d+)/i', $url, $m)) {
+                            $videoEmbedHtml = '<iframe src="https://www.facebook.com/plugins/video.php?href=' . urlencode($url) . '" width="500" height="280" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen></iframe>';
                         }
-                        return '';
                     }
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const embed = document.getElementById('video-embed');
-                        if (embed) {
-                            embed.innerHTML = getVideoEmbedHtml(@json($recipe->video_url));
-                        }
-                    });
-                    </script>
-                @endif
-                @if($recipe->image)
+                @endphp
+                @if($videoEmbedHtml)
+                    <div class="mb-4">
+                        <div class="ratio ratio-16x9" style="max-width: 700px; margin: 0 auto;">{!! $videoEmbedHtml !!}</div>
+                    </div>
+                @elseif($recipe->image)
                     <div class="mb-4">
                         @php
                             $imgSrc = Str::startsWith($recipe->image, ['http://', 'https://']) ? $recipe->image : Storage::url($recipe->image);

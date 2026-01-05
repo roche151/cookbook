@@ -219,6 +219,59 @@
         @endif
     </div>
 
+
+    <div class="col-12">
+        <label class="form-label fw-semibold">
+            <i class="fa-brands fa-youtube me-1 text-danger"></i>Video URL <span class="text-muted fw-normal">(YouTube, Instagram, TikTok, etc. — optional)</span>
+        </label>
+        <input name="video_url" type="url" class="form-control" placeholder="https://www.youtube.com/watch?v=..." value="{{ old('video_url', optional($recipe)->video_url) }}" aria-label="Video URL" @if($errors->has('video_url')) aria-invalid="true" aria-describedby="error-video-url" @endif>
+        @if($errors->has('video_url'))
+            <div id="error-video-url" class="text-danger small mt-1">{{ $errors->first('video_url') }}</div>
+        @endif
+        <div id="video-preview" class="mt-3"></div>
+        <script>
+        function getVideoEmbedHtml(url) {
+            if (!url) return '';
+            url = url.trim();
+            // YouTube
+            let ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i);
+            if (ytMatch) {
+                return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
+            }
+            // Instagram
+            let igMatch = url.match(/instagram\.com\/(reel|p)\/([\w-]+)/i);
+            if (igMatch) {
+                return `<iframe src="https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/embed" width="400" height="480" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
+            }
+            // TikTok
+            let ttMatch = url.match(/tiktok\.com\/@([\w.-]+)\/video\/(\d+)/i);
+            if (ttMatch) {
+                return `<iframe src="https://www.tiktok.com/embed/v2/${ttMatch[2]}" width="325" height="575" frameborder="0" allowfullscreen></iframe>`;
+            }
+            // Facebook
+            let fbMatch = url.match(/facebook\.com\/.+\/videos\/(\d+)/i);
+            if (fbMatch) {
+                return `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}" width="500" height="280" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen></iframe>`;
+            }
+            return '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoInput = document.querySelector('input[name="video_url"]');
+            const preview = document.getElementById('video-preview');
+            function updatePreview() {
+                const html = getVideoEmbedHtml(videoInput.value);
+                preview.innerHTML = html;
+            }
+            if (videoInput) {
+                videoInput.addEventListener('input', updatePreview);
+                // Show preview if value exists on load
+                if (videoInput.value) updatePreview();
+            }
+        });
+        </script>
+    </div>
+
     <div class="col-12">
         <label class="form-label fw-semibold">
             <i class="fa-solid fa-align-left me-1 text-primary"></i>Description

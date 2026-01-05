@@ -23,6 +23,7 @@ class Recipe extends Model
         'approved_at',
         'difficulty',
         'source_url',
+        'video_url',
     ];
 
     protected $casts = [

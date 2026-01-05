@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Rules\NoLinks;
+use App\Rules\VideoUrl;
 use App\Services\ProfanityChecker;
 use App\Models\RecipeView;
 
@@ -783,6 +784,7 @@ class RecipesController extends Controller
             'is_public' => 'nullable|boolean',
             'source_url' => 'nullable|url',
             'imported_image_url' => 'nullable|url',
+            'video_url' => ['nullable', 'url', new VideoUrl],
         ];
 
         // Custom messages and attribute names
@@ -948,6 +950,7 @@ class RecipesController extends Controller
                 'status' => $status,
                 'approved_at' => $approvedAt,
                 'source_url' => $data['source_url'] ?? null,
+                'video_url' => $data['video_url'] ?? null,
             ]);
             // Attach selected tags
             $recipe->tags()->sync($data['tags']);
@@ -1028,6 +1031,7 @@ class RecipesController extends Controller
             'is_public' => 'nullable|boolean',
             'source_url' => 'nullable|url',
             'remove_image' => 'nullable|boolean',
+            'video_url' => ['nullable', 'url', new VideoUrl],
         ];
 
         $messages = [

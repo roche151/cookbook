@@ -346,12 +346,40 @@ class RecipesController extends Controller
             abort(403, 'This recipe is not available.');
         }
 
-        $pdf = Pdf::loadView('recipes.pdf', ['recipe' => $recipe])
-            ->setPaper('a4', 'portrait');
-        
+        // Convert webp image to jpg for PDF if needed
+        $imagePath = $recipe->image ? storage_path('app/public/' . $recipe->image) : null;
+        $pdfImagePath = null;
+        if ($imagePath && file_exists($imagePath) && strtolower(pathinfo($imagePath, PATHINFO_EXTENSION)) === 'webp') {
+            // Convert webp to jpg in a temp file
+            if (function_exists('imagecreatefromwebp')) {
+                $im = imagecreatefromwebp($imagePath);
+                $jpgPath = storage_path('app/public/recipes/pdf_tmp_' . uniqid() . '.jpg');
+                imagejpeg($im, $jpgPath, 90);
+                imagedestroy($im);
+                $pdfImagePath = $jpgPath;
+            } else {
+                // If conversion not possible, skip image
+                $pdfImagePath = null;
+            }
+        } elseif ($imagePath && file_exists($imagePath)) {
+            $pdfImagePath = $imagePath;
+        }
+
+        $pdf = Pdf::loadView('recipes.pdf', [
+            'recipe' => $recipe,
+            'pdfImagePath' => $pdfImagePath,
+        ])->setPaper('a4', 'portrait');
+
         $filename = \Illuminate\Support\Str::slug($recipe->title) . '-recipe.pdf';
-        
-        return $pdf->stream($filename);
+
+        $result = $pdf->stream($filename);
+
+        // Clean up temp jpg if created
+        if (isset($jpgPath) && file_exists($jpgPath)) {
+            @unlink($jpgPath);
+        }
+
+        return $result;
     }
 
     private function containsProfanity(array $data): bool

@@ -205,9 +205,9 @@
         </div>
     @endif
     
-    @if($recipe->image)
+    @if(isset($pdfImagePath) && $pdfImagePath)
         <div class="recipe-image">
-            <img src="{{ public_path('storage/' . $recipe->image) }}" alt="{{ $recipe->title }}">
+            <img src="{{ $pdfImagePath }}" alt="{{ $recipe->title }}">
         </div>
     @endif
     

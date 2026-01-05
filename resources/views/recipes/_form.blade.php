@@ -222,7 +222,7 @@
 
     <div class="col-12">
         <label class="form-label fw-semibold">
-            <i class="fa-brands fa-youtube me-1 text-danger"></i>Video URL <span class="text-muted fw-normal">(YouTube, Instagram, TikTok, etc. — optional)</span>
+            <i class="fa-brands fa-youtube me-1 text-danger"></i>Video URL <span class="text-muted fw-normal">(YouTube only)</span>
         </label>
         <input name="video_url" type="url" class="form-control" placeholder="https://www.youtube.com/watch?v=..." value="{{ old('video_url', optional($recipe)->video_url) }}" aria-label="Video URL" @if($errors->has('video_url')) aria-invalid="true" aria-describedby="error-video-url" @endif>
         @if($errors->has('video_url'))
@@ -238,22 +238,6 @@
                 if (ytMatch) {
                     return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
                 }
-                // Instagram
-                let igMatch = url.match(/instagram\.com\/(reel|p)\/([\w-]+)/i);
-                if (igMatch) {
-                    return `<iframe src="https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/embed" width="400" height="480" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
-                }
-                // TikTok
-                let ttMatch = url.match(/tiktok\.com\/@([\w.-]+)\/video\/(\d+)/i);
-                if (ttMatch) {
-                    return `<iframe src="https://www.tiktok.com/embed/v2/${ttMatch[2]}" width="325" height="575" frameborder="0" allowfullscreen></iframe>`;
-                }
-                // Facebook
-                let fbMatch = url.match(/facebook\.com\/.+\/videos\/(\d+)/i);
-                if (fbMatch) {
-                    return `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}" width="500" height="280" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen></iframe>`;
-                }
-                return '';
             }
 
             // --- Video thumbnail logic ---
@@ -264,36 +248,6 @@
                 let ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i);
                 if (ytMatch) {
                     return `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
-                }
-                // TikTok (no public API, fallback to og:image)
-                let ttMatch = url.match(/tiktok\.com\/@([\w.-]+)\/video\/(\d+)/i);
-                if (ttMatch) {
-                    try {
-                        const resp = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`);
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            return data.thumbnail_url;
-                        }
-                    } catch {}
-                }
-                // Instagram (no public API, fallback to og:image)
-                let igMatch = url.match(/instagram\.com\/(reel|p)\/([\w-]+)/i);
-                if (igMatch) {
-                    try {
-                        const resp = await fetch(`https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/?__a=1`);
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            if (data.graphql && data.graphql.shortcode_media && data.graphql.shortcode_media.display_url) {
-                                return data.graphql.shortcode_media.display_url;
-                            }
-                        }
-                    } catch {}
-                }
-                // Facebook (no public API, fallback to og:image)
-                let fbMatch = url.match(/facebook\.com\/.+\/videos\/(\d+)/i);
-                if (fbMatch) {
-                    // Facebook restricts direct access, so we can't reliably fetch thumbnail client-side
-                    return null;
                 }
                 return null;
             }
@@ -353,21 +307,6 @@
             let ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i);
             if (ytMatch) {
                 return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe>`;
-            }
-            // Instagram
-            let igMatch = url.match(/instagram\.com\/(reel|p)\/([\w-]+)/i);
-            if (igMatch) {
-                return `<iframe src="https://www.instagram.com/${igMatch[1]}/${igMatch[2]}/embed" width="400" height="480" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
-            }
-            // TikTok
-            let ttMatch = url.match(/tiktok\.com\/@([\w.-]+)\/video\/(\d+)/i);
-            if (ttMatch) {
-                return `<iframe src="https://www.tiktok.com/embed/v2/${ttMatch[2]}" width="325" height="575" frameborder="0" allowfullscreen></iframe>`;
-            }
-            // Facebook
-            let fbMatch = url.match(/facebook\.com\/.+\/videos\/(\d+)/i);
-            if (fbMatch) {
-                return `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}" width="500" height="280" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen></iframe>`;
             }
             return '';
         }

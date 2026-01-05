@@ -1191,6 +1191,10 @@ class RecipesController extends Controller
                     'status' => $isPublic ? 'pending' : 'approved',
                     'approved_at' => $isPublic ? null : ($recipe->approved_at ?? now()),
                 ];
+                // Track video_url changes
+                if (array_key_exists('video_url', $data)) {
+                    $updatePayload['video_url'] = $data['video_url'];
+                }
                 
                 // Allow making public -> private (but not private -> public directly)
                 if ($recipe->is_public && !$isPublic) {
@@ -1329,6 +1333,7 @@ class RecipesController extends Controller
             'is_public' => (bool) $recipe->is_public,
             'source_url' => $recipe->source_url,
             'image' => $recipe->image,
+            'video_url' => $recipe->video_url,
             'tags' => $recipe->tags->map(fn ($t) => [
                 'id' => $t->id,
                 'name' => $t->name,
@@ -1358,6 +1363,7 @@ class RecipesController extends Controller
             'is_public' => (bool) ($data['is_public'] ?? $recipe->is_public),
             'source_url' => $data['source_url'] ?? $recipe->source_url,
             'image' => $imagePath,
+            'video_url' => $data['video_url'] ?? $recipe->video_url,
             'tags' => $tagModels->map(fn ($t) => [
                 'id' => $t->id,
                 'name' => $t->name,

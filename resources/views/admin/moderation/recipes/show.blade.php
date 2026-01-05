@@ -192,6 +192,23 @@
                                 </dd>
                                 
                                 <dt class="col-sm-4">Source</dt><dd class="col-sm-8">{{ $current->source_url ?? '—' }}</dd>
+                                @php
+                                    $currentVideoUrl = $current->video_url;
+                                    $proposedVideoUrl = data_get($proposed, 'video_url');
+                                    $videoUrlChanged = $currentVideoUrl !== $proposedVideoUrl;
+                                @endphp
+                                <dt class="col-sm-4">Video URL</dt>
+                                <dd class="col-sm-8" style="{{ $videoUrlChanged ? 'padding: 0.25rem 0.5rem; border-radius: 0.25rem;' : '' }}">
+                                    @if($currentVideoUrl)
+                                        @if($videoUrlChanged)
+                                            <a href="{{ $currentVideoUrl }}" target="_blank" rel="noopener" style="background-color: rgba(220, 53, 69, 0.3); text-decoration: line-through;">{{ $currentVideoUrl }}</a>
+                                        @else
+                                            <a href="{{ $currentVideoUrl }}" target="_blank" rel="noopener">{{ $currentVideoUrl }}</a>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </dd>
                                 <dt class="col-sm-4">Tags</dt>
                                 <dd class="col-sm-8">
                                     @if($current->tags && $current->tags->count())
@@ -344,6 +361,18 @@
                                 @endif
                             </dd>
                             <dt class="col-sm-4">Source</dt><dd class="col-sm-8">{{ data_get($proposed, 'source_url') ?? '—' }}</dd>
+                            <dt class="col-sm-4">Video URL</dt>
+                            <dd class="col-sm-8" style="{{ !$isNew && $videoUrlChanged ? 'padding: 0.25rem 0.5rem; border-radius: 0.25rem;' : '' }}">
+                                @if($proposedVideoUrl)
+                                    @if(!$isNew && $videoUrlChanged)
+                                        <a href="{{ $proposedVideoUrl }}" target="_blank" rel="noopener" style="background-color: rgba(25, 135, 84, 0.3); font-weight: 500;">{{ $proposedVideoUrl }}</a>
+                                    @else
+                                        <a href="{{ $proposedVideoUrl }}" target="_blank" rel="noopener">{{ $proposedVideoUrl }}</a>
+                                    @endif
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </dd>
                             <dt class="col-sm-4">Tags</dt>
                             <dd class="col-sm-8">
                                 @php $ptags = collect(data_get($proposed, 'tags', [])); @endphp

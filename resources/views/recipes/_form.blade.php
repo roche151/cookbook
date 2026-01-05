@@ -311,11 +311,15 @@
                     preview.innerHTML = html;
                 }
 
-                async function maybeSetThumbnail() {
+                async function maybeSetThumbnail(pasteEvent) {
                     // Only set if no image is set and no preview is shown
                     if (imagePreview && imagePreview.src && imagePreview.src.trim() !== '' && imagePreview.style.display !== 'none') return;
                     if (!importedImageInput) return;
-                    const url = videoInput.value;
+                    let url = videoInput.value;
+                    // If this is a paste event, get the pasted value
+                    if (pasteEvent && pasteEvent.clipboardData) {
+                        url = pasteEvent.clipboardData.getData('text');
+                    }
                     if (!url) return;
                     const thumb = await getVideoThumbnailUrl(url);
                     if (thumb) {
@@ -329,12 +333,14 @@
                 if (videoInput) {
                     videoInput.addEventListener('input', function() {
                         updatePreview();
-                        maybeSetThumbnail();
+                    });
+                    videoInput.addEventListener('paste', function(e) {
+                        setTimeout(updatePreview, 0); // update preview after paste
+                        maybeSetThumbnail(e);
                     });
                     // Show preview if value exists on load
                     if (videoInput.value) {
                         updatePreview();
-                        maybeSetThumbnail();
                     }
                 }
             });
